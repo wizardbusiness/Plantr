@@ -1,15 +1,17 @@
 const express = require ('express');
 const createError = require ('http-errors')
 const app = express();
+const path = require('path');
 const port = 3000;
 
 app.get('/', (req, res) => {
-  res.send('Hello World!')
+  res.status(200).sendFile(path.resolve(__dirname, '../public/index.html'))
 });
 
 app.post('/'), (req, res) => {
-  res.send('Got a post request')
+  res.status(200).send({body: req.body.plant})
 }
+
 
 app.put('/'), (req, res) => {
   res.send('Received put request at /')
