@@ -1,0 +1,23 @@
+#newPlant {
+  height: 400px;
+  width: 400px;
+}
+
+#form-border {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 1;
+  align-items: end;
+}
+
+.plant {
+  background-color: lightgreen;
+  min-height: 200px;
+  min-width: 200px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #4a54f1;
+  display: flex;
+  justify-content: center;
+  align-items: center
+}

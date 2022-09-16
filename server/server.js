@@ -1,32 +1,36 @@
-const express = require ('express');
-const createError = require ('http-errors')
-const app = express();
+const express = require('express');
 const path = require('path');
+const plantRoutes = require('./routes/plantRoutes.js');
+
 const port = 3000;
+const app = express();
+
+// parse static files
+app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.status(200).sendFile(path.resolve(__dirname, '../public/index.html'))
+  res.status(200).sendFile(path.join(__dirname, '../src/index.html'));
 });
 
-app.post('/'), (req, res) => {
-  res.status(200).send({body: req.body.plant})
-}
+app.use('/plants', plantRoutes);
 
-
-app.put('/'), (req, res) => {
-  res.send('Received put request at /')
-}
-
-app.delete('/'), (req, res) => {
- res.send('Received a delete request at /')
-}
-
- app.use((req, res) => {
+app.use((req, res) => {
   res.status(404).send('No sprouts in this bed.')
 });
 
+app.use('/', (err, req, res, next) => {
+  const defaultErr = {
+    log: 'Express error handler caught unknown middleware error',
+    status: 400, 
+    message: {err: 'An error occured'},
+  };
+  const errorObj = Object.assign({}, defaultErr, err);
+  console.log(errorObj.log);
+  return res.status(errorObj.status).json(errorObj.message);
+} )
+
 app.listen(port, () => {
-  console.log(`Planter listening on port ${port}`);
+  console.log(`Plantr listening on port ${port}`);
 });
 
 
