@@ -1,6 +1,8 @@
 
 import React, { Component } from 'react';
+import PlantDetailsModal from './PlantDetailsModal';
 import '../../src/styles.css';
+import NewPlantModal from './NewPlantModal';
 
 
 
@@ -13,9 +15,9 @@ class Plant extends Component {
 
   componentDidMount() {
     
-    setTimeout(() => {
-      console.log(`${this.props.name} needs watering`)
-    }, 3000)
+    // setTimeout(() => {
+    //   console.log(`${this.props.name} needs watering`)
+    // }, 3000)
   }
 
   waterPlant() {
@@ -25,9 +27,16 @@ class Plant extends Component {
   
   render() {
     return (
-      <div className="plant" onClick={() => {
-        this.waterPlant;
-      }}>{this.props.name}</div>
+      <div>
+        <div className="plant"onClick={() => this.waterPlant()}> 
+          <div className="plant-remove">
+            <button onClick={() => this.props.deletePlant(this.props.id)}>x</button>
+          </div>
+          <PlantDetailsModal id={this.props.id} ></PlantDetailsModal>
+          <div className="plant-name">{this.props.name}</div>
+          
+        </div>
+      </div>
     )
   }
 }

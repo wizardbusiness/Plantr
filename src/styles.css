@@ -1,23 +1,76 @@
-#newPlant {
-  height: 400px;
-  width: 400px;
+body {
+  background-color: rgb(26, 26, 26);
 }
 
-#form-border {
+
+.planter-box {
+  display: flex;
+  flex-direction: row;
+  gap: 3px;
+}
+
+#new-plant-form {
+  padding: 20px;
   display: flex;
   flex-direction: column;
+  align-content: center;
+  align-items: start;
+  gap: 10px;
   flex-shrink: 1;
-  align-items: end;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  height: 400px;
+  width: 400px;
+  transform: translate(-50%, -50%);
+  background-color:rgb(163, 238, 179);
+  border-style: solid;
+  border-width: 3px;
+  border-color: rgb(196, 155, 59);
+  z-index: 1000;
 }
 
-.plant {
+#plant-form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, .7);
+  z-index: 1000;
+}
+
+.plants {
+  display: flex;
+  gap: 3px
+}
+
+.plant-remove {
+  display: flex;
+  justify-content: end;
+  
+}
+
+.plant-name {
+  min-height: 155px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.plant, #new-plant{
+  font-size: 50px;
   background-color: lightgreen;
   min-height: 200px;
   min-width: 200px;
   border-style: solid;
   border-width: 1px;
   border-color: #4a54f1;
-  display: flex;
+  
+}
+
+.plant {
   justify-content: center;
-  align-items: center
+  align-items: center;
+
 }

@@ -1,11 +1,10 @@
 import React from 'react';
-import { render } from 'react-dom';
 
 const FormField = props => {
-
   return (
-    <label> {props.fieldLabel}
-      <input onChange={(e) => props.setNewPlantState(props.inputId, e.target.value)}></input>
+    <label> 
+      <input onChange={(e) => props.setNewPlantState(props.inputProperty, e.target.value)}></input>
+      {props.fieldLabel}
     </label>
   )
 }

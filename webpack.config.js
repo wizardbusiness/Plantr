@@ -27,6 +27,8 @@ module.exports = {
   },
   
   devServer: {
+    host: 'localhost',
+    port: 8080,
     static: {
       directory: path.resolve(__dirname, './public')
     },
