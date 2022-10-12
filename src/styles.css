@@ -9,7 +9,7 @@ body {
   gap: 3px;
 }
 
-#new-plant-form {
+#new-plant-form, .plant-info {
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -30,7 +30,7 @@ body {
   z-index: 1000;
 }
 
-#plant-form-overlay {
+#plant-form-overlay, .plant-info-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -44,6 +44,7 @@ body {
   display: flex;
   gap: 3px
 }
+
 
 .plant-remove {
   display: flex;
@@ -72,5 +73,20 @@ body {
 .plant {
   justify-content: center;
   align-items: center;
+}
 
+#info-button {
+  display: flex;
+  justify-content: end;
+}
+
+#info-modal-buttons {
+  min-width: 400px;
+  display: flex;
+  justify-content: end;
+  gap: 10px;
+}
+
+.plant-info {
+  font-size: 20px;
 }

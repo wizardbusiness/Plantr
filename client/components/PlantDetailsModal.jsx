@@ -5,11 +5,12 @@ class PlantDetailsModal extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      plantId: 0,
-      show: false
-    }
-    this.getPlantInfo = this.getPlantInfo.bind(this);
-  }
+      modal: {
+        show: false,
+      }
+    };
+    this.toggleModal = this.toggleModal.bind(this);
+  };
   // inputs: unique id, event info 
   // output: modal with info from database
   
@@ -18,38 +19,22 @@ class PlantDetailsModal extends Component {
 
   toggleModal() {
     this.setState({
-      plantId: id,
-      modal: this.state.modal === false ? this.state.modal = false : this.state.modal = false
-    })
-  }
+      ...this.state.modal,
+        show: this.state.modal.show === false ? this.state.modal.show = true : this.state.modal.show = false
+    });
+  };
 
-  async getPlantInfo (id) {
-
-    try {
-      const response = await fetch(`plants/${id}`);
-      const allInfo = await response.json();
-      const neededInfo = Object.values(allInfo[0]).slice(1);
-      console.log(neededInfo)
-      const labels = [' Plant Name', ' Water Frequency', ' Fertilize Frequency', ' Light Preference', ' Soil Preference', ' Fertilizer Preference', ' Notes'];
-      labels.map((label, index) => {
-        return <PlantInfo show={this.state.show} label={labels[index]} plantInfo={neededInfo} />
-      })
-    } catch (err) {
-      console.log(err);
-    }
-  }
   // render each component with this modal
   // on click, check the element being clicked against the plant id in the database. 
   // retrieve info for that plant, and display inside the modal. 
   render() {
-    const plantInfo = this.getPlantInfo(this.props.id);
     return (
-      <article>
+      <article id="info-button">
         <button onClick={() => this.toggleModal()}>Info</button>
-        <div>{plantInfo}</div>
+        <PlantInfo  plantDetails={this.props.plantDetails} id={this.props.id} modalVisible={this.state.modal.show} toggle={this.toggleModal} />
       </article>
     )
-  }
+  };
 }
 
 export default PlantDetailsModal;

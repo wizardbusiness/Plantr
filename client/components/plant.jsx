@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import PlantDetailsModal from './PlantDetailsModal';
 import '../../src/styles.css';
-import NewPlantModal from './NewPlantModal';
 
 
 
@@ -32,7 +31,11 @@ class Plant extends Component {
           <div className="plant-remove">
             <button onClick={() => this.props.deletePlant(this.props.id)}>x</button>
           </div>
-          <PlantDetailsModal id={this.props.id} ></PlantDetailsModal>
+          <PlantDetailsModal 
+            id={this.props.id}
+            name={this.props.name}
+            plantDetails={this.props.plantInfo}
+          />
           <div className="plant-name">{this.props.name}</div>
           
         </div>
