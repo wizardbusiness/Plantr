@@ -35,6 +35,8 @@ class Plant extends Component {
             id={this.props.id}
             name={this.props.name}
             plantDetails={this.props.plantInfo}
+            editPlantState={this.props.editPlantState}
+            saveEditedPlant={this.props.saveEditedPlant}
           />
           <div className="plant-name">{this.props.name}</div>
           

@@ -107,7 +107,7 @@ class PlantView extends Component {
     };
   };
 
-  editPlantState (property, value) {
+  editPlantState (property, value, plantName) {
     // need to edit plant first, so that body of request contains updated state. 
     // to avoid additional iteration every time a field in plantInfo is being edited, 
     let editIndex = this.state.editPlant.editIndex;
@@ -125,7 +125,7 @@ class PlantView extends Component {
     } else if (!editIndex) {
       const plants = this.state.plants;
       plants.forEach((plant, index) => {
-        if (plant.id === id) this.setState({editIndex: index});
+        if (plant.name === plantName) this.setState({editIndex: index});
       });
     };
     const saveEdit = this.state.editPlant.saveEdit;
@@ -177,8 +177,6 @@ class PlantView extends Component {
       console.log(err);
     };
   }
-
-
 
   async deletePlant (id) {
     try {
