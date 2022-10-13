@@ -111,15 +111,19 @@ class PlantView extends Component {
     // need to edit plant first, so that body of request contains updated state. 
     // to avoid additional iteration every time a field in plantInfo is being edited, 
     let editIndex = this.state.editPlant.editIndex;
+    console.log(editIndex)
     // create clone of object (plant) at edit to restore from if edit is canceled. 
     const backup = {...this.state.plants[editIndex]} || null;
     if (editIndex) {     
       this.setState({
         plants: [
-          ...this.state.plants[editIndex], 
-          [property] = value
+          {
+            ...this.state.plants[editIndex], 
+            [property]: value
+          },
         ]
       });
+      console.log(this.state.plants.editIndex)
       // if no edit index cached in state, find the location of the plant being edited and cache it. 
       // runs when edit modal is opened.
     } else if (!editIndex) {
