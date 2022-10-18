@@ -47,7 +47,11 @@ class PlantInfo extends Component {
       <main className="plant-info-overlay">
         <div className="plant-info">
           <div id="info-modal-buttons">
-            <button onClick={() => this.toggleEditPlant()}>Edit Info</button>
+            <button onClick={() => {
+              this.toggleEditPlant()
+              this.props.editPlantState(null, null, this.props.plantDetails.name, this.props.plants)
+              }
+            }>Edit Info</button>
             <button onClick={() => this.props.toggle()}>x</button>   
           </div>
           {plantInfo}
@@ -58,6 +62,7 @@ class PlantInfo extends Component {
     } else { 
       return (
         <EditPlantForm 
+          plants={this.props.plants}
           plantDetails={this.props.plantDetails}
           editPlantState={this.props.editPlantState}
           saveEditedPlant={this.props.saveEditedPlant}

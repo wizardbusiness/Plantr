@@ -10,7 +10,6 @@ class NewPlantForm extends Component {
   };
 
   
-
   makeFormFields() {
     // make inputIds for all visible fields. slice off the id, since it isn't visible.
     const inputProperties = Object.keys(this.props.plantState).slice(1);
@@ -30,15 +29,14 @@ class NewPlantForm extends Component {
   
   
   render() {
-    const { id, name, water_at_date, fertilize_at_date, light_pref, soil_pref, fertilizer_pref, notes} = this.props.plantState;
-    const formFields = this.makeFormFields()
+    const formFields = this.makeFormFields();
     // >>> Warning: For some reason, lifting up the state of the modal toggle into plantView causes props to be undefined when modal state is changed. <<<
     if (!this.props.modalVisible) return null;
     return (
         <div id="plant-form-overlay">
           <div id="new-plant-form">
             <button onClick={() => this.props.toggle()}> x </button>
-              {formFields}
+            {formFields}
             <button onClick={() => {
               this.props.addPlant();
               this.props.toggle();

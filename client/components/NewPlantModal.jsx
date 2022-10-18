@@ -34,7 +34,7 @@ class NewPlantModal extends Component {
         /> 
       </div>
     );
-    }
+  }
 }
     
 

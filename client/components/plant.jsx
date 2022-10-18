@@ -34,6 +34,7 @@ class Plant extends Component {
           <PlantDetailsModal 
             id={this.props.id}
             name={this.props.name}
+            plants={this.props.plants}
             plantDetails={this.props.plantInfo}
             editPlantState={this.props.editPlantState}
             saveEditedPlant={this.props.saveEditedPlant}

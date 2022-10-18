@@ -8,7 +8,7 @@ class PlantView extends Component {
 
     this.state = {
       editPlant: {
-        editIndex: null,
+        editIndx: null,
         saveEdit: true,
       },
       plants: [],
@@ -107,11 +107,11 @@ class PlantView extends Component {
     };
   };
 
-  editPlantState (property, value, plantName) {
+  editPlantState (property, value, plantName, plants) {
     // need to edit plant first, so that body of request contains updated state. 
     // to avoid additional iteration every time a field in plantInfo is being edited, 
-    let editIndex = this.state.editPlant.editIndex;
-    console.log(editIndex)
+    let editIndex = this.state.editPlant.editIndx;
+    
     // create clone of object (plant) at edit to restore from if edit is canceled. 
     const backup = {...this.state.plants[editIndex]} || null;
     if (editIndex) {     
@@ -123,14 +123,26 @@ class PlantView extends Component {
           },
         ]
       });
-      console.log(this.state.plants.editIndex)
+      
       // if no edit index cached in state, find the location of the plant being edited and cache it. 
       // runs when edit modal is opened.
     } else if (!editIndex) {
-      const plants = this.state.plants;
+      console.log(plants)
       plants.forEach((plant, index) => {
-        if (plant.name === plantName) this.setState({editIndex: index});
-      });
+        if (plant.name === plantName) {
+          console.log(plantName)
+          console.log(index)
+          console.log('indexbefore: ' + editIndex)
+          this.setState({
+            editPlant: {
+              ...this.state.editPlant,
+              editIndx: index
+            }
+          });
+          console.log('indexafter:' + editIndex)
+        }
+      })
+      
     };
     const saveEdit = this.state.editPlant.saveEdit;
     // if edit is canceled (saveEdit in state is set to false), reset state from backup object. 
@@ -144,7 +156,6 @@ class PlantView extends Component {
       plants: this.state.plants.map((plant, index) => index === editIndex ? backup : plant)
       });
     };
-
   }
 
   cancelEdit() {
@@ -227,6 +238,7 @@ class PlantView extends Component {
           editPlantState={this.editPlantState}
           saveEditedPlant={this.saveEditedPlant}
           cancelEdit={this.cancelEdit}
+          plants={this.state.plants}
           name={plant.name}
           waterDate={plant.water_at_date}
           fertilizeDate={plant.fertilize_at_date}

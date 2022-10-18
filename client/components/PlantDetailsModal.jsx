@@ -32,6 +32,7 @@ class PlantDetailsModal extends Component {
       <article id="info-button">
         <button onClick={() => this.toggleModal()}>Info</button>
         <PlantInfo  
+          plants={this.props.plants}
           plantDetails={this.props.plantDetails} 
           id={this.props.id} 
           modalVisible={this.state.modal.show} 
