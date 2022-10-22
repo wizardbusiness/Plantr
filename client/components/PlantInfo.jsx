@@ -50,6 +50,7 @@ class PlantInfo extends Component {
             <button onClick={() => {
               this.toggleEditPlant()
               this.props.editPlantState(null, null, this.props.plantDetails.name, this.props.plants)
+              console.log(this.props.plants)
               }
             }>Edit Info</button>
             <button onClick={() => this.props.toggle()}>x</button>   

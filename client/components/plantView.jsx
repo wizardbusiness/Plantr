@@ -114,20 +114,17 @@ class PlantView extends Component {
     
     // create clone of object (plant) at edit to restore from if edit is canceled. 
     const backup = {...this.state.plants[editIndex]} || null;
+    console.log('property to edit: ' + property)
+    console.log('value: ' + value)
     if (editIndex) {     
       this.setState({
-        plants: [
-          {
-            ...this.state.plants[editIndex], 
-            [property]: value
-          },
-        ]
+        plants: this.state.plants.map(plant => plant.name === plantName ? {...plant, [property]: value} : plant)
       });
       
       // if no edit index cached in state, find the location of the plant being edited and cache it. 
       // runs when edit modal is opened.
     } else if (!editIndex) {
-      console.log(plants)
+      console.log('no edit index')
       plants.forEach((plant, index) => {
         if (plant.name === plantName) {
           console.log(plantName)
