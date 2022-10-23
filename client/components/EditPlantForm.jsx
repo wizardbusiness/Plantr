@@ -5,19 +5,18 @@ const EditPlantForm = (props) => {
 
   const makeFields = () => {
     const fieldLabels = [' Plant Name', ' Water Frequency', ' Fertilize Frequency', ' Light Preference', ' Soil Preference', ' Fertilizer Preference', ' Notes'];
-    const plantId = props.plantDetails.id;
     const plantDetails = Object.values(props.plantDetails).slice(1);
     const plantProperties = Object.keys(props.plantDetails).slice(1);
-    
+    console.log(props.plantDetails['name'])
     return plantDetails.map((field, index) => {
       const key = `field${index}`
       return (
         <EditPlantField
           key={key}
-          id={plantId}
+          id={props.id}
           editPlantState={props.editPlantState}
           fieldLabel={fieldLabels[index]}
-          plantField={field}
+          plantField={props.plantDetails[plantProperties[index]]}
           propertiesToEdit={plantProperties[index]}
         />
       );

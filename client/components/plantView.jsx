@@ -8,7 +8,6 @@ class PlantView extends Component {
 
     this.state = {
       editPlant: {
-        editIndx: null,
         saveEdit: true,
       },
       plants: [],
@@ -107,60 +106,87 @@ class PlantView extends Component {
     };
   };
 
-  editPlantState (property, value, plantName, plants) {
-    // need to edit plant first, so that body of request contains updated state. 
-    // to avoid additional iteration every time a field in plantInfo is being edited, 
-    let editIndex = this.state.editPlant.editIndx;
+  // editPlantState (property, value, plantName, plants) {
+  //   // need to edit plant first, so that body of request contains updated state. 
+  //   // to avoid additional iteration every time a field in plantInfo is being edited, 
+  //   let editIndex = this.state.editPlant.editIndx;
     
-    // create clone of object (plant) at edit to restore from if edit is canceled. 
-    const backup = {...this.state.plants[editIndex]} || null;
-    console.log('property to edit: ' + property)
-    console.log('value: ' + value)
-    if (editIndex) {     
-      this.setState({
-        plants: this.state.plants.map(plant => plant.name === plantName ? {...plant, [property]: value} : plant)
-      });
+  //   // create clone of object (plant) at edit to restore from if edit is canceled. 
+  //   const backup = {...this.state.plants[editIndex]} || null;
+  //   console.log('property to edit: ' + property)
+  //   console.log('value: ' + value)
+  //   if (editIndex) {     
+  //     this.setState({
+  //       plants: this.state.plants.map(plant => plant.name === plantName ? {...plant, [property]: value} : plant)
+  //     });
       
-      // if no edit index cached in state, find the location of the plant being edited and cache it. 
-      // runs when edit modal is opened.
-    } else if (!editIndex) {
-      console.log('no edit index')
-      plants.forEach((plant, index) => {
-        if (plant.name === plantName) {
-          console.log(plantName)
-          console.log(index)
-          console.log('indexbefore: ' + editIndex)
-          this.setState({
-            editPlant: {
-              ...this.state.editPlant,
-              editIndx: index
-            }
-          });
-          console.log('indexafter:' + editIndex)
-        }
-      })
+  //     // if no edit index cached in state, find the location of the plant being edited and cache it. 
+  //     // runs when edit modal is opened.
+  //   } else if (!editIndex) {
+  //     console.log('no edit index')
+  //     plants.forEach((plant, index) => {
+  //       if (plant.name === plantName) {
+  //         console.log(plantName)
+  //         console.log(index)
+  //         console.log('indexbefore: ' + editIndex)
+  //         this.setState({
+  //           editPlant: {
+  //             ...this.state.editPlant,
+  //             editIndx: index
+  //           }
+  //         });
+  //         console.log('indexafter:' + editIndex)
+  //       }
+  //     })
       
-    };
-    const saveEdit = this.state.editPlant.saveEdit;
-    // if edit is canceled (saveEdit in state is set to false), reset state from backup object. 
-    if (!saveEdit) {
-      const edit = this.state.editPlant;
+  //   };
+  //   const saveEdit = this.state.editPlant.saveEdit;
+  //   // if edit is canceled (saveEdit in state is set to false), reset state from backup object. 
+  //   if (!saveEdit) {
+  //     const edit = this.state.editPlant;
+  //     this.setState({
+  //     // using map to look for edit index again, then replacing the edited object with the backup. 
+  //     ...edit, 
+  //     // change savePlant back to true for next edit. 
+  //     savePlant: true,
+  //     plants: this.state.plants.map((plant, index) => index === editIndex ? backup : plant)
+  //     });
+  //   };
+  // }
+
+  // input: 
+  // property being edited
+  // new value
+  // plant id
+  editPlantState(property, value, id) {
+    // find the plant being edited in state. 
+      // if plant id matches input id,
       this.setState({
-      // using map to look for edit index again, then replacing the edited object with the backup. 
-      ...edit, 
-      // change savePlant back to true for next edit. 
-      savePlant: true,
-      plants: this.state.plants.map((plant, index) => index === editIndex ? backup : plant)
+        // map plants
+        // destructure plant at id, 
+        // update the property being edited with passed in value. 
+        plants: this.state.plants.map((plant) => plant.id === id ? {...plant, [property]: value} : plant)
+        // otherwise leave the state of the plant alone. 
       });
-    };
   }
 
-  cancelEdit() {
-    const edit = this.state.editPlant;
-    this.setState({
-      ...edit,
-      saveEdit: false
-    });
+  backUpPlant(index) {
+    // when edit modal is opened,
+    // find the plant being edited in state. 
+    // back up that plant to another location in memory.
+    const plantCopy = this.state.plants[index];
+    return plantCopy;
+  }
+  
+
+  // if edit is canceled, revert plant to previous state. 
+  cancelEdit(plantCopy, id) {
+    // if cancel button is pushed, 
+    if (!this.state.editPlant.saveEdit) this.setState({
+       // replace edited plant with backup plant. 
+      plants: this.state.plants.map(plant => plant.id === id ? plant = plantCopy : plant)
+    }) 
+   
   }
 
   async saveEditedPlant (plantId, editedPlant) {

@@ -49,7 +49,6 @@ class PlantInfo extends Component {
           <div id="info-modal-buttons">
             <button onClick={() => {
               this.toggleEditPlant()
-              this.props.editPlantState(null, null, this.props.plantDetails.name, this.props.plants)
               console.log(this.props.plants)
               }
             }>Edit Info</button>
@@ -66,6 +65,7 @@ class PlantInfo extends Component {
           plants={this.props.plants}
           plantDetails={this.props.plantDetails}
           editPlantState={this.props.editPlantState}
+          id={this.props.id}
           saveEditedPlant={this.props.saveEditedPlant}
           toggleEditPlant={this.toggleEditPlant}
         />
