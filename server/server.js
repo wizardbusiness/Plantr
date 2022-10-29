@@ -7,6 +7,7 @@ const app = express();
 
 // parse static files
 app.use(express.json());
+app.use(express.static('./src'));
 
 app.get('/', (req, res) => {
   res.status(200).sendFile(path.join(__dirname, '../src/index.html'));
