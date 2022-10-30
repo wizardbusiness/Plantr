@@ -48,6 +48,8 @@ class PlantInfo extends Component {
         <div className="plant-info">
           <div id="info-modal-buttons">
             <button onClick={() => {
+              // copy the state of the plant to be edited to isolated edited plant state object 
+              this.props.backupPlant(this.props.index);
               this.toggleEditPlant()
               console.log(this.props.plants)
               }
@@ -63,7 +65,8 @@ class PlantInfo extends Component {
       return (
         <EditPlantForm 
           plants={this.props.plants}
-          plantDetails={this.props.plantDetails}
+          // get the plant details from the isolated edited plant state object. 
+          plantDetails={this.props.editedPlant}
           editPlantState={this.props.editPlantState}
           id={this.props.id}
           saveEditedPlant={this.props.saveEditedPlant}
