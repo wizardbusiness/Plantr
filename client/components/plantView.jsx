@@ -11,6 +11,9 @@ class PlantView extends Component {
         saveEdit: true,
       },
       plants: [],
+      editedPlant: {
+
+      },
       newPlant: {
         id: 0,
         name: '',
@@ -158,16 +161,20 @@ class PlantView extends Component {
   // property being edited
   // new value
   // plant id
-  editPlantState(property, value, id) {
+  editPlantState(property, value, id, index) {
     // find the plant being edited in state. 
-      // if plant id matches input id,
       this.setState({
         // map plants
         // destructure plant at id, 
         // update the property being edited with passed in value. 
         plants: this.state.plants.map((plant) => plant.id === id ? {...plant, [property]: value} : plant)
-        // otherwise leave the state of the plant alone. 
       });
+
+      // find the plant in state.
+      // update the editPlant property from the plant. 
+      // save the index of the plant
+      // save the plant: 
+        // replace the plant object at the index with the 
   }
 
   backUpPlant(index) {
@@ -204,13 +211,14 @@ class PlantView extends Component {
     };
 
     try {
-      const plant = fetch(`/plants/${plantId}`, {
+      const response = fetch(`/plants/${plantId}`, {
         method: 'UPDATE',
         headers: {
           'Content-Type': 'Application/JSON'
         },
         body: JSON.stringify(body)
       })
+
     } catch (err) {
       console.log(err);
     };
@@ -256,12 +264,13 @@ class PlantView extends Component {
       return (
         <Plant 
           key={`plant${index}`}
-          id={plant.id}
+          index={index}
           deletePlant={this.deletePlant}
           editPlantState={this.editPlantState}
           saveEditedPlant={this.saveEditedPlant}
           cancelEdit={this.cancelEdit}
           plants={this.state.plants}
+          id={plant.id}
           name={plant.name}
           waterDate={plant.water_at_date}
           fertilizeDate={plant.fertilize_at_date}
