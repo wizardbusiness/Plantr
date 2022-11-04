@@ -139,6 +139,7 @@ class PlantView extends Component {
 
   async saveEditedPlant (editedPlant, index) {
     const { id, name, water_at_date, fertilize_at_date, light_pref, soil_pref, fertilizer_pref, notes} = editedPlant;
+    console.log(index)
     const body  = {
       id,
       name,
@@ -160,11 +161,12 @@ class PlantView extends Component {
       })
 
       const plantToBeEdited = await response.json();
-      console.log(plantToBeEdited[0])
+
       const plants = this.state.plants;
+      
       this.setState({
         // index is passed in as argument above ^^
-        plants: this.state.plants.map((plant) => plant === plants[index] ? plants[index] = plantToBeEdited[0] : plant)
+        plants: plants.map((plant, index) => plant.id === id ? plants[index] = plantToBeEdited : plant)
       })
 
     } catch (err) {
