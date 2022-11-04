@@ -65,6 +65,7 @@ class PlantInfo extends Component {
       return (
         <EditPlantForm 
           plants={this.props.plants}
+          index={this.props.index}
           // get the plant details from the isolated edited plant state object. 
           plantDetails={this.props.editedPlant}
           editPlantState={this.props.editPlantState}
