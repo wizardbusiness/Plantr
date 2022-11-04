@@ -47,9 +47,11 @@ const plantControllers = {
   },
 
   async editPlant (req, res, next) {
-    const { id, name, water_at_date, fertilize_at_date, light_pref, soil_pref, fertilizer_pref, notes} = req.body;
+    const { id, name, water_at_date, fertilize_at_date, light_pref, soil_pref, fertilizer_pref, notes } = req.body;
+
+    console.log('id' + id)
     try {
-      const data = await db.query('UPDATE Plants SET id = $1, name = $2, water_at_date = $3, fertilize_at_date = $4, light_pref = $5, soil_pref = $6, fertilizer_pref == $7, notes = $8', 
+      const data = await db.query('UPDATE Plants SET name = $2, water_at_date = $3, fertilize_at_date = $4, light_pref = $5, soil_pref = $6, fertilizer_pref = $7, notes = $8 WHERE id = $1 RETURNING *', 
         [id, name, water_at_date, fertilize_at_date, light_pref, soil_pref, fertilizer_pref, notes]);
       res.locals.editedPlant = data.rows;
       next();
