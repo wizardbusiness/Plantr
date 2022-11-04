@@ -22,6 +22,7 @@ const EditPlantForm = (props) => {
       );
     });
   }
+
   const editPlantForm = makeFields();
 
   return (
@@ -30,7 +31,8 @@ const EditPlantForm = (props) => {
           <div id="info-modal-buttons">
             <button onClick={() => props.toggleEditPlant()}>x</button>
           </div>
-          {editPlantForm}
+            {editPlantForm}
+            <button onClick={() => props.saveEditedPlant(props.plantDetails, props.index)}>Save</button>
         </div>
     </main>
   );
