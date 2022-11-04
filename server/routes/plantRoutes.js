@@ -20,7 +20,7 @@ plantRoutes.post('/plants', plantControllers.addPlant, (req, res, next) => {
 
 // Edit plant
 plantRoutes.put('/plants/:id', plantControllers.editPlant, (req, res, next) => {
-  res.status(200).json(res.locals.newPlant);
+  res.status(200).json(res.locals.editedPlant);
 });
 
 // Delete a plant from the db
