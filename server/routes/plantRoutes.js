@@ -9,7 +9,7 @@ plantRoutes.get('/plants', plantControllers.getAllPlants, (req, res, next) => {
   res.status(200).json(res.locals.plants);
 });
 
-plantRoutes.get('/plants/:id', plantControllers.getAPlant, (req, res, next) => {
+plantRoutes.get('/plants/:plant_id', plantControllers.getAPlant, (req, res, next) => {
   res.status(200).json(res.locals.plant);
 })
 
@@ -19,12 +19,12 @@ plantRoutes.post('/plants', plantControllers.addPlant, (req, res, next) => {
 });
 
 // Edit plant
-plantRoutes.put('/plants/:id', plantControllers.editPlant, (req, res, next) => {
+plantRoutes.put('/plants/:plant_id', plantControllers.editPlant, (req, res, next) => {
   res.status(200).json(res.locals.editedPlant);
 });
 
 // Delete a plant from the db
-plantRoutes.delete('/plants/:id', plantControllers.deletePlant, (req, res, next) => {
+plantRoutes.delete('/plants/:plant_id', plantControllers.deletePlant, (req, res, next) => {
   res.status(200).json(res.locals.deletedPlant);
 });
 
