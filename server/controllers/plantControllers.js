@@ -72,7 +72,6 @@ const plantControllers = {
          UPDATE schedule SET day = $8, week = $9, month = $10, morning= $11, evening = $12, mid = $13, mist = $14, water_date = $15, fertilize_date = $16 
           WHERE plant_id = $1;`, 
           [plant_id, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, water_date, fertilize_date]);
-        
       res.locals.editedPlant = data.rows[0];
       next();
     } catch(err) {
