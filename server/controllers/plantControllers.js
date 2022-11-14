@@ -16,8 +16,8 @@ const plantControllers = {
 
   // get info about one plant from the database
   async getAPlant (req, res, next) {
-    const { plant_id }= req.params;
-    console.log(plant_id)
+    const { plantId }= req.params;
+    console.log(plantId)
     try {
       const data = await db.query(
         `SELECT p.plant_id, p.name, p.img, p.light, p.fertilizer, p.soil, p.notes, 
@@ -25,7 +25,7 @@ const plantControllers = {
         FROM plants p
         INNER JOIN schedule s 
         ON (p.plant_id = s.plant_id) WHERE p.plant_id = $1;`, 
-        [plant_id]);
+        [plantId]);
       res.locals.plant = data.rows;
       next();
     } catch(err) {
@@ -35,10 +35,8 @@ const plantControllers = {
   },
 
   async addPlant (req, res, next) {
-    const { plant_id, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, water_date, fertilize_date } = req.body;
+    const { plantId, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, waterDate, fertilizeDate } = req.body;
     try {
-      // console.log(plant_id)
-      // console.log(name)
       if (!name) throw new Error('name field required');
       const data = await db.query(
         `WITH p_vals AS (
@@ -50,7 +48,7 @@ const plantControllers = {
            (plant_id, day, week, month, morning, evening, mid, mist, water_date, fertilize_date)
          VALUES
           ($1, $8, $9, $10, $11, $12, $13, $14, $15, $16);`, 
-         [plant_id, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, water_date, fertilize_date]);
+         [plantId, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, waterDate, fertilizeDate]);
         res.locals.newPlant = data.rows;
         console.log(res.locals.newPlant)
         next();
@@ -61,9 +59,7 @@ const plantControllers = {
   },
 
   async editPlant (req, res, next) {
-    const { plant_id, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, water_date, fertilize_date } = req.body;
-
-    console.log('id' + id)
+    const { plantId, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, waterDate, fertilizeDate } = req.body;
     try {
       const data = await db.query(
         `WITH p_vals AS (
@@ -71,7 +67,7 @@ const plantControllers = {
             WHERE plant_id = $1)
          UPDATE schedule SET day = $8, week = $9, month = $10, morning= $11, evening = $12, mid = $13, mist = $14, water_date = $15, fertilize_date = $16 
           WHERE plant_id = $1;`, 
-          [plant_id, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, water_date, fertilize_date]);
+          [plantId, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, waterDate, fertilizeDate]);
       res.locals.editedPlant = data.rows[0];
       next();
     } catch(err) {
@@ -81,11 +77,11 @@ const plantControllers = {
   },
 
   async deletePlant (req, res, next) {
-    const { id } = req.params;
+    const { plantId } = req.params;
 
     try {
       // CASCADE is on in SQL- deleting plant in plants table deletes it in the schedule table too. 
-      const data = await db.query('DELETE FROM plants WHERE id = $1 RETURNING id' , [id]);
+      const data = await db.query('DELETE FROM plants WHERE id = $1 RETURNING id' , [plantId]);
       res.locals.deletedPlant = data.rows[0];
       next();
     } catch(err) {
