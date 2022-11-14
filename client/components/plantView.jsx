@@ -11,18 +11,32 @@ class PlantView extends Component {
         saveEdit: true,
       },
       plants: [],
-      editedPlant: {
-
-      },
+      editedPlant: {},
+      // newPlant properties relate to columns in plants table in postgreSQL db. 
+      // columns in db: plant_id, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, water_date, fertilize_date
       newPlant: {
-        id: 0,
+        plantId: 0,
         name: '',
-        water_at_date: null,
-        fertilize_at_date: null,
-        light_pref: null,
-        soil_pref: null,
-        fertilizer_pref: null,
-        notes: null,
+        img: '',
+        light: '',
+        soil: '',
+        fertilizer: '',
+        notes: '',
+        // columns days, weeks, months
+        schedule: {
+          days: 0,
+          weeks: 0, 
+          months: 0
+        },
+        // columns morning, mid, evening
+        tod: {
+          morning: false,
+          mid: false,
+          evening: false
+        },
+        mist: false,
+        waterDate: '',
+        fertilizeDate: ''
       },
     }
 
@@ -36,32 +50,33 @@ class PlantView extends Component {
     this.deletePlant = this.deletePlant.bind(this);
     
   }
-
-  // convert input from water and fertilizer dates to a water at date
+  // unimplemented: 
+  // convert current date to a water at date by adding the schedule values in state to current date.
+    // then round to 7 am, 12pm or 6pm depending on the tod chosen.  
   // check the current date against the water and fertilize dates
   // if they are the same, change color of plant.
+  // water button feature
   // after clicking 'water' button, update the water and fertilize at dates in the the database according to the original time.  
   
   componentDidMount() {
     this.getPlants();
   };
 
-
+  // GET PLANTS: retrieves all plants in the db. 
   async getPlants() {
     try {
       const response = await fetch('/plants')
       const plants = await response.json();
       this.setState({
         ...this.state.plants,
-        // update plants from the database. 
+        // update the entire plants array from the db. 
         plants: plants,
+        // 
         newPlant: {
           ...this.state.newPlant,
-          // update id of newPlant from the last plant in the database. 
-          // this ensures that when a new plant is made, it will have a unique id
-          // and that plants can be deleted and added without conflicting with each other.   
-          // if no plants in database, set the new plants id to 0
-          id: plants.length > 0 ? plants[plants.length - 1].id + 1 : 0
+          // update plantId so that the next new plant added will have an id that is greater than the previous plant added.   
+          // if no plants were in the database, keep the new plants' id to 0.
+          plantId: plants.length > 0 ? plants[plants.length - 1].id + 1 : 0
         },
       });
     } catch (err) {
@@ -69,147 +84,8 @@ class PlantView extends Component {
     }
   }
 
-  async addPlant() {
-    // destructure newPlant from state. 
-    const { id, name, water_at_date, fertilize_at_date, light_pref, soil_pref, fertilizer_pref, notes} = this.state.newPlant;
-    // console.log(name)
-    // send all info from newPlant state on body (see NewPlantForm.jsx)
-    const body = {
-      id,
-      name,
-      water_at_date,
-      fertilize_at_date,
-      light_pref,
-      soil_pref,
-      fertilizer_pref,
-      notes
-    }
-    try {
-      const response = await fetch('/plants', {
-        method: 'POST', 
-        headers: {
-          'Content-Type': 'Application/JSON'
-        },
-        body: JSON.stringify(body)
-      });
-      const newPlant = await response.json();
-      // console.log(this.state.plants[id].id)
-      // add plant to state. 
-      this.setState({
-        plants: [...this.state.plants, ...newPlant],
-        // update newPlant id
-        newPlant: {
-          ...this.state.newPlant, 
-          id: newPlant[newPlant.length - 1].id + 1
-        }
-      });
-      return newPlant;
-    } catch (err) {
-      console.log(err);
-    };
-  };
-
-  // input: 
-  // property being edited
-  // new value
-  // plant id
-  editPlantState(property, value) {
-      // edit the properties of the plant being edited in the isolated editPlant state object
-      this.setState({
-        editedPlant: {...this.state.editedPlant, [property]: value}
-      });
-      console.log(this.state.editedPlant)
-
-      // find the plant in state.
-      // update the editPlant property from the plant. 
-      // save the plant: 
-        // replace the plant object at the index with the edit plant object. 
-  }
-
-  backupPlant(index) {
-    // when edit modal is opened,
-    // find the plant being edited in state. 
-    // back up that plant edit plant state object. 
-    this.setState({
-      // set edited plant property in state to plant at current index 
-      editedPlant: this.state.plants[index]
-    });
-  }
-  
-
-  async saveEditedPlant (editedPlant, index) {
-    const { id, name, water_at_date, fertilize_at_date, light_pref, soil_pref, fertilizer_pref, notes} = editedPlant;
-    console.log(index)
-    const body  = {
-      id,
-      name,
-      water_at_date,
-      fertilize_at_date,
-      light_pref,
-      soil_pref,
-      fertilizer_pref,
-      notes
-    };
-
-    try {
-      const response = await fetch(`/plants/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'Application/JSON'
-        },
-        body: JSON.stringify(body)
-      })
-
-      const plantToBeEdited = await response.json();
-
-      const plants = this.state.plants;
-      
-      this.setState({
-        // index is passed in as argument above ^^
-        plants: plants.map((plant, index) => plant.id === id ? plants[index] = plantToBeEdited : plant)
-      })
-
-    } catch (err) {
-      console.log(err);
-    };
-  }
-
-  async deletePlant (id) {
-    try {
-      const response = await fetch(`/plants/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'Application/JSON'
-        },
-      });
-      
-      const plantToDelete = await response.json();
-      const plants = this.state.plants;
-      // filter out plant to be deleted. 
-      const updatedPlants = plants.filter((plant) => {
-        // since plant id and index are the same, can return plants where id doesn't match index. 
-        return (plant.id !== plantToDelete.id)
-      })
-      this.setState({
-        plants: updatedPlants,
-      });
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
-  setNewPlantState(property, value) {
-    
-    this.setState({
-      newPlant: {
-        ...this.state.newPlant,
-        [property]: value,
-      }
-    });
-    console.log(property)
-  }
-
-  showPlants(plants) {
+  // VIEW SAVED PLANTS: maps the properties of all plants saved in state to jsx plant components. 
+  viewSavedPlants(plants) {
     return plants.map((plant, index) => {
       return (
         <Plant 
@@ -218,7 +94,6 @@ class PlantView extends Component {
           deletePlant={this.deletePlant}
           editPlantState={this.editPlantState}
           saveEditedPlant={this.saveEditedPlant}
-          backupPlant={this.backUpPlant}
           plants={this.state.plants}
           editedPlant={this.state.editedPlant}
           id={plant.id}
@@ -234,6 +109,231 @@ class PlantView extends Component {
     });
   }
 
+  // ADD PLANT: Updates the newPlant properties in state when the user fills out the new plant form.
+  // args: property being updated, updated value.  
+  addPlant(property, value) {
+    
+    this.setState({
+      newPlant: {
+        ...this.state.newPlant,
+        [property]: value,
+      }
+    });
+    console.log(property)
+  } setNewPlantState(property, value) {
+    
+    this.setState({
+      newPlant: {
+        ...this.state.newPlant,
+        [property]: value,
+      }
+    });
+    console.log(property)
+  };
+
+  // SAVE PLANT: saves a new plant to the db, and in the plants array in state for display. 
+  async savePlant() {
+
+    // table columns: plant_id, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, waterDate, fertilizeDate
+
+    // destructure state
+    const { 
+      plantId, 
+      name, 
+      img, 
+      light, 
+      soil, 
+      fertilizer, 
+      notes, 
+      schedule: { day, week, month }, 
+      tod: { morning, evening, mid }, 
+      mist, 
+      waterDate, 
+      fertilizeDate
+    } = this.state.newPlant;
+
+    // add all values from destructured state to request body
+    const body = {
+      plantId, 
+      name, 
+      img, 
+      light, 
+      soil, 
+      fertilizer, 
+      notes, 
+      day, 
+      week, 
+      month, 
+      morning, 
+      evening, 
+      mid, 
+      mist, 
+      waterDate, 
+      fertilizeDate
+    };
+
+    try {
+      const response = await fetch('/plants', {
+        method: 'POST', 
+        headers: {
+          'Content-Type': 'Application/JSON'
+        },
+        // send the values from new plant in state to the db. 
+        body: JSON.stringify(body)
+      });
+      // wait for the okay from the db.
+      const addedPlant = await response.json();
+      // after okay from database, use local state to add plant to plants. It's faster than sending the response body
+      console.log('added plant okay');
+      this.setState({
+        plants: [...this.state.plants, this.state.newPlant],
+        newPlant: {
+          ...this.state.newPlant, 
+          // to make new plant id will increment by one every time a plant is created. this value never resets to ensure uniqueness. 
+          plantId: plantId + 1, 
+          // reset everything else to default values. 
+          name: '',
+          img: '',
+          light: '',
+          soil: '',
+          fertilizer: '',
+          notes: '',
+          schedule: {
+            ...this.state.schedule,
+            days: 0,
+            weeks: 0, 
+            months: 0
+          },
+          tod: {
+            morning: false,
+            mid: false,
+            evening: false
+          },
+          mist: false,
+          waterDate: '',
+          fertilizeDate: ''
+        },
+      });
+      console.log('added plant: ' + addedPlant)
+      return addedPlant;
+    } catch (err) {
+      console.log(err);
+    };
+  };
+
+
+  // EDIT PLANT METHODS ---------------------------------------------------------------------------------------------------------
+
+  // EDIT PLANT (Frontend state): edits the stateful properties of the plant being edited in the isolated editPlant state object.
+  // args: property being edited, value being edited.
+  editPlant(property, value) {
+      this.setState({
+        editedPlant: {...this.state.editedPlant, [property]: value}
+      });
+      console.log(this.state.editedPlant)
+  }
+
+  // CLONE PLANT: clones the plant being edited to location in state. 
+  // args: index of plant being edited. 
+  clonePlant(index) {
+    // when edit modal is opened,
+    // clone the plant being edited to the editedPlant property in state. 
+    this.setState({
+      editedPlant: this.state.plants[index]
+    });
+  }
+  
+  // SAVE PLANT EDITS: save any edits made to a plant to the db and replace the existing plant in state. 
+  async savePlantEdits () {
+
+    // table columns: plant_id, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, waterDate, fertilizeDate
+
+    // destructure state
+    const { 
+      plantId, 
+      name, 
+      img, 
+      light, 
+      soil, 
+      fertilizer, 
+      notes, 
+      schedule: { day, week, month }, 
+      tod: { morning, evening, mid }, 
+      mist, 
+      waterDate, 
+      fertilizeDate
+    } = this.state.editedPlant;
+
+    const body = {
+      plantId,
+      name, 
+      img, 
+      light, 
+      soil, 
+      fertilizer, 
+      notes, 
+      day, 
+      week, 
+      month, 
+      morning, 
+      evening, 
+      mid, 
+      mist, 
+      waterDate, 
+      fertilizeDate
+    };
+
+    try {
+      const response = await fetch(`/plants/${plantId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'Application/JSON'
+        },
+        // send 
+        body: JSON.stringify(body)
+      })
+
+      // wait for the database to send back a response before proceeding.
+      const dbResponseOk = await response.json();
+
+      const plants = this.state.plants;
+      const editedPlant = this.state.editedPlant;
+   
+      this.setState({
+        // replace the plant entirely with the editedPlant stateful object. 
+        plants: plants.map((plant, index) => plant.plantId === plantId ? plants[index] = editedPlant : plant)
+      });
+  
+    } catch (err) {
+      console.log(err);
+    };
+  }
+
+  // -----------------------------------------------------------------------------------------------------------------
+
+  // DELETE PLANT: deletes a saved plant from the database and from state. 
+  async deletePlant (plantId) {
+    try {
+      const response = await fetch(`/plants/${plantId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'Application/JSON'
+        },
+      });
+      
+      const dbResponseOk = await response.json();
+      const plants = this.state.plants;
+
+
+      this.setState({
+        // filter plant to be deleted out of saved state in plants.  
+        plants: plants.filter(plant => plant.plantId !== plantId)
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  }
+  
   render() {
     const plants = this.showPlants(this.state.plants)
     return (
