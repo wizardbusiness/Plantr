@@ -6,9 +6,23 @@ import '../../src/styles.css';
 
 
 class Plant extends Component {
-  constructor(props) {
-    super(props)
-
+  constructor({ 
+    index,
+    plantInfo,
+    editPlant,
+    clonePlant,
+    savePlantEdits,
+    deletePlant,
+    editedPlant }) {
+    super({
+      index,
+      plantInfo,
+      editPlant,
+      clonePlant,
+      savePlantEdits,
+      deletePlant,
+      editedPlant
+    });
     this.waterPlant = this.waterPlant.bind(this);
   }
 
@@ -32,18 +46,14 @@ class Plant extends Component {
             <button onClick={() => this.props.deletePlant(this.props.id)}>x</button>
           </div>
           <PlantDetailsModal 
-            id={this.props.id}
-            name={this.props.name}
-            index={this.props.index}
-            plants={this.props.plants}
-            backupPlant={this.props.backupPlant}
-            plantDetails={this.props.plantInfo}
-            editedPlant={this.props.editedPlant}
-            editPlantState={this.props.editPlantState}
-            saveEditedPlant={this.props.saveEditedPlant}
+            index={index}
+            plantInfo={plantInfo}
+            editedPlant={editedPlant}
+            clonePlant={clonePlant}
+            editPlant={editPlant}
+            savePlantEdits={savePlantEdits}
           />
-          <div className="plant-name">{this.props.name}</div>
-          
+          <div className="plant-name">{plantInfo.name}</div>
         </div>
       </div>
     )

@@ -2,13 +2,29 @@ import React, { Component } from 'react';
 import PlantInfo from './PlantInfo';
 
 class PlantDetailsModal extends Component {
-  constructor(props) {
-    super(props);
+  constructor({
+    index,
+    plantInfo,
+    editedPlant,
+    clonePlant,
+    editPlant,
+    savePlantEdits
+  }) {
+    super( 
+      index,
+      plantInfo,
+      editedPlant,
+      clonePlant,
+      editPlant,
+      savePlantEdits
+    );
+
     this.state = {
       modal: {
         show: false,
       }
     };
+
     this.toggleModal = this.toggleModal.bind(this);
   };
   // inputs: unique id, event info 
@@ -31,17 +47,17 @@ class PlantDetailsModal extends Component {
     return (
       <article id="info-button">
         <button onClick={() => this.toggleModal()}>Info</button>
-        <PlantInfo  
-          id={this.props.id} 
-          index={this.props.index}
-          plants={this.props.plants}
-          backupPlant={this.props.backupPlant}
-          editedPlant={this.props.editedPlant}
-          plantDetails={this.props.plantDetails} 
+        <PlantInfo
+          // props
+          index={index}
+          plantInfo={plantInfo}
+          clonePlant={clonePlant}
+          editPlant={editPlant}
+          savePlantEdits={savePlantEdits}
+          editedPlant={editedPlant}
+          // this class
           modalVisible={this.state.modal.show} 
           toggle={this.toggleModal} 
-          editPlantState={this.props.editPlantState}
-          saveEditedPlant={this.props.saveEditedPlant}
         />
       </article>
     )

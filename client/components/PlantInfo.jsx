@@ -3,8 +3,22 @@ import PlantDetail from './PlantDetail';
 import EditPlantForm from './EditPlantForm';
 
 class PlantInfo extends Component {
-  constructor(props) {
-    super(props) 
+  constructor({
+    index,
+    plantInfo,
+    editedPlant,
+    clonePlant,
+    editPlant,
+    savePlantEdits
+  }) {
+    super(
+      index,
+      plantInfo,
+      editedPlant,
+      clonePlant,
+      editPlant,
+      savePlantEdits
+    ); 
 
     this.state = {
       editPlant: false
@@ -21,17 +35,18 @@ class PlantInfo extends Component {
   };
   
   populateInfo () {
-    const infoLabels = [' Plant Name', ' Water Frequency', ' Fertilize Frequency', ' Light Preference', ' Soil Preference', ' Fertilizer Preference', ' Notes'];
-    const plantName = this.props.plantDetails.name;
-    const plantDetails = Object.values(this.props.plantDetails).slice(1);
-    return plantDetails.map((detail, index) => {
+    const infoLabels = [' Plant Name', ' Light Preference', ' Soil Preference', ' Fertilizer Preference', ' Notes', ' Schedule', ' Watering Time', ' Mist'];
+    // should only pass relevant props, but for now, here's a hack to filter out the ones we don't want. 
+    const { name, light, soil, ferilizer, notes, schedule, tod, mist } = plantInfo;
+    const relevantInfo = { name, light, soil, ferilizer, notes, schedule, tod, mist };
+    const infoToShow = Object.values(relevantInfo);
+    return infoToShow.map((info, index) => {
+      // map plant info to plant info modal, line by line
       return (
           <PlantDetail
-            plantName={plantName}
             key={`plant${index}`} 
             infoLabel={infoLabels[index]} 
-            detail={detail}
-             
+            info={info}
           />
       );  
     });  
@@ -49,9 +64,8 @@ class PlantInfo extends Component {
           <div id="info-modal-buttons">
             <button onClick={() => {
               // copy the state of the plant to be edited to isolated edited plant state object 
-              this.props.backupPlant(this.props.index);
-              this.toggleEditPlant()
-              console.log(this.props.plants)
+              this.props.clonePlant(index);
+              this.toggleEditPlant();
               }
             }>Edit Info</button>
             <button onClick={() => this.props.toggle()}>x</button>   

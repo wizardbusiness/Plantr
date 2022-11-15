@@ -40,13 +40,13 @@ class PlantView extends Component {
       },
     }
 
-    this.showPlants = this.showPlants.bind(this);
     this.getPlants = this.getPlants.bind(this);
+    this.viewSavedPlants = this.viewSavedPlants.bind(this);
     this.addPlant = this.addPlant.bind(this);
-    this.setNewPlantState = this.setNewPlantState.bind(this);
-    this.editPlantState = this.editPlantState.bind(this);
-    this.backUpPlant = this.backupPlant.bind(this);
-    this.saveEditedPlant = this.saveEditedPlant.bind(this);
+    this.savePlant = this.savePlant.bind(this);
+    this.editPlant = this.editPlant.bind(this);
+    this.clonePlant = this.clonePlant.bind(this);
+    this.savePlantEdits = this.savePlantEdits.bind(this);
     this.deletePlant = this.deletePlant.bind(this);
     
   }
@@ -90,20 +90,16 @@ class PlantView extends Component {
       return (
         <Plant 
           key={`plant${index}`}
+          // plant properties
           index={index}
-          deletePlant={this.deletePlant}
-          editPlantState={this.editPlantState}
-          saveEditedPlant={this.saveEditedPlant}
-          plants={this.state.plants}
-          editedPlant={this.state.editedPlant}
-          id={plant.id}
-          name={plant.name}
-          waterDate={plant.water_at_date}
-          fertilizeDate={plant.fertilize_at_date}
-          lightPref={plant.light_pref}
-          fertilizerPref={plant.fertilizer_pref}
-          notes={plant.notes}
           plantInfo={plant}
+          // plant methods
+          editPlant={this.editPlant}
+          clonePlant={this.clonePlant}
+          savePlantEdits={this.savePlantEdits}
+          deletePlant={this.deletePlant}
+          // state for editing plant.
+          editedPlant={this.state.editedPlant}
         /> 
      )
     });
@@ -333,9 +329,9 @@ class PlantView extends Component {
       console.log(err);
     }
   }
-  
+
   render() {
-    const plants = this.showPlants(this.state.plants)
+    const plants = this.viewSavedPlants(this.state.plants)
     return (
         <div className="planter-box">
           <NewPlantModal
