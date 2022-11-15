@@ -9,7 +9,9 @@ class PlantInfo extends Component {
     editedPlant,
     clonePlant,
     editPlant,
-    savePlantEdits
+    savePlantEdits,
+    modalVisible,
+    toggle
   }) {
     super(
       index,
@@ -17,7 +19,9 @@ class PlantInfo extends Component {
       editedPlant,
       clonePlant,
       editPlant,
-      savePlantEdits
+      savePlantEdits,
+      modalVisible,
+      toggle
     ); 
 
     this.state = {
@@ -54,9 +58,9 @@ class PlantInfo extends Component {
 
   render() {
     const plantInfo = this.populateInfo();
-    // if no modal opened, don't render anything. 
-    if (!this.props.modalVisible) return null;
-    // if plant is not being edited, return plant info. 
+    // if no modal opened (either info modal or edit modal), don't render anything. 
+    if (!modalVisible) return null;
+    // if modal is open but plant isn't being edited, return plant info. 
     if (!this.state.editPlant) {
       return (
       <main className="plant-info-overlay">
@@ -64,11 +68,11 @@ class PlantInfo extends Component {
           <div id="info-modal-buttons">
             <button onClick={() => {
               // copy the state of the plant to be edited to isolated edited plant state object 
-              this.props.clonePlant(index);
+              clonePlant(index);
               this.toggleEditPlant();
               }
             }>Edit Info</button>
-            <button onClick={() => this.props.toggle()}>x</button>   
+            <button onClick={() => toggle()}>x</button>   
           </div>
           {plantInfo}
         </div>
