@@ -4,7 +4,7 @@ const plantControllers = {
   async getAllPlants (req, res, next) {
     try { 
       const data = await db.query(
-        'SELECT * FROM plants INNER JOIN schedule ON plants.plant_id = schedule.plant_id RETURNING *');
+        'SELECT * FROM plants INNER JOIN schedule ON plants.plant_id = schedule.plant_id;');
       res.locals.plants = data.rows;
       next();
     } catch (err) {
