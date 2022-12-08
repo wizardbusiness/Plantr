@@ -30,6 +30,7 @@ class PlantView extends Component {
         },
         // columns morning, mid, evening
         tod: {
+          default: true,
           morning: false,
           mid: false,
           evening: false
@@ -43,6 +44,7 @@ class PlantView extends Component {
     this.getPlants = this.getPlants.bind(this);
     this.viewSavedPlants = this.viewSavedPlants.bind(this);
     this.addPlant = this.addPlant.bind(this);
+    this.setNewPlantState = this.setNewPlantState.bind(this);
     this.savePlant = this.savePlant.bind(this);
     this.editPlant = this.editPlant.bind(this);
     this.clonePlant = this.clonePlant.bind(this);
@@ -115,16 +117,35 @@ class PlantView extends Component {
         [property]: value,
       }
     });
-    console.log(property)
-  } setNewPlantState(property, value) {
+    // console.log(property)
+  } 
+  
+  setNewPlantState(property, dtProperty, value) {
+    console.log(this.state.newPlant[property][dtProperty]);
+    // if property isn't schedule or tod
+    // if (property !== 'schedule' && property !== 'tod') {
+    //   this.setState({
+    //     newPlant: {
+    //       ...this.state.newPlant,
+    //       [property]: value,
+    //     }
+    //   });
+      // if property is schedule or tod, 
+      // update the appropriate property on those objects. 
+    // } else {
+      this.setState({
+        ...this.state,
+        newPlant:{
+          ...this.state.newPlant,
+          [property]: {
+            ...this.state.newPlant[property],
+            [dtProperty]: this.state.newPlant[property][dtProperty] === false ? this.state.newPlant[property][dtProperty] = true : this.state.newPlant[property][dtProperty] = false
+          }
+        }
+      });
+    // }
     
-    this.setState({
-      newPlant: {
-        ...this.state.newPlant,
-        [property]: value,
-      }
-    });
-    console.log(property)
+    
   };
 
   // SAVE PLANT: saves a new plant to the db, and in the plants array in state for display. 
@@ -226,7 +247,6 @@ class PlantView extends Component {
       this.setState({
         editedPlant: {...this.state.editedPlant, [property]: value}
       });
-      console.log(this.state.editedPlant)
   }
 
   // CLONE PLANT: clones the plant being edited to location in state. 
@@ -331,6 +351,7 @@ class PlantView extends Component {
   }
 
   render() {
+
     const plants = this.viewSavedPlants(this.state.plants)
     return (
         <div className="planter-box">
