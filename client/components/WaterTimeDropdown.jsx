@@ -9,40 +9,7 @@ class WaterTimeDropdown extends Component {
     this.state = {
       isOpen: false
     }
-    this.toggleDropDown = this.toggleDropDown.bind(this);
-    this.handleClickOutside = this.handleClickOutside.bind(this);
     this.scheduleTOD = this.scheduleTOD.bind(this);
-  }
-
-  toggleDropDown() {
-    this.setState({
-      isOpen: this.state.isOpen === false ? this.state.isOpen = true: this.state.isOpen = false
-    });
-  }
-
-  handleClickOutside(event) {
-    const path = event.path || (event.composedPath && event.composedPath());
-
-    if (
-      !path.includes(this.displayAreaRef) &&
-      !path.includes(this.dropTogglerRef)
-    ) {
-      this.setState({
-        isOpen: false
-      });
-      // no idea what this does, from dd tutorial. 
-      // onChange && onChange(false)
-    }
-  }
-
-  componentDidMount() {
-    // Assign click handler to listen to the click to close the dropdown when clicked outside. 
-    document.addEventListener('click', this.handleClickOutside);
-  }
-
-  componentWillUnmount() {
-    // remove click handler when component closes. 
-    document.removeEventListener('click', this.handleClickOutside);
   }
 
   // picks the time of day to water plants
@@ -66,7 +33,7 @@ class WaterTimeDropdown extends Component {
         <select
           id='select'
           onChange={(e) => {
-            setNewPlantState('tod', e.target.value, timesOfDay)
+            setNewPlantState('tod', e.target.value, 0, timesOfDay)
             }
           }
           >
@@ -78,7 +45,7 @@ class WaterTimeDropdown extends Component {
   }
 
   render() {
-    const { isOpen, tod, label, children } = this.props;
+    const { isOpen, tod, label} = this.props;
     return (
       <div className="drop-down">
         <div
@@ -90,17 +57,6 @@ class WaterTimeDropdown extends Component {
           </span>
           <span className="label">{label}</span>
         </div>
-
-        {/* <div className="display-area">
-          {this.state.isOpen && (
-            <div
-              className="children"
-              ref={ref => (this.displayAreaRef = ref)}
-            >
-              {children}
-            </div>
-          )}
-        </div> */}
       </div>
     )
   }
