@@ -123,16 +123,16 @@ class PlantView extends Component {
   setNewPlantState(property, dtProperty, value) {
     console.log(this.state.newPlant[property][dtProperty]);
     // if property isn't schedule or tod
-    // if (property !== 'schedule' && property !== 'tod') {
-    //   this.setState({
-    //     newPlant: {
-    //       ...this.state.newPlant,
-    //       [property]: value,
-    //     }
-    //   });
+    if (property !== 'schedule' && property !== 'tod') {
+      this.setState({
+        newPlant: {
+          ...this.state.newPlant,
+          [property]: value,
+        }
+      });
       // if property is schedule or tod, 
       // update the appropriate property on those objects. 
-    // } else {
+    } else {
       this.setState({
         ...this.state,
         newPlant:{
@@ -143,7 +143,7 @@ class PlantView extends Component {
           }
         }
       });
-    // }
+    }
     
     
   };
