@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import '../../src/styles';
 import FormField from './FormField';
+import WaterDateDropdown from './WaterDateDropdown';
+import WaterTimeDropdown from './WaterTimeDropdown';
 
 
 class NewPlantForm extends Component {
@@ -11,36 +13,58 @@ class NewPlantForm extends Component {
 
   
   makeFormFields() {
+
+    const {plantState, setNewPlantState } = this.props
     // make inputIds for all visible fields. slice off the id, since it isn't visible.
-    const inputProperties = Object.keys(this.props.plantState).slice(1);
-    const fieldLabels = [' Plant Name', ' Water Frequency', ' Fertilize Frequency', ' Light Preference', ' Soil Preference', ' Fertilizer Preference', ' Notes'];
+    const inputProperties = Object.keys(plantState).slice(1);
+    const fieldLabels = [' Plant Name', ' Light Preference', ' Soil Preference', ' Fertilizer Preference', ' Notes', ' Schedule', ' Watering Time', ' Mist'];
     return fieldLabels.map( (label, index) => {
+      if (index === 5) 
+        return (
+          <WaterDateDropdown
+            key={`plant${index}`}
+            isOpen={false}
+            label={label}
+            setNewPlantState={setNewPlantState}
+            waterDate={plantState.date}
+          />
+        )
+
+      if (index === 6) 
+          return (
+            <WaterTimeDropdown
+              key={`plant${index}`}
+              label={label}
+              tod={plantState.tod}
+              setNewPlantState={setNewPlantState}
+            />
+          )
       return (
         <FormField 
-          value={this.props.plantState[inputProperties[index]]}
+          value={plantState[inputProperties[index]]}
           key={`plant${index}`}
           fieldLabel={label}
           inputProperty={inputProperties[index]}
-          setNewPlantState={this.props.setNewPlantState}
+          setNewPlantState={setNewPlantState}
         /> 
       )
    });
   }
   
-  
   render() {
     const formFields = this.makeFormFields();
+    const { toggleModal, addPlant, modalVisible } = this.props;
     // >>> Warning: For some reason, lifting up the state of the modal toggle into plantView causes props to be undefined when modal state is changed. <<<
-    if (!this.props.modalVisible) return null;
+    if (!modalVisible) return null;
     return (
         <div id="plant-form-overlay">
           <div id="new-plant-form">
-            <button onClick={() => this.props.toggle()}> x </button>
+            <button onClick={() => toggleModal()}> x </button>
             {formFields}
             <button onClick={() => {
-              this.props.addPlant();
-              this.props.toggle();
-              }}>Add Plant</button>
+              addPlant();
+              toggleModal();
+            }}>Add Plant</button>
           </div>
         </div>
     );
