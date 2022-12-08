@@ -23,7 +23,7 @@ class PlantView extends Component {
         fertilizer: '',
         notes: '',
         // columns days, weeks, months
-        schedule: {
+        date: {
           days: 0,
           weeks: 0, 
           months: 0
@@ -43,7 +43,7 @@ class PlantView extends Component {
     this.getPlants = this.getPlants.bind(this);
     this.viewSavedPlants = this.viewSavedPlants.bind(this);
     this.addPlant = this.addPlant.bind(this);
-    this.setNewPlantState = this.setNewPlantState.bind(this);
+    this.setPlantState = this.setPlantState.bind(this);
     this.savePlant = this.savePlant.bind(this);
     this.editPlant = this.editPlant.bind(this);
     this.clonePlant = this.clonePlant.bind(this);
@@ -119,19 +119,10 @@ class PlantView extends Component {
     // console.log(property)
   } 
   
-  setNewPlantState(dropdown, pickedTime, value=0, keys=[]) {
-    const notPickedTimes = keys.filter(key => key !== pickedTime);
-    // if dropdown isn't schedule or tod
-    if (dropdown !== 'date' && dropdown !== 'tod') {
-      this.setState({
-        newPlant: {
-          ...this.state.newPlant,
-          [dropdown]: value,
-        }
-      });
-      // if dropdown is , 
-      // update the appropriate dropdown on those objects. 
-    } else if (dropdown === 'tod') {
+  setPlantState(dropdown, pickedOpt, value=0, keys=[]) {
+    // set time
+    const setTime = (dropdown, pickedTime=pickedOpt, keys) => {
+      const notPickedOpts = keys.filter(key => key !== pickedOpt);
       this.setState({
         ...this.state,
         newPlant:{
@@ -139,24 +130,59 @@ class PlantView extends Component {
           [dropdown]: {
             ...this.state.newPlant[dropdown],
             // set not picked times to false. 
-            [notPickedTimes[0]]: false,
-            [notPickedTimes[1]]: false,
+            [notPickedOpts[0]]: false,
+            [notPickedOpts[1]]: false,
             // set picked time to true
-            [pickedTime]: true,
+            [pickedOpt]: true,
           }
         }
       });
-    } else {
+    }
+    // set date
+    const setDate = (dropdown, pickedDate=pickedOpt, value) => {
+      console.log(value)
       this.setState({
         ...this.state,
         newPlant: {
           ...this.state.newPlant,
           [dropdown]: {
             ...this.state.newPlant[dropdown],
-            [pickedTime]: value
+            [pickedDate]: value
           }
         }
       })
+    }
+
+    // set mist
+    const toggleMist = (mist=pickedOpt) => {
+      this.setState({
+        ...this.state,
+        newPlant: {
+          ...this.state.newPlant,
+          mist: this.state.NewPlant.mist === false ? this.state.NewPlant.mist = true : false
+        }
+      })
+    }
+    // set other value
+    const setOther = (pickedOpt, value) => {
+      this.setState({
+        newPlant: {
+          ...this.state.newPlant,
+          [pickedOpt]: value,
+        }
+      });
+    }
+
+    
+    
+    if (dropdown === 'tod') {
+      setTime(dropdown, pickedOpt, keys)
+    } else if (dropdown === 'date') {
+      setDate(dropdown, pickedOpt, value);
+    } else if (pickedOpt === 'mist') {
+      toggleMist(pickedOpt);
+    } else {
+      setOther(pickedOpt, value);
     }
     
   };
@@ -332,7 +358,7 @@ class PlantView extends Component {
         // replace the plant entirely with the editedPlant stateful object. 
         plants: plants.map((plant, index) => plant.plantId === plantId ? plants[index] = editedPlant : plant)
       });
-  
+
     } catch (err) {
       console.log(err);
     };
@@ -364,13 +390,13 @@ class PlantView extends Component {
   }
 
   render() {
-    console.log(this.state.newPlant.date)
+    console.log(this.state.newPlant)
     const plants = this.viewSavedPlants(this.state.plants)
     return (
         <div className="planter-box">
           <NewPlantModal
             plantState={this.state.newPlant}
-            setNewPlantState={this.setNewPlantState}
+            setPlantState={this.setPlantState}
             getPlants={this.getPlants} 
             addPlant={this.addPlant}
           /> 
