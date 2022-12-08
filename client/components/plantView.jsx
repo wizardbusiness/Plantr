@@ -119,38 +119,44 @@ class PlantView extends Component {
     // console.log(property)
   } 
   
-  setNewPlantState(dropdown, pickedTime, keys, value) {
+  setNewPlantState(dropdown, pickedTime, value=0, keys=[]) {
     const notPickedTimes = keys.filter(key => key !== pickedTime);
-    console.log(pickedTime)
-    console.log(notPickedTimes);
     // if dropdown isn't schedule or tod
-    if (dropdown !== 'schedule' && dropdown !== 'tod') {
+    if (dropdown !== 'date' && dropdown !== 'tod') {
       this.setState({
         newPlant: {
           ...this.state.newPlant,
           [dropdown]: value,
         }
       });
-      // if dropdown is schedule or tod, 
+      // if dropdown is , 
       // update the appropriate dropdown on those objects. 
-    } else {
+    } else if (dropdown === 'tod') {
       this.setState({
         ...this.state,
         newPlant:{
           ...this.state.newPlant,
           [dropdown]: {
-
             ...this.state.newPlant[dropdown],
-            // other properties. 
             // set not picked times to false. 
             [notPickedTimes[0]]: false,
             [notPickedTimes[1]]: false,
             // set picked time to true
             [pickedTime]: true,
-            
           }
         }
       });
+    } else {
+      this.setState({
+        ...this.state,
+        newPlant: {
+          ...this.state.newPlant,
+          [dropdown]: {
+            ...this.state.newPlant[dropdown],
+            [pickedTime]: value
+          }
+        }
+      })
     }
     
   };
@@ -169,7 +175,7 @@ class PlantView extends Component {
       soil, 
       fertilizer, 
       notes, 
-      schedule: { day, week, month }, 
+      date: { day, week, month }, 
       tod: { morning, evening, mid }, 
       mist, 
       waterDate, 
@@ -358,7 +364,7 @@ class PlantView extends Component {
   }
 
   render() {
-    console.log(this.state.newPlant.tod)
+    console.log(this.state.newPlant.date)
     const plants = this.viewSavedPlants(this.state.plants)
     return (
         <div className="planter-box">
