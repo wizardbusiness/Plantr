@@ -20,7 +20,7 @@ class WaterDateDropDown extends Component {
   }
 
   makeScheduleOptions(unit) {
-    const { dateObj, setNewPlantState } = this.props
+    const { dateObj, setPlantState } = this.props
     // these will be passed through props
     let i = 0;
     let max;
@@ -65,7 +65,7 @@ class WaterDateDropDown extends Component {
       <>
         <label> {unit}: </label>
         <select
-          onChange={(e) => setNewPlantState('date', unit, e.target.value)}
+          onChange={(e) => setPlantState('date', unit, Number(e.target.value))}
         >{items}</select>
       </>
     );  

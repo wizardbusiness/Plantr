@@ -14,7 +14,7 @@ class WaterTimeDropdown extends Component {
 
   // picks the time of day to water plants
   scheduleTOD() {
-    const { tod, setNewPlantState } = this.props;
+    const { tod, setPlantState } = this.props;
     const labels = ['Morning', 'Afternoon', 'Evening'];
     const timesOfDay = Object.keys(tod);
     const options = timesOfDay.map((time, index) => {
@@ -33,7 +33,7 @@ class WaterTimeDropdown extends Component {
         <select
           id='select'
           onChange={(e) => {
-            setNewPlantState('tod', e.target.value, 0, timesOfDay)
+            setPlantState('tod', e.target.value, 0, timesOfDay)
             }
           }
           >

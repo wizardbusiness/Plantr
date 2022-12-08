@@ -14,7 +14,7 @@ class NewPlantForm extends Component {
   
   makeFormFields() {
 
-    const {plantState, setNewPlantState } = this.props
+    const {plantState, setPlantState } = this.props
     // make inputIds for all visible fields. slice off the id, since it isn't visible.
     const inputProperties = Object.keys(plantState).slice(1);
     const fieldLabels = [' Plant Name', ' Light Preference', ' Soil Preference', ' Fertilizer Preference', ' Notes', ' Schedule', ' Watering Time', ' Mist'];
@@ -25,7 +25,7 @@ class NewPlantForm extends Component {
             key={`plant${index}`}
             isOpen={false}
             label={label}
-            setNewPlantState={setNewPlantState}
+            setPlantState={setPlantState}
             waterDate={plantState.date}
           />
         )
@@ -36,7 +36,7 @@ class NewPlantForm extends Component {
               key={`plant${index}`}
               label={label}
               tod={plantState.tod}
-              setNewPlantState={setNewPlantState}
+              setPlantState={setPlantState}
             />
           )
       return (
@@ -45,7 +45,7 @@ class NewPlantForm extends Component {
           key={`plant${index}`}
           fieldLabel={label}
           inputProperty={inputProperties[index]}
-          setNewPlantState={setNewPlantState}
+          setPlantState={setPlantState}
         /> 
       )
    });
