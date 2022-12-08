@@ -30,8 +30,7 @@ class PlantView extends Component {
         },
         // columns morning, mid, evening
         tod: {
-          default: true,
-          morning: false,
+          morning: true,
           mid: false,
           evening: false
         },
@@ -120,31 +119,39 @@ class PlantView extends Component {
     // console.log(property)
   } 
   
-  setNewPlantState(property, dtProperty, value) {
-    console.log(this.state.newPlant[property][dtProperty]);
-    // if property isn't schedule or tod
-    if (property !== 'schedule' && property !== 'tod') {
+  setNewPlantState(dropdown, pickedTime, keys, value) {
+    const notPickedTimes = keys.filter(key => key !== pickedTime);
+    console.log(pickedTime)
+    console.log(notPickedTimes);
+    // if dropdown isn't schedule or tod
+    if (dropdown !== 'schedule' && dropdown !== 'tod') {
       this.setState({
         newPlant: {
           ...this.state.newPlant,
-          [property]: value,
+          [dropdown]: value,
         }
       });
-      // if property is schedule or tod, 
-      // update the appropriate property on those objects. 
+      // if dropdown is schedule or tod, 
+      // update the appropriate dropdown on those objects. 
     } else {
       this.setState({
         ...this.state,
         newPlant:{
           ...this.state.newPlant,
-          [property]: {
-            ...this.state.newPlant[property],
-            [dtProperty]: this.state.newPlant[property][dtProperty] === false ? this.state.newPlant[property][dtProperty] = true : this.state.newPlant[property][dtProperty] = false
+          [dropdown]: {
+
+            ...this.state.newPlant[dropdown],
+            // other properties. 
+            // set not picked times to false. 
+            [notPickedTimes[0]]: false,
+            [notPickedTimes[1]]: false,
+            // set picked time to true
+            [pickedTime]: true,
+            
           }
         }
       });
     }
-    
     
   };
 
@@ -351,7 +358,7 @@ class PlantView extends Component {
   }
 
   render() {
-
+    console.log(this.state.newPlant.tod)
     const plants = this.viewSavedPlants(this.state.plants)
     return (
         <div className="planter-box">
