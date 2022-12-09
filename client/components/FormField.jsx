@@ -1,10 +1,10 @@
 import React from 'react';
 
-const FormField = props => {
+const FormField = ({inputProperty, fieldLabel, setPlantState}) => {
   return (
     <label> 
-      <input onChange={(e) => props.setNewPlantState(props.inputProperty, e.target.value)}></input>
-      {props.fieldLabel}
+      <input onBlur={(e) => setPlantState(null, inputProperty, e.target.value)}></input>
+      {fieldLabel}
     </label>
   )
 }
