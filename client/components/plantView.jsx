@@ -165,6 +165,7 @@ class PlantView extends Component {
         }
       })
     }
+
     // set other value
     const setOther = (pickedOpt, value) => {
       this.setState({
