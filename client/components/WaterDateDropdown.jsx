@@ -4,46 +4,33 @@ import React, { Component } from 'react';
 // Relationships: Rendered by NewPlantForm and EditPlantForm. 
 
 
-class WaterDateDropDown extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-       isOpen: false,
-       schedule: {
-        weeks: 0,
-        days: 0,
-        hours: 0,
-        minutes: 0
-      }
-    }
-    this.makeScheduleOptions = this.makeScheduleOptions.bind(this);
+const WaterDateDropDown = ({dateObj, setPlantState, label}) => {
+
+  const getUnit = (unit, max) => {
+    switch(unit) {
+      case 'weeks':
+        max = 5;
+        break;
+      case 'days': 
+        max = 7;
+        break;
+      case 'hours': 
+        max = 24;
+        break;
+      case 'mins':
+      max = 60;
+      break;
+    };
+    return max;
   }
 
-  makeScheduleOptions(unit) {
-    const { dateObj, setPlantState } = this.props
+  const makeScheduleOptions = (unit) => {
     // these will be passed through props
     let i = 0;
     let max;
     const list = [];
+    max = getUnit(unit, max);
 
-    const getUnit = () => {
-      switch(unit) {
-        case 'weeks':
-          max = 5;
-          break;
-        case 'days': 
-          max = 7;
-          break;
-        case 'hours': 
-          max = 24;
-          break;
-        case 'mins':
-        max = 60;
-        break;
-      };
-    }
-
-    getUnit();
 
     while (i < max) {
       list.push(i)
@@ -70,21 +57,18 @@ class WaterDateDropDown extends Component {
       </>
     );  
   }
-
-  render() {
     
-    return (
-      <div className="schedule-drop-down"> 
-          <span>
-            {this.makeScheduleOptions('weeks')}
-            {this.makeScheduleOptions('days')}
-            {/* {this.makeScheduleOptions('hours')}
-            {this.makeScheduleOptions('mins')} */}
-          </span>
-          <span className="label">{this.props.label}</span>
-      </div>
-    );
-  }
+  return (
+    <div className="schedule-drop-down"> 
+        <span>
+          {makeScheduleOptions('weeks')}
+          {makeScheduleOptions('days')}
+          {/* {makeScheduleOptions('hours')}
+          {makeScheduleOptions('mins')} */}
+        </span>
+        <span className="label">{label}</span>
+    </div>
+  );
 }
 
 export default WaterDateDropDown;
