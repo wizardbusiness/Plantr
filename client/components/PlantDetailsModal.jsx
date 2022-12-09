@@ -2,22 +2,8 @@ import React, { Component } from 'react';
 import PlantInfo from './PlantInfo';
 
 class PlantDetailsModal extends Component {
-  constructor({
-    index,
-    plantInfo,
-    editedPlant,
-    clonePlant,
-    editPlant,
-    savePlantEdits
-  }) {
-    super( 
-      index,
-      plantInfo,
-      editedPlant,
-      clonePlant,
-      editPlant,
-      savePlantEdits
-    );
+  constructor(props) {
+    super(props);
 
     this.state = {
       modal: {
@@ -44,6 +30,14 @@ class PlantDetailsModal extends Component {
   // on click, check the element being clicked against the plant id in the database. 
   // retrieve info for that plant, and display inside the modal. 
   render() {
+    const {
+      index,
+      plantInfo,
+      editedPlant,
+      clonePlant,
+      editPlant,
+      savePlantEdits
+    } = this.props;
     return (
       <article id="info-button">
         <button onClick={() => this.toggleModal()}>Info</button>
@@ -57,7 +51,7 @@ class PlantDetailsModal extends Component {
           editedPlant={editedPlant}
           // this class
           modalVisible={this.state.modal.show} 
-          toggle={this.toggleModal} 
+          toggleModal={this.toggleModal} 
         />
       </article>
     )

@@ -42,7 +42,6 @@ class PlantView extends Component {
 
     this.getPlants = this.getPlants.bind(this);
     this.viewSavedPlants = this.viewSavedPlants.bind(this);
-    this.addPlant = this.addPlant.bind(this);
     this.setPlantState = this.setPlantState.bind(this);
     this.savePlant = this.savePlant.bind(this);
     this.editPlant = this.editPlant.bind(this);
@@ -106,18 +105,8 @@ class PlantView extends Component {
     });
   }
 
-  // ADD PLANT: Updates the newPlant properties in state when the user fills out the new plant form.
+  // SET PLANT STATE: Updates properties of a new or edited plant in state when the user fills out the new or edited plant form.
   // args: property being updated, updated value.  
-  addPlant(property, value) {
-    
-    this.setState({
-      newPlant: {
-        ...this.state.newPlant,
-        [property]: value,
-      }
-    });
-    // console.log(property)
-  } 
   
   // input: dropdown, property being changed, value, property names in object
   setPlantState(dropdown, pickedOpt, value=0, keys=[]) {
@@ -257,7 +246,7 @@ class PlantView extends Component {
           soil: '',
           fertilizer: '',
           notes: '',
-          schedule: {
+          date: {
             ...this.state.schedule,
             days: 0,
             weeks: 0, 
@@ -401,7 +390,7 @@ class PlantView extends Component {
             plantState={this.state.newPlant}
             setPlantState={this.setPlantState}
             getPlants={this.getPlants} 
-            addPlant={this.addPlant}
+            savePlant={this.savePlant}
           /> 
           <div className="plants">{plants}</div>
         </div>   

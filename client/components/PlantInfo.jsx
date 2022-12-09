@@ -3,26 +3,8 @@ import PlantDetail from './PlantDetail';
 import EditPlantForm from './EditPlantForm';
 
 class PlantInfo extends Component {
-  constructor({
-    index,
-    plantInfo,
-    editedPlant,
-    clonePlant,
-    editPlant,
-    savePlantEdits,
-    modalVisible,
-    toggle
-  }) {
-    super(
-      index,
-      plantInfo,
-      editedPlant,
-      clonePlant,
-      editPlant,
-      savePlantEdits,
-      modalVisible,
-      toggle
-    ); 
+  constructor(props) {
+    super(props); 
 
     this.state = {
       editPlant: false
@@ -39,6 +21,7 @@ class PlantInfo extends Component {
   };
   
   populateInfo () {
+    const { plantInfo } = this.props;
     const infoLabels = [' Plant Name', ' Light Preference', ' Soil Preference', ' Fertilizer Preference', ' Notes', ' Schedule', ' Watering Time', ' Mist'];
     // should only pass relevant props, but for now, here's a hack to filter out the ones we don't want. 
     const { name, light, soil, ferilizer, notes, schedule, tod, mist } = plantInfo;
@@ -57,6 +40,15 @@ class PlantInfo extends Component {
   };
 
   render() {
+    const {
+      index,
+      editedPlant,
+      clonePlant,
+      editPlant,
+      savePlantEdits,
+      modalVisible,
+      toggleModal
+    } = this.props;
     const plantInfo = this.populateInfo();
     // if no modal opened (either info modal or edit modal), don't render anything. 
     if (!modalVisible) return null;
@@ -72,23 +64,21 @@ class PlantInfo extends Component {
               this.toggleEditPlant();
               }
             }>Edit Info</button>
-            <button onClick={() => toggle()}>x</button>   
+            <button onClick={() => toggleModal()}>x</button>   
           </div>
           {plantInfo}
         </div>
       </main>
       )
-    // if plant is being edited, render edit plant modal. 
+    // else if plant is being edited, render edit plant modal. 
     } else { 
       return (
         <EditPlantForm 
-          plants={this.props.plants}
-          index={this.props.index}
+          index={index}
           // get the plant details from the isolated edited plant state object. 
-          plantDetails={this.props.editedPlant}
-          editPlantState={this.props.editPlantState}
-          id={this.props.id}
-          saveEditedPlant={this.props.saveEditedPlant}
+          plantDetails={editedPlant}
+          editPlant={editPlant}
+          savePlantEdits={savePlantEdits}
           toggleEditPlant={this.toggleEditPlant}
         />
       );

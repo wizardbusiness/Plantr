@@ -6,23 +6,9 @@ import '../../src/styles.css';
 
 
 class Plant extends Component {
-  constructor({ 
-    index,
-    plantInfo,
-    editPlant,
-    clonePlant,
-    savePlantEdits,
-    deletePlant,
-    editedPlant }) {
-    super({
-      index,
-      plantInfo,
-      editPlant,
-      clonePlant,
-      savePlantEdits,
-      deletePlant,
-      editedPlant
-    });
+  constructor(props) {
+    super(props);
+
     this.waterPlant = this.waterPlant.bind(this);
   }
 
@@ -39,6 +25,14 @@ class Plant extends Component {
 
   
   render() {
+    const { 
+      index,
+      plantInfo,
+      editPlant,
+      clonePlant,
+      savePlantEdits,
+      deletePlant,
+      editedPlant } = this.props;
     return (
       <div>
         <div className="plant"onClick={() => this.waterPlant()}> 
@@ -52,6 +46,7 @@ class Plant extends Component {
             clonePlant={clonePlant}
             editPlant={editPlant}
             savePlantEdits={savePlantEdits}
+            deletePlant={deletePlant}
           />
           <div className="plant-name">{plantInfo.name}</div>
         </div>
