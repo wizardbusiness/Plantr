@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import '../../src/styles';
 import FormField from './FormField';
+import Radio from './Checkbox';
 import WaterDateDropdown from './WaterDateDropdown';
 import WaterTimeDropdown from './WaterTimeDropdown';
 
@@ -39,6 +40,15 @@ class NewPlantForm extends Component {
               setPlantState={setPlantState}
             />
           )
+      if (index === 7)
+        return (
+          <Radio
+            key={`plant${index}`}
+            setPlantState={setPlantState}
+            label={label}
+          />
+        )
+
       return (
         <FormField 
           value={plantState[inputProperties[index]]}

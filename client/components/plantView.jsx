@@ -119,6 +119,7 @@ class PlantView extends Component {
     // console.log(property)
   } 
   
+  // input: dropdown, property being changed, value, property names in object
   setPlantState(dropdown, pickedOpt, value=0, keys=[]) {
     // set time
     const setTime = (dropdown, pickedTime=pickedOpt, keys) => {
@@ -153,13 +154,14 @@ class PlantView extends Component {
       })
     }
 
-    // set mist
-    const toggleMist = (mist=pickedOpt) => {
+    // toggle mist
+    const toggleMist = () => {
+      console.log(pickedOpt)
       this.setState({
         ...this.state,
         newPlant: {
           ...this.state.newPlant,
-          mist: this.state.NewPlant.mist === false ? this.state.NewPlant.mist = true : false
+          mist: this.state.newPlant.mist === false ? this.state.newPlant.mist = true : false
         }
       })
     }
@@ -180,7 +182,7 @@ class PlantView extends Component {
     } else if (dropdown === 'date') {
       setDate(dropdown, pickedOpt, value);
     } else if (pickedOpt === 'mist') {
-      toggleMist(pickedOpt);
+      toggleMist();
     } else {
       setOther(pickedOpt, value);
     }
