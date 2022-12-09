@@ -1,20 +1,12 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 // Description: dropdown menu which sets the time of day to water a plant.
 // Relationships: Rendered by NewPlantForm and EditPlantForm. 
 
-class WaterTimeDropdown extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isOpen: false
-    }
-    this.scheduleTOD = this.scheduleTOD.bind(this);
-  }
-
+const WaterTimeDropdown = ({tod, setPlantState, label}) => {
+  
   // picks the time of day to water plants
-  scheduleTOD() {
-    const { tod, setPlantState } = this.props;
+  const scheduleTOD = () => {
     const labels = ['Morning', 'Afternoon', 'Evening'];
     const timesOfDay = Object.keys(tod);
     const options = timesOfDay.map((time, index) => {
@@ -41,25 +33,17 @@ class WaterTimeDropdown extends Component {
         </select>
       </>
     )
-    
   }
 
-  render() {
-    const { isOpen, tod, label} = this.props;
     return (
       <div className="drop-down">
-        <div
-        onClick={this.toggleDropDown}
-        ref={ref => (this.dropTogglerRef = ref)}
-        >
           <span>
-            {this.scheduleTOD()}
+            {scheduleTOD()}
           </span>
           <span className="label">{label}</span>
-        </div>
       </div>
     )
   }
-}
+
 
 export default WaterTimeDropdown;
