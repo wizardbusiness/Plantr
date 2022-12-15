@@ -35,20 +35,21 @@ const plantControllers = {
   },
 
   async addPlant (req, res, next) {
-    const { plantId, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, waterDate, fertilizeDate } = req.body;
+    const { name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, waterDate, fertilizeDate } = req.body;
     try {
       if (!name) throw new Error('name field required');
       const data = await db.query(
         `WITH p_vals AS (
           INSERT INTO plants 
-            (plant_id, name, img, light, soil, fertilizer, notes)
+            (name, img, light, soil, fertilizer, notes)
           VALUES
-            ($1, $2, $3, $4, $6, $7))
-         INSERT INTO schedule
-           (plant_id, day, week, month, morning, evening, mid, mist, water_date, fertilize_date)
+            ($1, $2, $3, $4, $5, $6)
+          ) 
+          INSERT INTO schedule
+           (day, week, month, morning, evening, mid, mist)
          VALUES
-          ($1, $8, $9, $10, $11, $12, $13, $14, $15, $16);`, 
-         [plantId, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, waterDate, fertilizeDate]);
+          ($7, $8, $9, $10, $11, $12, $13) RETURNING plant_id;`, 
+         [name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist]); // waterDate, fertilizeDate
         res.locals.newPlant = data.rows;
         console.log(res.locals.newPlant)
         next();
@@ -77,12 +78,13 @@ const plantControllers = {
   },
 
   async deletePlant (req, res, next) {
-    const { plantId } = req.params;
-
+    const { plant_id } = req.params;
+    console.log(plant_id)
     try {
       // CASCADE is on in SQL- deleting plant in plants table deletes it in the schedule table too. 
-      const data = await db.query('DELETE FROM plants WHERE id = $1 RETURNING id' , [plantId]);
-      res.locals.deletedPlant = data.rows[0];
+      const data = await db.query('DELETE FROM plants WHERE plant_id = $1 RETURNING plant_id', [plant_id]);
+      res.locals.deletedPlant = data;
+      // console.log(res.locals.deletedPlant);
       next();
     } catch(err) {
       next(err);
