@@ -44,14 +44,15 @@ const plantControllers = {
             (name, img, light, soil, fertilizer, notes)
           VALUES
             ($1, $2, $3, $4, $5, $6)
+            RETURNING plant_id
           ) 
           INSERT INTO schedule
-           (day, week, month, morning, evening, mid, mist)
-         VALUES
-          ($7, $8, $9, $10, $11, $12, $13) RETURNING plant_id;`, 
+            (plant_id, day, week, month, morning, evening, mid, mist)
+            SELECT plant_id, $7, $8, $9, $10, $11, $12, $13
+            FROM p_vals
+            RETURNING plant_id;`, 
          [name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist]); // waterDate, fertilizeDate
-        res.locals.newPlant = data.rows;
-        console.log(res.locals.newPlant)
+        res.locals.newPlant = data.rows[0];
         next();
     } catch(err) {
       console.log(err);
