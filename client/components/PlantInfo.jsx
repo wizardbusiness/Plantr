@@ -24,11 +24,58 @@ class PlantInfo extends Component {
     const { plantInfo } = this.props;
     const infoLabels = [' Plant Name', ' Light Preference', ' Soil Preference', ' Fertilizer Preference', ' Notes', ' Schedule', ' Watering Time', ' Mist'];
     // should only pass relevant props, but for now, here's a hack to filter out the ones we don't want. 
-    const { name, light, soil, ferilizer, notes, schedule, tod, mist } = plantInfo;
-    const relevantInfo = { name, light, soil, ferilizer, notes, schedule, tod, mist };
+    const { name, light, soil, ferilizer, notes, date, tod, mist } = plantInfo;
+    const relevantInfo = { name, light, soil, ferilizer, notes, date, tod, mist };
+
+    const flattenObj = (obj) => {
+      const flattenedObj = Object.entries(obj).filter((entry) => (entry[1]))
+      
+      return flattenedObj;
+    };
+
+    const renderFlattenedObjs= (flattenedObj) => {
+      const fragments = flattenedObj.map((entry, index) => {
+        if (entry[0] === 'morning' || entry[0] === 'mid' || entry[0] === 'evening') return (
+          <React.Fragment key={`entry${index}`}>
+            {entry[0]}&nbsp; 
+          </React.Fragment>
+        )
+        return (
+          <React.Fragment key={`entry${index}`}>
+            {entry[0]}: {entry[1]}&nbsp; 
+          </React.Fragment>
+        );
+       
+      });
+
+      return (
+        <span>{fragments}</span>
+      );
+    };
+
+    const chosenDate = flattenObj(date);
+    console.log(chosenDate)
+    const chosenTod = flattenObj(tod);
+    console.log(chosenTod)
+    
+
     const infoToShow = Object.values(relevantInfo);
     return infoToShow.map((info, index) => {
       // map plant info to plant info modal, line by line
+      if (info === date) return (
+        <PlantDetail
+          key={`plant${index}`}
+          infoLabel={infoLabels[index]}
+          info={renderFlattenedObjs(chosenDate)}
+        />
+      )
+      if (info === tod) return (
+        <PlantDetail
+          key={`plant${index}`}
+          infoLabel={infoLabels[index]}
+          info={renderFlattenedObjs(chosenTod)}
+        />
+      )
       return (
           <PlantDetail
             key={`plant${index}`} 
