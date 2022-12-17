@@ -14,8 +14,8 @@ class PlantView extends Component {
       editedPlant: {},
       // newPlant properties relate to columns in plants table in postgreSQL db. 
       // columns in db: plant_id, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, water_date, fertilize_date
+      // note that plant_id is defined in database, not new plant state. 
       newPlant: {
-        plantId: 0,
         name: '',
         img: '',
         light: '',
@@ -62,22 +62,36 @@ class PlantView extends Component {
     this.getPlants();
   };
 
+  componentDidUPdate() {
+    console.log('plantview just updated')
+  }
+
   // GET PLANTS: retrieves all plants in the db. 
   async getPlants() {
     try {
       const response = await fetch('/plants')
+      
       const plants = await response.json();
-      this.setState({
+
+      // convert plant state in db back to state structure in react state. 
+      // 
+      const plantsProcessedForFrontendState = plants.map(plant => {
+        const processedPlantObj = {tod: {}, date: {}};
+        // even though the for loop is nested, there is a fixed number of props, so it is basically constant insertion. 
+        for (const prop in plant) {
+          if (prop in this.state.newPlant) processedPlantObj[prop] = plant[prop];
+          else if (prop ===  'mid' || prop === 'evening' || prop === 'morning') processedPlantObj['tod'][prop] = plant[prop];
+          else if (prop === 'day' || prop === 'week' || prop === 'month') processedPlantObj['date'][prop] = plant[prop]
+        }
+        return processedPlantObj;
+      });
+
+
+
+     this.setState({
         ...this.state.plants,
         // update the entire plants array from the db. 
-        plants: plants,
-        // 
-        newPlant: {
-          ...this.state.newPlant,
-          // update plantId so that the next new plant added will have an id that is greater than the previous plant added.   
-          // if no plants were in the database, keep the new plants' id to 0.
-          plantId: plants.length > 0 ? plants[plants.length - 1].id + 1 : 0
-        },
+        plants: plantsProcessedForFrontendState
       });
     } catch (err) {
       console.log(err);
@@ -173,7 +187,7 @@ class PlantView extends Component {
       setDate(dropdown, pickedOpt, value);
     } else if (pickedOpt === 'mist') {
       toggleMist();
-    } else {
+    } else {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
       setOther(pickedOpt, value);
     }
     
@@ -186,7 +200,7 @@ class PlantView extends Component {
 
     // destructure state
     const { 
-      plantId, 
+      // plantId, 
       name, 
       img, 
       light, 
@@ -196,13 +210,13 @@ class PlantView extends Component {
       date: { day, week, month }, 
       tod: { morning, evening, mid }, 
       mist, 
-      waterDate, 
-      fertilizeDate
+      // waterDate, 
+      // fertilizeDate
     } = this.state.newPlant;
 
     // add all values from destructured state to request body
     const body = {
-      plantId, 
+      // plantId, 
       name, 
       img, 
       light, 
@@ -215,13 +229,13 @@ class PlantView extends Component {
       morning, 
       evening, 
       mid, 
-      mist, 
-      waterDate, 
-      fertilizeDate
+      mist
+      // waterDate, 
+      // fertilizeDate
     };
 
     try {
-      const response = await fetch('/plants', {
+      const plantTableResponse = await fetch('/plants', {
         method: 'POST', 
         headers: {
           'Content-Type': 'Application/JSON'
@@ -230,16 +244,15 @@ class PlantView extends Component {
         body: JSON.stringify(body)
       });
       // wait for the okay from the db.
-      const addedPlant = await response.json();
+      const addedPlant = await plantTableResponse.json();
+      
       // after okay from database, use local state to add plant to plants. It's faster than sending the response body
       console.log('added plant okay');
       this.setState({
         plants: [...this.state.plants, this.state.newPlant],
         newPlant: {
           ...this.state.newPlant, 
-          // to make new plant id will increment by one every time a plant is created. this value never resets to ensure uniqueness. 
-          plantId: plantId + 1, 
-          // reset everything else to default values. 
+          // reset new plant state object to default values.
           name: '',
           img: '',
           light: '',
@@ -262,7 +275,7 @@ class PlantView extends Component {
           fertilizeDate: ''
         },
       });
-      console.log('added plant: ' + addedPlant)
+
       return addedPlant;
     } catch (err) {
       console.log(err);
@@ -297,7 +310,7 @@ class PlantView extends Component {
 
     // destructure state
     const { 
-      plantId, 
+      // plantId, 
       name, 
       img, 
       light, 
@@ -312,7 +325,6 @@ class PlantView extends Component {
     } = this.state.editedPlant;
 
     const body = {
-      plantId,
       name, 
       img, 
       light, 
@@ -359,9 +371,9 @@ class PlantView extends Component {
   // -----------------------------------------------------------------------------------------------------------------
 
   // DELETE PLANT: deletes a saved plant from the database and from state. 
-  async deletePlant (plantId) {
+  async deletePlant (plant_id) {
     try {
-      const response = await fetch(`/plants/${plantId}`, {
+      const response = await fetch(`/plants/${plant_id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'Application/JSON'
@@ -369,12 +381,11 @@ class PlantView extends Component {
       });
       
       const dbResponseOk = await response.json();
+      
       const plants = this.state.plants;
-
-
       this.setState({
         // filter plant to be deleted out of saved state in plants.  
-        plants: plants.filter(plant => plant.plantId !== plantId)
+        plants: plants.filter(plant => plant.plant_id !== plant_id)
       });
     } catch (err) {
       console.log(err);
@@ -382,7 +393,6 @@ class PlantView extends Component {
   }
 
   render() {
-    console.log(this.state.newPlant)
     const plants = this.viewSavedPlants(this.state.plants)
     return (
         <div className="planter-box">
