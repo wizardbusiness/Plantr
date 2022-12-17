@@ -72,20 +72,22 @@ class PlantView extends Component {
       const response = await fetch('/plants')
       
       const plants = await response.json();
-
+      console.log(plants)
       // convert plant state in db back to state structure in react state. 
-      // 
       const plantsProcessedForFrontendState = plants.map(plant => {
         const processedPlantObj = {tod: {}, date: {}};
         // even though the for loop is nested, there is a fixed number of props, so it is basically constant insertion. 
         for (const prop in plant) {
+          
           if (prop in this.state.newPlant) processedPlantObj[prop] = plant[prop];
+          else if (prop === 'plant_id') processedPlantObj[prop] = plant[prop];
           else if (prop ===  'mid' || prop === 'evening' || prop === 'morning') processedPlantObj['tod'][prop] = plant[prop];
-          else if (prop === 'day' || prop === 'week' || prop === 'month') processedPlantObj['date'][prop] = plant[prop]
+          else if (prop === 'days' || prop === 'weeks' || prop === 'months') processedPlantObj['date'][prop] = plant[prop]
         }
         return processedPlantObj;
       });
 
+      console.log(plantsProcessedForFrontendState)
 
 
      this.setState({
@@ -144,7 +146,6 @@ class PlantView extends Component {
     }
     // set date
     const setDate = (dropdown, pickedDate=pickedOpt, value) => {
-      console.log(value)
       this.setState({
         ...this.state,
         newPlant: {
@@ -207,7 +208,7 @@ class PlantView extends Component {
       soil, 
       fertilizer, 
       notes, 
-      date: { day, week, month }, 
+      date: { days, weeks, months }, 
       tod: { morning, evening, mid }, 
       mist, 
       // waterDate, 
@@ -223,9 +224,9 @@ class PlantView extends Component {
       soil, 
       fertilizer, 
       notes, 
-      day, 
-      week, 
-      month, 
+      days, 
+      weeks, 
+      months, 
       morning, 
       evening, 
       mid, 
