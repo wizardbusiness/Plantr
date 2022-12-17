@@ -35,7 +35,7 @@ const plantControllers = {
   },
 
   async addPlant (req, res, next) {
-    const { name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, waterDate, fertilizeDate } = req.body;
+    const { name, img, light, soil, fertilizer, notes, days, weeks, months, morning, evening, mid, mist, waterDate, fertilizeDate } = req.body;
     try {
       if (!name) throw new Error('name field required');
       const data = await db.query(
@@ -47,11 +47,11 @@ const plantControllers = {
             RETURNING plant_id
           ) 
           INSERT INTO schedule
-            (plant_id, day, week, month, morning, evening, mid, mist)
+            (plant_id, days, weeks, months, morning, evening, mid, mist)
             SELECT plant_id, $7, $8, $9, $10, $11, $12, $13
             FROM p_vals
             RETURNING plant_id;`, 
-         [name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist]); // waterDate, fertilizeDate
+         [name, img, light, soil, fertilizer, notes, days, weeks, months, morning, evening, mid, mist]); // waterDate, fertilizeDate
         res.locals.newPlant = data.rows[0];
         next();
     } catch(err) {
