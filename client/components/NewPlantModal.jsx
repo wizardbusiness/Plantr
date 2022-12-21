@@ -27,10 +27,10 @@ class NewPlantModal extends Component {
         {/* must check for state first for this to work */}
         {this.state.modal.show === true && <NewPlantForm
           nameValue={this.props.nameValue}
-          modalVisible={this.state.modal.show}
           toggleModal={this.toggleModal}
           plantState={this.props.plantState}
           setPlantState={this.props.setPlantState}
+          resetPlantState={this.props.resetPlantState}
           savePlant={this.props.savePlant}
         />}
       </div>

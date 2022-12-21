@@ -43,6 +43,7 @@ class PlantView extends Component {
     this.getPlants = this.getPlants.bind(this);
     this.viewSavedPlants = this.viewSavedPlants.bind(this);
     this.setPlantState = this.setPlantState.bind(this);
+    this.resetPlantState = this.resetPlantState.bind(this);
     this.savePlant = this.savePlant.bind(this);
     this.editPlant = this.editPlant.bind(this);
     this.clonePlant = this.clonePlant.bind(this);
@@ -64,7 +65,7 @@ class PlantView extends Component {
 
   componentDidUpdate() {
     console.log('plantview just updated')
-  }
+  };
 
   processDbPlantForFrontendState(plants) {
     return plants.map(plant => {
@@ -76,7 +77,7 @@ class PlantView extends Component {
         else if (prop === 'plant_id') processedPlantObj[prop] = plant[prop];
         else if (prop ===  'mid' || prop === 'evening' || prop === 'morning') processedPlantObj['tod'][prop] = plant[prop];
         else if (prop === 'days' || prop === 'weeks' || prop === 'months') processedPlantObj['date'][prop] = plant[prop];
-      }
+      };
       return processedPlantObj;
     });
   }
@@ -100,7 +101,34 @@ class PlantView extends Component {
   }
 
   
-
+  resetPlantState() {
+    this.setState({
+      newPlant: {
+        ...this.state.newPlant, 
+        // reset new plant state object to default values.
+        name: '',
+        img: '',
+        light: '',
+        soil: '',
+        fertilizer: '',
+        notes: '',
+        date: {
+          ...this.state.date,
+          days: 0,
+          weeks: 0, 
+          months: 0
+        },
+        tod: {
+          morning: true,
+          mid: false,
+          evening: false
+        },
+        mist: false,
+        waterDate: '',
+        fertilizeDate: ''
+      },
+    });
+  }
   // SET PLANT STATE: Updates properties of a new or edited plant in state when the user fills out the new or edited plant form.
   // args: property being updated, updated value.  
   
@@ -156,7 +184,7 @@ class PlantView extends Component {
           ...this.state[stateObjectName],
           [propertyToChange]: value,
         }
-      }, () => console.log(this.state.newPlant));
+      });
     }
 
     
@@ -229,31 +257,9 @@ class PlantView extends Component {
       // after okay from database, use local state to add plant to plants. It's faster than sending the response body
       this.setState({
         plants: [...this.state.plants, {...this.state.newPlant, plant_id: newPlant.plant_id}],
-        newPlant: {
-          ...this.state.newPlant, 
-          // reset new plant state object to default values.
-          name: '',
-          img: '',
-          light: '',
-          soil: '',
-          fertilizer: '',
-          notes: '',
-          date: {
-            ...this.state.schedule,
-            days: 0,
-            weeks: 0, 
-            months: 0
-          },
-          tod: {
-            morning: false,
-            mid: false,
-            evening: false
-          },
-          mist: false,
-          waterDate: '',
-          fertilizeDate: ''
-        },
       });
+
+      this.resetPlantState();
 
       return;
     } catch (err) {
@@ -402,6 +408,7 @@ class PlantView extends Component {
           <NewPlantModal
             plantState={this.state.newPlant}
             setPlantState={this.setPlantState}
+            resetPlantState={this.resetPlantState}
             getPlants={this.getPlants} 
             savePlant={this.savePlant}
           /> 

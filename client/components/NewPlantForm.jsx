@@ -75,13 +75,17 @@ class NewPlantForm extends Component {
   
   render() {
     const formFields = this.makeFormFields();
-    const { toggleModal, savePlant, modalVisible } = this.props;
+    const { toggleModal, savePlant, resetPlantState} = this.props;
     // >>> Warning: For some reason, lifting up the state of the modal toggle into plantView causes props to be undefined when modal state is changed. <<<
-    if (!modalVisible) return null;
     return (
         <div id="plant-form-overlay">
           <div id="new-plant-form">
-            <button onClick={() => toggleModal()}> x </button>
+            <button onClick={() => {
+              toggleModal()
+              resetPlantState()
+            }
+              
+            }> x </button>
             {formFields}
             <button onClick={() => {
               savePlant();
