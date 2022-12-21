@@ -30,7 +30,7 @@ class NewPlantModal extends Component {
           toggleModal={this.toggleModal}
           plantState={this.props.plantState}
           setPlantState={this.props.setPlantState}
-          addPlant={this.props.addPlant}
+          savePlant={this.props.savePlant}
         /> 
       </div>
     );
