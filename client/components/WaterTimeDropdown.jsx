@@ -7,23 +7,28 @@ const WaterTimeDropdown = ({stateObjName, tod, setPlantState, label}) => {
   
   // picks the time of day to water plants
   const scheduleTOD = () => {
-    const labels = ['Morning', 'Afternoon', 'Evening'];
+    const labels = {
+      'morning': 'Morning',
+      'mid': 'Afternoon', 
+      'evening': 'Evening'
+    };
     const timesOfDay = Object.keys(tod);
     const options = timesOfDay.map((time, index) => {
       return (
         <option
-          key={'time' + index}
+          key={`time${index}`}
           value={time}
         >
-          {labels[index]}
+          {labels[time]}
         </option>
       )
     });
-
+    const chosenTime = Object.entries(tod).filter(entry => entry[1] === true);
     return (
       <>
         <select
           id='select'
+          value={chosenTime[0][0]}
           onChange={(e) => {
             setPlantState(stateObjName, 'tod', e.target.value, 0, timesOfDay)
             }
