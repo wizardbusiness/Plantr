@@ -31,13 +31,14 @@ class Plant extends Component {
       editPlant,
       clonePlant,
       savePlantEdits,
+      setPlantState,
       deletePlant,
       editedPlant } = this.props;
     return (
       <div>
         <div className="plant"onClick={() => this.waterPlant()}> 
           <div className="plant-remove">
-            <button onClick={() => this.props.deletePlant(this.props.id)}>x</button>
+            <button onClick={() => deletePlant(plantInfo.plant_id)}>x</button>
           </div>
           <PlantDetailsModal 
             index={index}
@@ -46,6 +47,7 @@ class Plant extends Component {
             clonePlant={clonePlant}
             editPlant={editPlant}
             savePlantEdits={savePlantEdits}
+            setPlantState={setPlantState}
             deletePlant={deletePlant}
           />
           <div className="plant-name">{plantInfo.name}</div>
