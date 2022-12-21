@@ -38,10 +38,15 @@ class PlantInfo extends Component {
     };
 
     const renderFlattenedObjs= (flattenedObj) => {
+      const labels = {
+        'morning': 'Morning',
+        'mid': 'Afternoon', 
+        'evening': 'Evening'
+      }
       const fragments = flattenedObj.map((entry, index) => {
         if (entry[0] === 'morning' || entry[0] === 'mid' || entry[0] === 'evening') return (
           <React.Fragment key={`entry${index}`}>
-            {entry[0]}&nbsp; 
+            {labels[entry[0]]}&nbsp; 
           </React.Fragment>
         )
         else return (
@@ -127,6 +132,7 @@ class PlantInfo extends Component {
       )
     // else if plant is being edited, render edit plant modal. 
     } else { 
+      console.log('Edit Plant Form rendered')
       return (
         <EditPlantForm 
           index={index}
