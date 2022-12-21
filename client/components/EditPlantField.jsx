@@ -1,10 +1,10 @@
 import React from 'react';
 
-const EditPlantField = (props) => {
+const EditPlantField = ({setPlantState, stateObjName, fieldLabel, plantField, propertyToEdit}) => {
   return (
     <label> 
-      <input type="text" onChange={(e) => props.editPlantState(props.propertiesToEdit, e.target.value)} value={props.plantField}></input>
-      {props.fieldLabel}
+      <input type="text" onChange={(e) => setPlantState(stateObjName, null, propertyToEdit, e.target.value)} defaultValue={plantField}></input>
+      {fieldLabel}
     </label>
   )
 };
