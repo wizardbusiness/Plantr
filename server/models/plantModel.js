@@ -1,12 +1,14 @@
 const { Pool } = require('pg');
 const dotenv = require('dotenv');
+const postgres = require('postgres');
 
 
 // use .env uri 
 dotenv.config();
 
 const pool =  new Pool({
-  connectionString: 'postgres://bbewjnpx:cctSeBZ_FfPVs6I4rcbpjgCQhdv2IgXW@heffalump.db.elephantsql.com/bbewjnpx'
+  // connectionString: 'postgres://bbewjnpx:cctSeBZ_FfPVs6I4rcbpjgCQhdv2IgXW@heffalump.db.elephantsql.com/bbewjnpx'
+  connectionString: 'postgresql://localhost:5432/plantr'
 })
 
 
