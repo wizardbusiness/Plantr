@@ -4,8 +4,7 @@ import React, { Component } from 'react';
 // Relationships: Rendered by NewPlantForm and EditPlantForm. 
 
 
-const WaterDateDropDown = ({dateObj, setPlantState, label}) => {
-
+const WaterDateDropDown = ({stateObjName, waterSchedule, setPlantState, label}) => {
   const getUnit = (unit, max) => {
     switch(unit) {
       case 'weeks':
@@ -25,6 +24,7 @@ const WaterDateDropDown = ({dateObj, setPlantState, label}) => {
   }
 
   const makeScheduleOptions = (unit) => {
+    
     // these will be passed through props
     let i = 0;
     let max;
@@ -52,7 +52,8 @@ const WaterDateDropDown = ({dateObj, setPlantState, label}) => {
       <>
         <label> {unit}: </label>
         <select
-          onChange={(e) => setPlantState('date', unit, Number(e.target.value))}
+          value={waterSchedule[unit]}
+          onChange={(e) => setPlantState(stateObjName, 'date', unit, Number(e.target.value))}
         >{items}</select>
       </>
     );  

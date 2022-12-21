@@ -3,7 +3,7 @@ import React from 'react';
 // Description: dropdown menu which sets the time of day to water a plant.
 // Relationships: Rendered by NewPlantForm and EditPlantForm. 
 
-const WaterTimeDropdown = ({tod, setPlantState, label}) => {
+const WaterTimeDropdown = ({stateObjName, tod, setPlantState, label}) => {
   
   // picks the time of day to water plants
   const scheduleTOD = () => {
@@ -25,7 +25,7 @@ const WaterTimeDropdown = ({tod, setPlantState, label}) => {
         <select
           id='select'
           onChange={(e) => {
-            setPlantState('tod', e.target.value, 0, timesOfDay)
+            setPlantState(stateObjName, 'tod', e.target.value, 0, timesOfDay)
             }
           }
           >
