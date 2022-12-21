@@ -22,14 +22,18 @@ class PlantInfo extends Component {
   
   populateInfo () {
     const { plantInfo } = this.props;
-    const infoLabels = [' Plant Name', ' Light Preference', ' Soil Preference', ' Fertilizer Preference', ' Notes', ' Schedule', ' Watering Time', ' Mist'];
-    // should only pass relevant props, but for now, here's a hack to filter out the ones we don't want. 
-    const { name, light, soil, ferilizer, notes, date, tod, mist } = plantInfo;
-    const relevantInfo = { name, light, soil, ferilizer, notes, date, tod, mist };
+    const infoLabels = [
+      ['name', ' Plant Name'], 
+      ['light', ' Light Preference'], 
+      ['soil', ' Soil Preference'], 
+      ['fertilizer', ' Fertilizer Preference'], 
+      ['notes', ' Notes'], 
+      ['date', ' Schedule'], 
+      ['tod', ' Watering Time'], 
+      ['mist', ' Mist']];
 
     const flattenObj = (obj) => {
       const flattenedObj = Object.entries(obj).filter((entry) => (entry[1]))
-      
       return flattenedObj;
     };
 
@@ -40,7 +44,7 @@ class PlantInfo extends Component {
             {entry[0]}&nbsp; 
           </React.Fragment>
         )
-        return (
+        else return (
           <React.Fragment key={`entry${index}`}>
             {entry[0]}: {entry[1]}&nbsp; 
           </React.Fragment>
@@ -53,34 +57,36 @@ class PlantInfo extends Component {
       );
     };
 
-    const chosenDate = flattenObj(date);
-    console.log(chosenDate)
-    const chosenTod = flattenObj(tod);
-    console.log(chosenTod)
-    
+    const chosenDate = flattenObj(plantInfo.date);
+    const chosenTod = flattenObj(plantInfo.tod);
 
-    const infoToShow = Object.values(relevantInfo);
-    return infoToShow.map((info, index) => {
-      // map plant info to plant info modal, line by line
-      if (info === date) return (
+    return infoLabels.map((label, index) => {
+      const key = `field${index}`;
+      if (label[0] === 'date') return (
         <PlantDetail
-          key={`plant${index}`}
-          infoLabel={infoLabels[index]}
+          key={key}
+          infoLabel={label[1]}
           info={renderFlattenedObjs(chosenDate)}
         />
       )
-      if (info === tod) return (
+      else if (label[0] === 'tod') return (
         <PlantDetail
-          key={`plant${index}`}
-          infoLabel={infoLabels[index]}
+          key={key}
+          infoLabel={label[1]}
           info={renderFlattenedObjs(chosenTod)}
         />
       )
-      return (
+      else if (label[0] === 'mist') return (
+        <label key={key} >
+          {label[0]}
+          <input type="checkbox" checked={plantInfo.mist} disabled />
+        </label>
+      )
+      else return (
           <PlantDetail
-            key={`plant${index}`} 
-            infoLabel={infoLabels[index]} 
-            info={info}
+            key={key} 
+            infoLabel={label[1]} 
+            info={plantInfo[label[0]]}
           />
       );  
     });  
@@ -94,8 +100,10 @@ class PlantInfo extends Component {
       editPlant,
       savePlantEdits,
       modalVisible,
+      setPlantState,
       toggleModal
     } = this.props;
+
     const plantInfo = this.populateInfo();
     // if no modal opened (either info modal or edit modal), don't render anything. 
     if (!modalVisible) return null;
@@ -125,6 +133,7 @@ class PlantInfo extends Component {
           // get the plant details from the isolated edited plant state object. 
           plantDetails={editedPlant}
           editPlant={editPlant}
+          setPlantState={setPlantState}
           savePlantEdits={savePlantEdits}
           toggleEditPlant={this.toggleEditPlant}
         />

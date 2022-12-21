@@ -30,13 +30,15 @@ class PlantDetailsModal extends Component {
   // on click, check the element being clicked against the plant id in the database. 
   // retrieve info for that plant, and display inside the modal. 
   render() {
+
     const {
       index,
       plantInfo,
       editedPlant,
       clonePlant,
       editPlant,
-      savePlantEdits
+      savePlantEdits,
+      setPlantState,
     } = this.props;
     return (
       <article id="info-button">
@@ -47,6 +49,7 @@ class PlantDetailsModal extends Component {
           plantInfo={plantInfo}
           clonePlant={clonePlant}
           editPlant={editPlant}
+          setPlantState={setPlantState}
           savePlantEdits={savePlantEdits}
           editedPlant={editedPlant}
           // this class

@@ -1,38 +1,86 @@
 import React from 'react';
 import EditPlantField from './EditPlantField';
+import WaterDateDropDown from './WaterDateDropdown';
+import WaterTimeDropdown from './WaterTimeDropdown';
+import Checkbox from './Checkbox';
 
-const EditPlantForm = (props) => {
-
+const EditPlantForm = ({setPlantState, plantDetails, toggleEditPlant, savePlantEdits, index}) => {
   const makeFields = () => {
-    const fieldLabels = [' Plant Name', ' Water Frequency', ' Fertilize Frequency', ' Light Preference', ' Soil Preference', ' Fertilizer Preference', ' Notes'];
-    const plantDetails = Object.values(props.plantDetails).slice(1);
-    const plantProperties = Object.keys(props.plantDetails).slice(1);
-    console.log(props.plantDetails['name'])
-    return plantDetails.map((field, index) => {
+    const fieldLabels = [
+      ['name', ' Plant Name'], 
+      ['light', ' Light Preference'], 
+      ['soil', ' Soil Preference'], 
+      ['fertilizer', 'Fertilizer Preference'], 
+      ['notes', ' Notes'], 
+      ['date', ' Schedule'], 
+      ['tod', ' Watering Time'], 
+      ['mist', ' Mist']
+    ];
+    const stateObjName = 'editedPlant';
+    return fieldLabels.map((label, index) => {
+      // if (plantDetails[field][0]) 
       const key = `field${index}`
+      if (index === 5) {
+        return (
+          <WaterDateDropDown
+            key={key}
+            isOpen={false}
+            label={label[1]}
+            stateObjName={stateObjName}
+            waterSchedule={plantDetails.date}
+            setPlantState={setPlantState}
+          />
+        )
+      }
+      if (index === 6) {
+        return (
+          <WaterTimeDropdown 
+          key={key}
+          label={label[1]}
+          tod={plantDetails.tod}
+          stateObjName={stateObjName}
+          setPlantState={setPlantState}
+          />
+        )
+      }
+      if (index === 7) {
+        return (
+          <Checkbox
+            key={key}
+            label={label[1]}
+            propertyToChange={label[0]}
+            value={plantDetails.mist}
+            stateObjName={stateObjName}
+            setPlantState={setPlantState}
+          />
+        )
+      }
       return (
         <EditPlantField
           key={key}
-          id={props.id}
-          editPlantState={props.editPlantState}
-          fieldLabel={fieldLabels[index]}
-          plantField={props.plantDetails[plantProperties[index]]}
-          propertiesToEdit={plantProperties[index]}
+          stateObjName={stateObjName}
+          setPlantState={setPlantState}
+          fieldLabel={label[1]}
+          plantField={plantDetails[label[0]]}
+          propertyToEdit={label[0]}
         />
       );
     });
   }
 
   const editPlantForm = makeFields();
-
   return (
     <main className="plant-info-overlay"> 
       <div className="plant-info">
           <div id="info-modal-buttons">
-            <button onClick={() => props.toggleEditPlant()}>x</button>
+            <button onClick={() => toggleEditPlant()}>x</button>
           </div>
             {editPlantForm}
-            <button onClick={() => props.saveEditedPlant(props.plantDetails, props.index)}>Save</button>
+            <button onClick={() => {
+              toggleEditPlant()
+              savePlantEdits()
+            }
+          }>Save</button>
         </div>
     </main>
   );

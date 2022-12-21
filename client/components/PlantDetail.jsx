@@ -1,8 +1,8 @@
 import React from 'react';
 
-const PlantDetail = (props) => {
+const PlantDetail = ({infoLabel, info}) => {
   return (
-      <div>{props.infoLabel}: <span> {props.detail}</span> </div>
+      <div>{infoLabel}: <span> {info}</span> </div>
   );
 };
 

@@ -39,7 +39,7 @@ class PlantView extends Component {
         fertilizeDate: ''
       },
     }
-
+    this.processDbPlantForFrontendState = this.processDbPlantForFrontendState.bind(this);
     this.getPlants = this.getPlants.bind(this);
     this.viewSavedPlants = this.viewSavedPlants.bind(this);
     this.setPlantState = this.setPlantState.bind(this);
@@ -62,96 +62,77 @@ class PlantView extends Component {
     this.getPlants();
   };
 
-  componentDidUPdate() {
+  componentDidUpdate() {
     console.log('plantview just updated')
+  }
+
+  processDbPlantForFrontendState(plants) {
+    return plants.map(plant => {
+      const processedPlantObj = {tod: {}, date: {}};
+      // even though the for loop is nested, there is a fixed number of props, so it is basically constant insertion. 
+      for (const prop in plant) {
+        // use newPLant state as a template for renesting state. Yes this is dumb
+        if (prop in this.state.newPlant) processedPlantObj[prop] = plant[prop];
+        else if (prop === 'plant_id') processedPlantObj[prop] = plant[prop];
+        else if (prop ===  'mid' || prop === 'evening' || prop === 'morning') processedPlantObj['tod'][prop] = plant[prop];
+        else if (prop === 'days' || prop === 'weeks' || prop === 'months') processedPlantObj['date'][prop] = plant[prop];
+      }
+      return processedPlantObj;
+    });
   }
 
   // GET PLANTS: retrieves all plants in the db. 
   async getPlants() {
     try {
       const response = await fetch('/plants')
-      
       const plants = await response.json();
-      console.log(plants)
+
+
       // convert plant state in db back to state structure in react state. 
-      const plantsProcessedForFrontendState = plants.map(plant => {
-        const processedPlantObj = {tod: {}, date: {}};
-        // even though the for loop is nested, there is a fixed number of props, so it is basically constant insertion. 
-        for (const prop in plant) {
-          
-          if (prop in this.state.newPlant) processedPlantObj[prop] = plant[prop];
-          else if (prop === 'plant_id') processedPlantObj[prop] = plant[prop];
-          else if (prop ===  'mid' || prop === 'evening' || prop === 'morning') processedPlantObj['tod'][prop] = plant[prop];
-          else if (prop === 'days' || prop === 'weeks' || prop === 'months') processedPlantObj['date'][prop] = plant[prop]
-        }
-        return processedPlantObj;
-      });
-
-      console.log(plantsProcessedForFrontendState)
-
-
      this.setState({
         ...this.state.plants,
         // update the entire plants array from the db. 
-        plants: plantsProcessedForFrontendState
+        plants: this.processDbPlantForFrontendState(plants).sort((a, b) => a.plant_id < b.plant_id ? -1 : 1)  
       });
     } catch (err) {
       console.log(err);
     }
   }
 
-  // VIEW SAVED PLANTS: maps the properties of all plants saved in state to jsx plant components. 
-  viewSavedPlants(plants) {
-    return plants.map((plant, index) => {
-      return (
-        <Plant 
-          key={`plant${index}`}
-          // plant properties
-          index={index}
-          plantInfo={plant}
-          // plant methods
-          editPlant={this.editPlant}
-          clonePlant={this.clonePlant}
-          savePlantEdits={this.savePlantEdits}
-          deletePlant={this.deletePlant}
-          // state for editing plant.
-          editedPlant={this.state.editedPlant}
-        /> 
-     )
-    });
-  }
+  
 
   // SET PLANT STATE: Updates properties of a new or edited plant in state when the user fills out the new or edited plant form.
   // args: property being updated, updated value.  
   
-  // input: dropdown, property being changed, value, property names in object
-  setPlantState(dropdown, pickedOpt, value=0, keys=[]) {
+  // input: state object to update, dropdown, property being changed, value, property names in object
+  setPlantState(stateObjectName, dropdown, propertyToChange, value=0, keys=[]) {
     // set time
-    const setTime = (dropdown, pickedTime=pickedOpt, keys) => {
-      const notPickedOpts = keys.filter(key => key !== pickedOpt);
+    const setTime = (dropdown, pickedTime=propertyToChange, keys) => {
+      const notPickedOpts = keys.filter(key => key !== propertyToChange);
       this.setState({
         ...this.state,
-        newPlant:{
-          ...this.state.newPlant,
+        [stateObjectName]:{
+          ...this.state[stateObjectName],
           [dropdown]: {
-            ...this.state.newPlant[dropdown],
+            ...this.state[stateObjectName][dropdown],
             // set not picked times to false. 
             [notPickedOpts[0]]: false,
             [notPickedOpts[1]]: false,
             // set picked time to true
-            [pickedOpt]: true,
+            [propertyToChange]: true,
           }
         }
       });
     }
+
     // set date
-    const setDate = (dropdown, pickedDate=pickedOpt, value) => {
+    const setDate = (dropdown, pickedDate=propertyToChange, value) => {
       this.setState({
         ...this.state,
-        newPlant: {
-          ...this.state.newPlant,
+        [stateObjectName]: {
+          ...this.state[stateObjectName],
           [dropdown]: {
-            ...this.state.newPlant[dropdown],
+            ...this.state[stateObjectName][dropdown],
             [pickedDate]: value
           }
         }
@@ -160,36 +141,34 @@ class PlantView extends Component {
 
     // toggle mist
     const toggleMist = () => {
-      console.log(pickedOpt)
       this.setState({
         ...this.state,
-        newPlant: {
-          ...this.state.newPlant,
-          mist: this.state.newPlant.mist === false ? this.state.newPlant.mist = true : false
+        [stateObjectName]: {
+          ...this.state[stateObjectName],
+          mist: this.state[stateObjectName].mist === false ? this.state[stateObjectName].mist = true : false
         }
       })
     }
-
     // set other value
-    const setOther = (pickedOpt, value) => {
+    const setOther = (propertyToChange, value) => {
       this.setState({
-        newPlant: {
-          ...this.state.newPlant,
-          [pickedOpt]: value,
+        [stateObjectName]: {
+          ...this.state[stateObjectName],
+          [propertyToChange]: value,
         }
-      });
+      }, () => console.log(this.state.newPlant));
     }
 
     
     
     if (dropdown === 'tod') {
-      setTime(dropdown, pickedOpt, keys)
+      setTime(dropdown, propertyToChange, keys)
     } else if (dropdown === 'date') {
-      setDate(dropdown, pickedOpt, value);
-    } else if (pickedOpt === 'mist') {
+      setDate(dropdown, propertyToChange, value);
+    } else if (propertyToChange === 'mist') {
       toggleMist();
     } else {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
-      setOther(pickedOpt, value);
+      setOther(propertyToChange, value);
     }
     
   };
@@ -245,12 +224,11 @@ class PlantView extends Component {
         body: JSON.stringify(body)
       });
       // wait for the okay from the db.
-      const addedPlant = await plantTableResponse.json();
+      const newPlant = await plantTableResponse.json();
       
       // after okay from database, use local state to add plant to plants. It's faster than sending the response body
-      console.log('added plant okay');
       this.setState({
-        plants: [...this.state.plants, this.state.newPlant],
+        plants: [...this.state.plants, {...this.state.newPlant, plant_id: newPlant.plant_id}],
         newPlant: {
           ...this.state.newPlant, 
           // reset new plant state object to default values.
@@ -277,7 +255,7 @@ class PlantView extends Component {
         },
       });
 
-      return addedPlant;
+      return;
     } catch (err) {
       console.log(err);
     };
@@ -311,40 +289,41 @@ class PlantView extends Component {
 
     // destructure state
     const { 
-      // plantId, 
+      plant_id, 
       name, 
       img, 
       light, 
       soil, 
       fertilizer, 
       notes, 
-      schedule: { day, week, month }, 
+      date: { days, weeks, months }, 
       tod: { morning, evening, mid }, 
       mist, 
-      waterDate, 
-      fertilizeDate
+      // waterDate, 
+      // fertilizeDate
     } = this.state.editedPlant;
 
     const body = {
+      plant_id,
       name, 
       img, 
       light, 
       soil, 
       fertilizer, 
       notes, 
-      day, 
-      week, 
-      month, 
+      days, 
+      weeks, 
+      months, 
       morning, 
       evening, 
       mid, 
       mist, 
-      waterDate, 
-      fertilizeDate
+      // waterDate, 
+      // fertilizeDate
     };
 
     try {
-      const response = await fetch(`/plants/${plantId}`, {
+      const response = await fetch(`/plants/${plant_id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'Application/JSON'
@@ -357,13 +336,14 @@ class PlantView extends Component {
       const dbResponseOk = await response.json();
 
       const plants = this.state.plants;
+      console.log(plants)
+
       const editedPlant = this.state.editedPlant;
-   
+
       this.setState({
         // replace the plant entirely with the editedPlant stateful object. 
-        plants: plants.map((plant, index) => plant.plantId === plantId ? plants[index] = editedPlant : plant)
+        plants: plants.map((plant, index) => plant.plant_id === plant_id ? plants[index] = editedPlant : plant)
       });
-
     } catch (err) {
       console.log(err);
     };
@@ -391,6 +371,28 @@ class PlantView extends Component {
     } catch (err) {
       console.log(err);
     }
+  }
+
+  // VIEW SAVED PLANTS: maps the properties of all plants saved in state to jsx plant components. 
+  viewSavedPlants(plants) {
+    return plants.map((plant, index) => {
+      return (
+        <Plant 
+          key={`plant${index}`}
+          // plant properties
+          index={index}
+          plantInfo={plant}
+          // plant methods
+          editPlant={this.editPlant}
+          clonePlant={this.clonePlant}
+          savePlantEdits={this.savePlantEdits}
+          setPlantState={this.setPlantState}
+          deletePlant={this.deletePlant}
+          // state for editing plant.
+          editedPlant={this.state.editedPlant}
+        /> 
+     )
+    });
   }
 
   render() {
