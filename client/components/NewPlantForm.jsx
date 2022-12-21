@@ -13,7 +13,7 @@ class NewPlantForm extends Component {
   };
   
   makeFormFields() {
-
+    console.log('New Plant Form Rendered')
     const {plantState, setPlantState } = this.props
     const fieldLabels = [
       ['name', ' Plant Name'], 
@@ -57,6 +57,7 @@ class NewPlantForm extends Component {
             setPlantState={setPlantState}
             propertyToChange={label[0]}
             label={label[1]}
+            value={plantState[label[0]]}
           />
         )
       else return (
@@ -66,6 +67,7 @@ class NewPlantForm extends Component {
           inputProperty={label[0]}
           stateObjName={stateObjName}
           setPlantState={setPlantState}
+          value={plantState[label[0]]}
         /> 
       )
    });
