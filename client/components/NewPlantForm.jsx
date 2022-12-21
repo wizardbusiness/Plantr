@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import '../../src/styles';
 import FormField from './FormField';
-import Radio from './Checkbox';
+import Checkbox from './Checkbox';
 import WaterDateDropdown from './WaterDateDropdown';
 import WaterTimeDropdown from './WaterTimeDropdown';
 
@@ -11,50 +11,60 @@ class NewPlantForm extends Component {
     super(props);
     this.makeFormFields = this.makeFormFields.bind(this);
   };
-
   
   makeFormFields() {
 
     const {plantState, setPlantState } = this.props
-    // make inputIds for all visible fields. slice off the id, since it isn't visible.
-    const inputProperties = Object.keys(plantState).slice(1);
-    const fieldLabels = [' Plant Name', ' Light Preference', ' Soil Preference', ' Fertilizer Preference', ' Notes', ' Schedule', ' Watering Time', ' Mist'];
+    const fieldLabels = [
+      ['name', ' Plant Name'], 
+      ['light', ' Light Preference'], 
+      ['soil', ' Soil Preference'], 
+      ['fertilizer', 'Fertilizer Preference'], 
+      ['notes', ' Notes'], 
+      ['date', ' Schedule'], 
+      ['tod', ' Watering Time'], 
+      ['mist', ' Mist']
+    ];
+    const stateObjName = 'newPlant';
     return fieldLabels.map( (label, index) => {
+      const key = `plant${index}`;
       if (index === 5) 
         return (
           <WaterDateDropdown
-            key={`plant${index}`}
+            key={key}
             isOpen={false}
-            label={label}
+            label={label[1]}
+            stateObjName={stateObjName}
             setPlantState={setPlantState}
-            waterDate={plantState.date}
+            waterSchedule={plantState.date}
           />
         )
-
-      if (index === 6) 
+      else if (index === 6) 
           return (
             <WaterTimeDropdown
-              key={`plant${index}`}
-              label={label}
-              tod={plantState.tod}
+              key={key}
+              label={label[1]}
+              stateObjName={stateObjName}
               setPlantState={setPlantState}
+              tod={plantState.tod}
             />
           )
-      if (index === 7)
+      else if (index === 7)
         return (
-          <Radio
-            key={`plant${index}`}
+          <Checkbox
+            key={key}
+            stateObjName={stateObjName}
             setPlantState={setPlantState}
-            label={label}
+            propertyToChange={label[0]}
+            label={label[1]}
           />
         )
-
-      return (
+      else return (
         <FormField 
-          value={plantState[inputProperties[index]]}
-          key={`plant${index}`}
-          fieldLabel={label}
-          inputProperty={inputProperties[index]}
+          key={key}
+          fieldLabel={label[1]}
+          inputProperty={label[0]}
+          stateObjName={stateObjName}
           setPlantState={setPlantState}
         /> 
       )
@@ -63,7 +73,7 @@ class NewPlantForm extends Component {
   
   render() {
     const formFields = this.makeFormFields();
-    const { toggleModal, addPlant, modalVisible } = this.props;
+    const { toggleModal, savePlant, modalVisible } = this.props;
     // >>> Warning: For some reason, lifting up the state of the modal toggle into plantView causes props to be undefined when modal state is changed. <<<
     if (!modalVisible) return null;
     return (
@@ -72,7 +82,7 @@ class NewPlantForm extends Component {
             <button onClick={() => toggleModal()}> x </button>
             {formFields}
             <button onClick={() => {
-              addPlant();
+              savePlant();
               toggleModal();
             }}>Add Plant</button>
           </div>
