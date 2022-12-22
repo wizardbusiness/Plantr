@@ -44,6 +44,7 @@ class PlantView extends Component {
     this.viewSavedPlants = this.viewSavedPlants.bind(this);
     this.setPlantState = this.setPlantState.bind(this);
     this.resetPlantState = this.resetPlantState.bind(this);
+    this.createDateFromSchedule = this.createDateFromSchedule.bind(this);
     this.savePlant = this.savePlant.bind(this);
     this.editPlant = this.editPlant.bind(this);
     this.clonePlant = this.clonePlant.bind(this);
@@ -67,6 +68,33 @@ class PlantView extends Component {
     console.log('plantview just updated')
   };
 
+  createDateFromSchedule(scheduleObj, timeOfDay, scheduleType, stateObjStr) {
+    // schedule interval in days
+    let intervalInDays = 0;
+    // get current date
+    const date = new Date();
+    // iterate through schedule dropDown
+    for (let interval in scheduleObj) {
+  
+    // convert all values to days and add to intervalInDays
+      if (interval === 'days') intervalInDays += 1 * scheduleObj[interval];
+      if (interval === 'weeks') intervalInDays += 7 * scheduleObj[interval]; 
+    }
+    // check if scheduled time of day is morning, if not evaluate if it is mid, if not, then evaluate to 18 (evening 6 pm).
+    const scheduledTime = timeOfDay === 'morning' ? 6 : timeOfDay === 'mid' ? 12 : 18;
+    // add to current date
+    date.setDate(date.getDate() + intervalInDays);
+    date.setHours(scheduledTime);
+    date.setMinutes(0);
+    date.setSeconds(0);
+    
+    // set date state
+    this.setState({
+      ...this.state[stateObjStr],
+      [scheduleType]: date
+    });
+  }
+
   processDbPlantForFrontendState(plants) {
     return plants.map(plant => {
       const processedPlantObj = {tod: {}, date: {}};
@@ -78,6 +106,7 @@ class PlantView extends Component {
         else if (prop ===  'mid' || prop === 'evening' || prop === 'morning') processedPlantObj['tod'][prop] = plant[prop];
         else if (prop === 'days' || prop === 'weeks' || prop === 'months') processedPlantObj['date'][prop] = plant[prop];
       };
+
       return processedPlantObj;
     });
   }
@@ -113,12 +142,13 @@ class PlantView extends Component {
         fertilizer: '',
         notes: '',
         date: {
-          ...this.state.date,
+          ...this.state.newPlant.date,
           days: 0,
           weeks: 0, 
           months: 0
         },
         tod: {
+          ...this.state.newPlant.tod,
           morning: true,
           mid: false,
           evening: false
@@ -154,7 +184,7 @@ class PlantView extends Component {
     }
 
     // set date
-    const setDate = (dropdown, pickedDate=propertyToChange, value) => {
+    const setDateDropdown = (dropdown, pickedDate=propertyToChange, value) => {
       this.setState({
         ...this.state,
         [stateObjectName]: {
@@ -164,7 +194,7 @@ class PlantView extends Component {
             [pickedDate]: value
           }
         }
-      })
+      });
     }
 
     // toggle mist
@@ -177,6 +207,7 @@ class PlantView extends Component {
         }
       })
     }
+
     // set other value
     const setOther = (propertyToChange, value) => {
       this.setState({
@@ -186,19 +217,17 @@ class PlantView extends Component {
         }
       });
     }
-
     
-    
+    // depending on the property being targeted, use one of the above methods to set the relevant state. 
     if (dropdown === 'tod') {
       setTime(dropdown, propertyToChange, keys)
     } else if (dropdown === 'date') {
-      setDate(dropdown, propertyToChange, value);
+      setDateDropdown(dropdown, propertyToChange, value);
     } else if (propertyToChange === 'mist') {
       toggleMist();
     } else {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
       setOther(propertyToChange, value);
     }
-    
   };
 
   // SAVE PLANT: saves a new plant to the db, and in the plants array in state for display. 
