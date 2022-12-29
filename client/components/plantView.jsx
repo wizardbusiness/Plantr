@@ -35,7 +35,7 @@ class PlantView extends Component {
           evening: false
         },
         mist: false,
-        waterDate: '',
+        waterDate: new Date(),
         fertilizeDate: ''
       },
     }
@@ -50,7 +50,6 @@ class PlantView extends Component {
     this.clonePlant = this.clonePlant.bind(this);
     this.savePlantEdits = this.savePlantEdits.bind(this);
     this.deletePlant = this.deletePlant.bind(this);
-    
   }
   // unimplemented: 
   // convert current date to a water at date by adding the schedule values in state to current date.
@@ -90,8 +89,11 @@ class PlantView extends Component {
     
     // set date state
     this.setState({
-      ...this.state[stateObjStr],
-      [scheduleType]: date
+      ...this.state,
+      [stateObjStr]: {
+        ...this.state[stateObjStr],
+        [scheduleType]: date
+      }
     });
   }
 
@@ -128,10 +130,10 @@ class PlantView extends Component {
       console.log(err);
     }
   }
-
   
   resetPlantState() {
     this.setState({
+      ...this.state,
       newPlant: {
         ...this.state.newPlant, 
         // reset new plant state object to default values.
@@ -154,8 +156,8 @@ class PlantView extends Component {
           evening: false
         },
         mist: false,
-        waterDate: '',
-        fertilizeDate: ''
+        waterDate: new Date(),
+        fertilizeDate: new Date()
       },
     });
   }
@@ -228,13 +230,21 @@ class PlantView extends Component {
     } else {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
       setOther(propertyToChange, value);
     }
+
+    
   };
 
   // SAVE PLANT: saves a new plant to the db, and in the plants array in state for display. 
   async savePlant() {
-
+    
     // table columns: plant_id, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, waterDate, fertilizeDate
 
+    // calculate dates
+    // scheduleObj, timeOfDay, scheduleType, stateObjStr
+    const schedule = this.state.newPlant.date;
+    const timeOfDay = Object.entries(this.state.newPlant.tod).filter(entry => entry[1])[0][0];
+    this.createDateFromSchedule(schedule, timeOfDay, 'waterDate', 'newPlant')
+    
     // destructure state
     const { 
       // plantId, 
@@ -246,8 +256,8 @@ class PlantView extends Component {
       notes, 
       date: { days, weeks, months }, 
       tod: { morning, evening, mid }, 
-      mist, 
-      // waterDate, 
+      mist,
+      waterDate, 
       // fertilizeDate
     } = this.state.newPlant;
 
@@ -266,8 +276,8 @@ class PlantView extends Component {
       morning, 
       evening, 
       mid, 
-      mist
-      // waterDate, 
+      mist,
+      waterDate, 
       // fertilizeDate
     };
 
@@ -282,14 +292,14 @@ class PlantView extends Component {
       });
       // wait for the okay from the db.
       const newPlant = await plantTableResponse.json();
+
+      const plantObj = {...this.state.newPlant, plant_id: newPlant.plant_id}
+      console.log(plantObj)
       
       // after okay from database, use local state to add plant to plants. It's faster than sending the response body
       this.setState({
         plants: [...this.state.plants, {...this.state.newPlant, plant_id: newPlant.plant_id}],
-      });
-
-      this.resetPlantState();
-
+      }, () => this.resetPlantState());
       return;
     } catch (err) {
       console.log(err);
@@ -371,8 +381,6 @@ class PlantView extends Component {
       const dbResponseOk = await response.json();
 
       const plants = this.state.plants;
-      console.log(plants)
-
       const editedPlant = this.state.editedPlant;
 
       this.setState({
