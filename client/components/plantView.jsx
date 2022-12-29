@@ -294,7 +294,6 @@ class PlantView extends Component {
       const newPlant = await plantTableResponse.json();
 
       const plantObj = {...this.state.newPlant, plant_id: newPlant.plant_id}
-      console.log(plantObj)
       
       // after okay from database, use local state to add plant to plants. It's faster than sending the response body
       this.setState({
