@@ -8,8 +8,6 @@ import '../../src/styles.css';
 class Plant extends Component {
   constructor(props) {
     super(props);
-
-    this.waterPlant = this.waterPlant.bind(this);
   }
 
   componentDidMount() {
