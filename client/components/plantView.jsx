@@ -35,7 +35,7 @@ class PlantView extends Component {
           evening: false
         },
         mist: false,
-        waterDate: new Date(),
+        water_date: new Date(),
         fertilizeDate: ''
       },
     }
@@ -45,6 +45,7 @@ class PlantView extends Component {
     this.setPlantState = this.setPlantState.bind(this);
     this.resetPlantState = this.resetPlantState.bind(this);
     this.createDateFromSchedule = this.createDateFromSchedule.bind(this);
+    this.checkSchedule = this.checkSchedule.bind(this);
     this.savePlant = this.savePlant.bind(this);
     this.editPlant = this.editPlant.bind(this);
     this.clonePlant = this.clonePlant.bind(this);
@@ -76,9 +77,10 @@ class PlantView extends Component {
     for (let interval in scheduleObj) {
   
     // convert all values to days and add to intervalInDays
-      if (interval === 'days') intervalInDays += 1 * scheduleObj[interval];
+      // if (interval === 'days') intervalInDays += 1 * scheduleObj[interval];
       if (interval === 'weeks') intervalInDays += 7 * scheduleObj[interval]; 
-    }
+    };
+
     // check if scheduled time of day is morning, if not evaluate if it is mid, if not, then evaluate to 18 (evening 6 pm).
     const scheduledTime = timeOfDay === 'morning' ? 6 : timeOfDay === 'mid' ? 12 : 18;
     // add to current date
@@ -94,8 +96,24 @@ class PlantView extends Component {
         ...this.state[stateObjStr],
         [scheduleType]: date
       }
-    });
+    }, () => console.log(this.state[stateObjStr]));
+
+    return date;
   }
+
+  checkSchedule(date) { 
+    // create new current date. 
+    // convert both dates to milliseconds
+    const check = setInterval(() => {
+      const currentDate = new Date().getTime();
+      const scheduledDate = new Date(date).getTime();
+      // if scheduled date is less than current date, {css logic} (for now just console log that plant needs watering or fertilizing)
+      const result = scheduledDate <= currentDate ? console.log('plant needs watering!') : false;
+      return result;
+    }, 3000)
+
+    return check;
+}
 
   processDbPlantForFrontendState(plants) {
     return plants.map(plant => {
@@ -118,6 +136,7 @@ class PlantView extends Component {
     try {
       const response = await fetch('/plants')
       const plants = await response.json();
+      console.log(plants);
 
 
       // convert plant state in db back to state structure in react state. 
@@ -156,7 +175,7 @@ class PlantView extends Component {
           evening: false
         },
         mist: false,
-        waterDate: new Date(),
+        water_date: new Date(),
         fertilizeDate: new Date()
       },
     });
@@ -230,20 +249,20 @@ class PlantView extends Component {
     } else {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
       setOther(propertyToChange, value);
     }
-
-    
   };
+
 
   // SAVE PLANT: saves a new plant to the db, and in the plants array in state for display. 
   async savePlant() {
     
-    // table columns: plant_id, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, waterDate, fertilizeDate
+    // table columns: plant_id, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, water_date, fertilizeDate
 
     // calculate dates
     // scheduleObj, timeOfDay, scheduleType, stateObjStr
-    const schedule = this.state.newPlant.date;
+
+    const scheduleObj = this.state.newPlant.water_date;
     const timeOfDay = Object.entries(this.state.newPlant.tod).filter(entry => entry[1])[0][0];
-    this.createDateFromSchedule(schedule, timeOfDay, 'waterDate', 'newPlant')
+    const water_date = await this.createDateFromSchedule(scheduleObj, timeOfDay, 'water_date', 'newPlant')
     
     // destructure state
     const { 
@@ -257,7 +276,6 @@ class PlantView extends Component {
       date: { days, weeks, months }, 
       tod: { morning, evening, mid }, 
       mist,
-      waterDate, 
       // fertilizeDate
     } = this.state.newPlant;
 
@@ -277,9 +295,11 @@ class PlantView extends Component {
       evening, 
       mid, 
       mist,
-      waterDate, 
+      water_date, 
       // fertilizeDate
     };
+
+    console.log(water_date)
 
     try {
       const plantTableResponse = await fetch('/plants', {
@@ -292,13 +312,13 @@ class PlantView extends Component {
       });
       // wait for the okay from the db.
       const newPlant = await plantTableResponse.json();
-
-      const plantObj = {...this.state.newPlant, plant_id: newPlant.plant_id}
-      
       // after okay from database, use local state to add plant to plants. It's faster than sending the response body
       this.setState({
         plants: [...this.state.plants, {...this.state.newPlant, plant_id: newPlant.plant_id}],
-      }, () => this.resetPlantState());
+      }, () => {
+        console.log(body);
+        this.resetPlantState()
+      });
       return;
     } catch (err) {
       console.log(err);
@@ -329,8 +349,8 @@ class PlantView extends Component {
   // SAVE PLANT EDITS: save any edits made to a plant to the db and replace the existing plant in state. 
   async savePlantEdits () {
 
-    // table columns: plant_id, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, waterDate, fertilizeDate
-
+    // table columns: plant_id, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, water_date, fertilizeDate
+    
     // destructure state
     const { 
       plant_id, 
@@ -343,7 +363,7 @@ class PlantView extends Component {
       date: { days, weeks, months }, 
       tod: { morning, evening, mid }, 
       mist, 
-      // waterDate, 
+      // water_date, 
       // fertilizeDate
     } = this.state.editedPlant;
 
@@ -362,7 +382,7 @@ class PlantView extends Component {
       evening, 
       mid, 
       mist, 
-      // waterDate, 
+      // water_date, 
       // fertilizeDate
     };
 
@@ -425,6 +445,7 @@ class PlantView extends Component {
           index={index}
           plantInfo={plant}
           // plant methods
+          checkSchedule={this.checkSchedule}
           editPlant={this.editPlant}
           clonePlant={this.clonePlant}
           savePlantEdits={this.savePlantEdits}
@@ -433,7 +454,7 @@ class PlantView extends Component {
           // state for editing plant.
           editedPlant={this.state.editedPlant}
         /> 
-     )
+     );
     });
   }
 
