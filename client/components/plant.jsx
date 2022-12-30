@@ -13,14 +13,11 @@ class Plant extends Component {
   }
 
   componentDidMount() {
-    
-    // setTimeout(() => {
-    //   console.log(`${this.props.name} needs watering`)
-    // }, 3000)
+   this.props.checkSchedule(this.props.plantInfo.water_date);
   }
 
-  waterPlant() {
-    console.log(`${this.props.name} watered!`)
+  componentWillUnmount() {
+    clearInterval(this.props.checkSchedule())
   }
 
   

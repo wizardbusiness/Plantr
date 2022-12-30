@@ -44,11 +44,13 @@ class PlantInfo extends Component {
         'evening': 'Evening'
       }
       const fragments = flattenedObj.map((entry, index) => {
+        // for schedule info
         if (entry[0] === 'morning' || entry[0] === 'mid' || entry[0] === 'evening') return (
           <React.Fragment key={`entry${index}`}>
             {labels[entry[0]]}&nbsp; 
           </React.Fragment>
         )
+        // for time of day
         else return (
           <React.Fragment key={`entry${index}`}>
             {entry[0]}: {entry[1]}&nbsp; 
