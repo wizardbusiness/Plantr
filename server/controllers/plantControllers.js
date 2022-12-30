@@ -17,7 +17,6 @@ const plantControllers = {
   // get info about one plant from the database
   async getAPlant (req, res, next) {
     const { plantId }= req.params;
-    console.log(plantId)
     try {
       const data = await db.query(
         `SELECT p.plant_id, p.name, p.img, p.light, p.fertilizer, p.soil, p.notes, 
@@ -35,7 +34,7 @@ const plantControllers = {
   },
 
   async addPlant (req, res, next) {
-    const { name, img, light, soil, fertilizer, notes, days, weeks, months, morning, evening, mid, mist, waterDate, fertilizeDate } = req.body;
+    const { name, img, light, soil, fertilizer, notes, days, weeks, months, morning, evening, mid, mist, water_date, fertilizeDate } = req.body;
     try {
       if (!name) throw new Error('name field required');
       const data = await db.query(
@@ -47,12 +46,13 @@ const plantControllers = {
             RETURNING plant_id
           ) 
           INSERT INTO schedule
-            (plant_id, days, weeks, months, morning, evening, mid, mist)
-            SELECT plant_id, $7, $8, $9, $10, $11, $12, $13
+            (plant_id, days, weeks, months, morning, evening, mid, mist, water_date)
+            SELECT plant_id, $7, $8, $9, $10, $11, $12, $13, $14
             FROM p_vals
-            RETURNING plant_id;`, 
-         [name, img, light, soil, fertilizer, notes, days, weeks, months, morning, evening, mid, mist]); // waterDate, fertilizeDate
+            RETURNING *;`, 
+         [name, img, light, soil, fertilizer, notes, days, weeks, months, morning, evening, mid, mist, water_date]); // fertilizeDate
         res.locals.newPlant = data.rows[0];
+        console.log(res.locals.newPlant)
         next();
     } catch(err) {
       console.log(err);
