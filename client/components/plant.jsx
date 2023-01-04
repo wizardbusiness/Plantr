@@ -31,7 +31,7 @@ class Plant extends Component {
       editedPlant } = this.props;
     return (
       <div>
-        <div className="plant"onClick={() => this.waterPlant()}> 
+        <div className="plant"> 
           <div className="plant-remove">
             <button onClick={() => deletePlant(plantInfo.plant_id)}>x</button>
           </div>
