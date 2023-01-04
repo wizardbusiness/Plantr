@@ -9,7 +9,7 @@ body {
   gap: 3px;
 }
 
-#new-plant-form, .plant-info {
+#new-plant-form, .plant-modal {
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -42,6 +42,7 @@ body {
 
 .plants {
   display: flex;
+  flex-wrap: wrap;
   gap: 3px
 }
 
@@ -87,9 +88,17 @@ body {
   gap: 10px;
 }
 
-.plant-info {
+.plant-modal{
   font-size: 20px;
 }
+
+.plant-info{
+  display: flex;
+  flex-direction: column;
+  flex: 1 100%;
+  border-style: none;
+}
+
 
 .drop-toggler {
   /* background-color: white; */

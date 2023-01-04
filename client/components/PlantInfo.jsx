@@ -23,7 +23,7 @@ class PlantInfo extends Component {
   populateInfo () {
     const { plantInfo } = this.props;
     const infoLabels = [
-      ['name', ' Plant Name'], 
+      ['name', ' Name'], 
       ['light', ' Light Preference'], 
       ['soil', ' Soil Preference'], 
       ['fertilizer', ' Fertilizer Preference'], 
@@ -118,7 +118,7 @@ class PlantInfo extends Component {
     if (!this.state.editPlant) {
       return (
       <main className="plant-info-overlay">
-        <div className="plant-info">
+        <div className="plant-modal">
           <div id="info-modal-buttons">
             <button onClick={() => {
               // copy the state of the plant to be edited to isolated edited plant state object 
@@ -128,7 +128,10 @@ class PlantInfo extends Component {
             }>Edit Info</button>
             <button onClick={() => toggleModal()}>x</button>   
           </div>
-          {plantInfo}
+          <fieldset className="plant-info">
+            {/* <legend>Plant Info</legend> */}
+            {plantInfo}
+          </fieldset>
         </div>
       </main>
       )
