@@ -1,12 +1,16 @@
 import React from 'react';
 
-const FormField = ({stateObjName, inputProperty, fieldLabel, setPlantState, value}) => {
+const FormField = ({stateObjName, name, inputProperty, fieldLabel, setPlantState, value}) => {
   return (
-    <label> 
-      <input onBlur={(e) => setPlantState(stateObjName, null, inputProperty, e.target.value)} defaultValue={value}></input>
+    <label htmlFor={name}> 
+      <input 
+        type="text"
+        name={name}
+        defaultValue={value}
+        onBlur={(e) => setPlantState(stateObjName, null, inputProperty, e.target.value)}>
+        </input>
       {fieldLabel}
     </label>
   )
 }
-
 export default FormField;
