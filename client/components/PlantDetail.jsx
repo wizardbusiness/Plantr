@@ -5,7 +5,6 @@ const PlantDetail = ({infoLabel, info}) => {
     <>
       <label>{infoLabel}: <span>{info}</span></label> 
     </>
-      
   );
 };
 
