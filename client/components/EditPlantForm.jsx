@@ -71,7 +71,7 @@ const EditPlantForm = ({setPlantState, plantDetails, toggleEditPlant, savePlantE
   const editPlantForm = makeFields();
   return (
     <main className="plant-info-overlay"> 
-      <div className="plant-info">
+      <div className="plant-modal">
           <div id="info-modal-buttons">
             <button onClick={() => toggleEditPlant()}>x</button>
           </div>
