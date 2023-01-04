@@ -262,9 +262,10 @@ class PlantView extends Component {
 
     const scheduleObj = this.state.newPlant.water_date;
     const timeOfDay = Object.entries(this.state.newPlant.tod).filter(entry => entry[1])[0][0];
-    const water_date = await this.createDateFromSchedule(scheduleObj, timeOfDay, 'water_date', 'newPlant')
+    const water_date = await this.createDateFromSchedule(scheduleObj, timeOfDay, 'water_date', )
     
     // destructure state
+    
     const { 
       // plantId, 
       name, 
