@@ -19,7 +19,7 @@ class NewPlantForm extends Component {
       ['name', ' Plant Name'], 
       ['light', ' Light Preference'], 
       ['soil', ' Soil Preference'], 
-      ['fertilizer', 'Fertilizer Preference'], 
+      ['fertilizer', ' Fertilizer Preference'], 
       ['notes', ' Notes'], 
       ['date', ' Schedule'], 
       ['tod', ' Watering Time'], 
@@ -64,8 +64,7 @@ class NewPlantForm extends Component {
         <FormField 
           key={key}
           fieldLabel={label[1]}
-          inputProperty={label[0]}
-          stateObjName={stateObjName}
+          stateObjName={label[0]}
           setPlantState={setPlantState}
           value={plantState[label[0]]}
         /> 
