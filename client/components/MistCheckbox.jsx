@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Checkbox = ({label, stateObjName, propertyToChange, value, setPlantState}) => { 
+const MistCheckbox = ({label, stateObjName, propertyToChange, value, setPlantState}) => { 
   return (
     <label>
       <input 
@@ -13,4 +13,4 @@ const Checkbox = ({label, stateObjName, propertyToChange, value, setPlantState})
   )
 }
 
-export default Checkbox;
+export default MistCheckbox;
