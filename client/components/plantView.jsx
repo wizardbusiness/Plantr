@@ -51,7 +51,7 @@ class PlantView extends Component {
     this.resetPlantState = this.resetPlantState.bind(this);
     this.createDateFromSchedule = this.createDateFromSchedule.bind(this);
     this.checkSchedule = this.checkSchedule.bind(this);
-    this.savePlant = this.savePlant.bind(this);
+    this.addPlant = this.addPlant.bind(this);
     this.editPlant = this.editPlant.bind(this);
     this.clonePlant = this.clonePlant.bind(this);
     this.savePlantEdits = this.savePlantEdits.bind(this);
@@ -292,7 +292,7 @@ class PlantView extends Component {
 
 
   // SAVE PLANT: saves a new plant to the db, and in the plants array in state for display. 
-  async savePlant() {
+  async addPlant() {
     
     // table columns: plant_id, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, water_date, fertilizeDate
 
@@ -514,6 +514,7 @@ class PlantView extends Component {
               setScheduleState={this.setScheduleState}
               setMistState={this.setMistState}
               currentSchedule={this.state.newPlant.date}
+              addPlant={this.addPlant}
               btnText='Add Plant'
             >
             </PlantForm>
