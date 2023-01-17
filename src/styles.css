@@ -9,7 +9,7 @@ body {
   gap: 3px;
 }
 
-#new-plant-form, .plant-modal {
+#plant-form, .plant-modal {
   padding: 20px;
   display: flex;
   flex-direction: column;

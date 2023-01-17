@@ -1,16 +1,15 @@
 import React from 'react';
 
-const FormField = ({label, property, value, setFieldState}) => {
+const PlantFormField = ({label, name, value, setTextfieldState}) => {
+  // console.log(label)
   return (
     <label>
       <span>
         {label}
-        <input onBlur={(e) => setFieldState(property, e.target.value)}>
-          {value}
-        </input>
+        <input value={value} name={name} type='text' onChange={(e) => setTextfieldState(name, e.target.value)} />
       </span>
     </label>
   )
 }
 
-export default FormField;
+export default PlantFormField;

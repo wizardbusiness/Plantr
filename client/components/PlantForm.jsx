@@ -1,61 +1,71 @@
 import React, {Component, useRef} from 'react';
-import WaterDateDropDown from './WaterDateDropdown';
+import ScheduleDropdown from './ScheduleDropdown';
+import MistCheckbox from './MistCheckbox';
+import PlantFormField from './PlantFormField';
 
 class PlantForm extends Component {
   constructor(props) {
     super(props)
     // field labels. Only for text input fields. 
-    this.labelRefs = useRef({
+    this.state = {
       name: 'Name ',
       light: 'Light ',
       soil: 'Soil ',
       fertilizer: 'Fertilizer ',
       notes: 'Notes ' 
-    });
+    };
 
     this.makeTextFields = this.makeTextFields.bind(this);
   }
 
   // make all input boxes with labels.
   makeTextFields() {
-    const {fieldValues, addPlant, setFieldState, children: {dropdowns, mist}} = this.props
-    Object.entries(labelRefs.current).map((label, index) => {
+    const {fieldValues, setTextfieldState} = this.props
+    const formFields = Object.entries(this.state).map((label, index) => {
       const key = `att${index}`;
       return(
-          <PlantFormField
-            key={key}
-            label={label[1]}
-            setFieldState={setFieldState}
-            name={label[0]}
-            value={fieldValues[label[0]]}
-          />
-      )
+        <PlantFormField
+          key={key}
+          label={label[1]}
+          setTextfieldState={setTextfieldState}
+          name={label[0]}
+          value={fieldValues[label[0]]}
+        />
+      );
     });
+    return formFields;
   }
 
   // render whole form, including dropdown and checkbox components. 
   render() {
-    const {addPlant, btnText} = this.props;
-    const textFields = this.makeTextFields();
+    const {addPlant, btnText, formName, currentSchedule, setScheduleState, setMistState} = this.props;
+    const textFields = this.makeTextFields(); 
     return (
-      <form onSubmit={addPlant}>
-        {textFields}
-        <br />
+      <div className='plant-modal'>
+        <form id='plant-form' name={formName} onSubmit={addPlant}>
+          {textFields}
         <label>
           Watering Schedule:&nbsp;
-          <SchedulingDropdown/>
+          <ScheduleDropdown
+            setScheduleState={setScheduleState}
+            scheduleType="date"
+            currentSchedule={currentSchedule}
+          />
         </label>
-        <br />
         <label>
-          Fertilizing Schedule:&nbsp; 
-          <SchedulingDropdown/>
+          Fertilizing Schedule:&nbsp;
+
+          {/* <ScheduleDropdown/> */}
         </label>
         <label>
           Mist:&nbsp;
-          <MistCheckBox/>
+          <MistCheckbox value={currentSchedule.mist} setMistState={setMistState}/>
         </label>
+        {/* <button id={buttonId} onClick={this.toggle()}>{buttonText}</button>s */} 
         <button type="submit">{btnText}</button>
       </form>
+      </div>
+      
     );
   }
 }

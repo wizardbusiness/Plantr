@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import Plant from './plant';
 import NewPlantModal from './NewPlantModal';
+import PlantModal from './PlantModal';
+import PlantForm from './PlantForm';
 
 class PlantView extends Component {
   constructor(props) {
@@ -42,6 +44,9 @@ class PlantView extends Component {
     this.processDbPlantForFrontendState = this.processDbPlantForFrontendState.bind(this);
     this.getPlants = this.getPlants.bind(this);
     this.viewSavedPlants = this.viewSavedPlants.bind(this);
+    this.setScheduleState = this.setScheduleState.bind(this);
+    this.setTextfieldState = this.setTextfieldState.bind(this);
+    this.setMistState = this.setMistState.bind(this);
     this.setPlantState = this.setPlantState.bind(this);
     this.resetPlantState = this.resetPlantState.bind(this);
     this.createDateFromSchedule = this.createDateFromSchedule.bind(this);
@@ -54,7 +59,7 @@ class PlantView extends Component {
   }
   // unimplemented: 
   // convert current date to a water at date by adding the schedule values in state to current date.
-    // then round to 7 am, 12pm or 6pm depending on the tod chosen.  
+    // then round to 7 am, 12pm or 6pm depending on the tod chosen. DONE
   // check the current date against the water and fertilize dates
   // if they are the same, change color of plant.
   // water button feature
@@ -182,7 +187,41 @@ class PlantView extends Component {
   }
   // SET PLANT STATE: Updates properties of a new or edited plant in state when the user fills out the new or edited plant form.
   // args: property being updated, updated value.  
-  
+  setScheduleState(scheduleType, dateUnit, value) {
+    if (scheduleType === 'date') {
+      console.log(scheduleType, dateUnit, value)
+      this.setState({
+        ...this.state,
+        newPlant: {
+          ...this.state.newPlant,
+          [scheduleType]: {
+            ...this.state.newPlant[scheduleType],
+            [dateUnit]: value,
+          }
+        }
+      }, () => console.log(this.state.newPlant.date));
+    } 
+  }
+
+  setTextfieldState(name, value) {
+    this.setState({
+      ...this.state,
+      newPlant: {
+        ...this.state.newPlant,
+        [name]: value      
+      }
+    }, () => console.log(this.state.newPlant))
+  }
+
+  setMistState() {
+    this.setState({
+      ...this.state,
+      newPlant: {
+        ...this.state.newPlant,
+        mist: this.state.newPlant.mist === false ? this.state.newPlant.mist = true : this.state.newPlant.mist = false
+      }
+    }, () => console.log(this.state.newPlant.mist))
+  }
   // input: state object to update, dropdown, property being changed, value, property names in object
   setPlantState(stateObjectName, dropdown, propertyToChange, value=0, keys=[]) {
     // set time
@@ -452,7 +491,6 @@ class PlantView extends Component {
           savePlantEdits={this.savePlantEdits}
           setPlantState={this.setPlantState}
           deletePlant={this.deletePlant}
-          // state for editing plant.
           editedPlant={this.state.editedPlant}
         /> 
      );
@@ -463,13 +501,27 @@ class PlantView extends Component {
     const plants = this.viewSavedPlants(this.state.plants)
     return (
         <div className="planter-box">
-          <NewPlantModal
-            plantState={this.state.newPlant}
-            setPlantState={this.setPlantState}
+          <PlantModal
+            buttonId="new-plant"
+            buttonText="+"
             resetPlantState={this.resetPlantState}
-            getPlants={this.getPlants} 
-            savePlant={this.savePlant}
-          /> 
+          >
+            <PlantForm
+              formName='add-plant'
+              fieldValues={this.state.newPlant}
+              setTextfieldState={this.setTextfieldState}
+              getPlants={this.getPlants} 
+              setScheduleState={this.setScheduleState}
+              setMistState={this.setMistState}
+              currentSchedule={this.state.newPlant.date}
+              btnText='Add Plant'
+            >
+            </PlantForm>
+          </PlantModal>
+            
+          {/* <button 
+            id="new-plant"
+          >+</button> */}
           <div className="plants">{plants}</div>
         </div>   
     )

@@ -1,16 +1,12 @@
 import React from 'react';
 
-const MistCheckbox = ({label, stateObjName, propertyToChange, value, setPlantState}) => { 
+const MistCheckbox = ({value, setMistState}) => { 
   return (
-    <label>
-      <input 
-        type = 'checkbox'
-        checked = {value} 
-        onChange={() => setPlantState(stateObjName, null, propertyToChange)}
-      />
-      {label}
-    </label>
-  )
-}
-
+    <input 
+      type = 'checkbox'
+      checked = {value} 
+      onClick={() => setMistState()}
+    />
+  );
+};
 export default MistCheckbox;

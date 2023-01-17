@@ -4,9 +4,9 @@ import React, { Component } from 'react';
 // Relationships: Rendered by NewPlantForm and EditPlantForm. 
 
 
-const ScheduleDropdown = ({scheduleType, setScheduleState}) => {
-  const getUnit = (unit, max) => {
-    switch(unit) {
+const ScheduleDropdown = ({scheduleType, currentSchedule, setScheduleState}) => {
+  const getDateUnit = (dateUnit, max) => {
+    switch(dateUnit) {
       case 'weeks':
         max = 5;
         break;
@@ -23,20 +23,19 @@ const ScheduleDropdown = ({scheduleType, setScheduleState}) => {
     return max;
   }
 
-  const makeScheduleOptions = (unit) => {
+  const makeScheduleOptions = (dateUnit) => {
     
     // these will be passed through props
     let i = 0;
     let max;
     const list = [];
-    max = getUnit(unit, max);
+    max = getDateUnit(dateUnit, max)
 
 
     while (i < max) {
       list.push(i)
       i++;
     }
-
     const items = list.map((value, index) => {
       return (
           <option
@@ -46,15 +45,16 @@ const ScheduleDropdown = ({scheduleType, setScheduleState}) => {
             {value}
           </option>
       )
-    });
-
-    return (
+    }); 
+return (
       <>
-        <label> {unit}: </label>
+        <label> {dateUnit}: </label>
         <select
-          value={scheduleType[unit]}
-          onChange={(e) => setScheduleState(scheduleType, unit, Number(e.target.value))}
-        >{items}</select>
+          defaultValue={currentSchedule[dateUnit]}
+          onChange={(e) => setScheduleState(scheduleType, dateUnit, e.target.value)}
+        >
+          {items}
+        </select>
       </>
     );  
   }
