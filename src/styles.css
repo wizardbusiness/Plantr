@@ -8,15 +8,8 @@ body {
   flex-direction: row;
   gap: 3px;
 }
-
-#plant-form, .plant-modal {
+.modal {
   padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-content: center;
-  align-items: start;
-  gap: 10px;
-  flex-shrink: 1;
   position: fixed;
   top: 50%;
   left: 50%;
@@ -30,7 +23,42 @@ body {
   z-index: 1000;
 }
 
-#plant-form-overlay, .plant-info-overlay {
+.form {
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  align-items: start;
+  gap: 10px;
+  flex-shrink: 1;
+}
+
+.form-text-fields {
+  display: table;
+  width: 90%;
+  border-spacing: 2px;
+}
+
+.form-text-fields>div {
+  display: table-row;
+}
+
+.field-label,
+.field-input {
+  display: table-cell;
+  
+}
+
+.field-label {
+  width: 20%;
+  white-space: nowrap;
+}
+
+.field-input {
+  width: 80%
+}
+
+.modal-bg-overlay, .plant-info-overlay {
   position: fixed;
   top: 0;
   left: 0;

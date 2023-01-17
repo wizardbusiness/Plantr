@@ -3,12 +3,12 @@ import React from 'react';
 const PlantFormField = ({label, name, value, setTextfieldState}) => {
   // console.log(label)
   return (
-    <label>
-      <span>
-        {label}
-        <input value={value} name={name} type='text' onChange={(e) => setTextfieldState(name, e.target.value)} />
-      </span>
-    </label>
+      <div>
+        <label className='field-label'>
+          {label}
+        </label>
+        <input className='field-input' value={value} name={name} type='text' onChange={(e) => setTextfieldState(name, e.target.value)} />
+      </div>
   )
 }
 

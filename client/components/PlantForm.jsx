@@ -8,11 +8,11 @@ class PlantForm extends Component {
     super(props)
     // field labels. Only for text input fields. 
     this.state = {
-      name: 'Name ',
-      light: 'Light ',
-      soil: 'Soil ',
-      fertilizer: 'Fertilizer ',
-      notes: 'Notes ' 
+      name: 'Name: ',
+      light: 'Light: ',
+      soil: 'Soil: ',
+      fertilizer: 'Fertilizer: ',
+      notes: 'Notes: ' 
     };
 
     this.makeTextFields = this.makeTextFields.bind(this);
@@ -41,14 +41,15 @@ class PlantForm extends Component {
     const {addPlant, btnText, formName, currentSchedule, setScheduleState, setMistState} = this.props;
     const textFields = this.makeTextFields(); 
     return (
-      <div className='plant-modal'>
-        <form id='plant-form' name={formName} onSubmit={addPlant}>
+      <form className='form' name={formName} onSubmit={addPlant}>
+        <div className='form-text-fields'>
           {textFields}
+        </div>
         <label>
           Watering Schedule:&nbsp;
           <ScheduleDropdown
             setScheduleState={setScheduleState}
-            scheduleType="date"
+            scheduleType='date'
             currentSchedule={currentSchedule}
           />
         </label>
@@ -64,8 +65,6 @@ class PlantForm extends Component {
         {/* <button id={buttonId} onClick={this.toggle()}>{buttonText}</button>s */} 
         <button type="submit">{btnText}</button>
       </form>
-      </div>
-      
     );
   }
 }

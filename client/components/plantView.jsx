@@ -338,9 +338,7 @@ class PlantView extends Component {
       water_date, 
       // fertilizeDate
     };
-
     console.log(water_date)
-
     try {
       const plantTableResponse = await fetch('/plants', {
         method: 'POST', 
@@ -508,14 +506,14 @@ class PlantView extends Component {
           >
             <PlantForm
               formName='add-plant'
-              fieldValues={this.state.newPlant}
-              setTextfieldState={this.setTextfieldState}
+              btnText='Add Plant'
               getPlants={this.getPlants} 
+              addPlant={this.addPlant}
+              setTextfieldState={this.setTextfieldState}
               setScheduleState={this.setScheduleState}
               setMistState={this.setMistState}
+              fieldValues={this.state.newPlant}
               currentSchedule={this.state.newPlant.date}
-              addPlant={this.addPlant}
-              btnText='Add Plant'
             >
             </PlantForm>
           </PlantModal>
