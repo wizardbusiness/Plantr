@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 
-// Desc: dropdown menu, which lets you set how often to water a plant or fertilize a plant.
-// Relationships: Rendered by NewPlantForm and EditPlantForm. 
-
-
+// Description: dropdown menu, which lets you set how often to water a plant or fertilize a plant.
 const ScheduleDropdown = ({scheduleType, currentSchedule, setScheduleState}) => {
-  const getDateUnit = (dateUnit, max) => {
+  // get the unit of time that is being selected by the user.
+  const getDateUnit = (dateUnit) => {
+    let max;
     switch(dateUnit) {
       case 'weeks':
         max = 5;
@@ -21,21 +20,16 @@ const ScheduleDropdown = ({scheduleType, currentSchedule, setScheduleState}) => 
       break;
     };
     return max;
-  }
-
+  };
+  // make the menu options depending on what unit was selected. 
   const makeScheduleOptions = (dateUnit) => {
-    
-    // these will be passed through props
     let i = 0;
-    let max;
     const list = [];
-    max = getDateUnit(dateUnit, max)
-
-
+    let max = getDateUnit(dateUnit)
     while (i < max) {
       list.push(i)
       i++;
-    }
+    };
     const items = list.map((value, index) => {
       return (
           <option
@@ -44,9 +38,10 @@ const ScheduleDropdown = ({scheduleType, currentSchedule, setScheduleState}) => 
           >
             {value}
           </option>
-      )
-    }); 
-return (
+      );
+    });
+    // return the schedule dropdown menu for the selected date unit.
+    return (
       <>
         <label> {dateUnit}: </label>
         <select
@@ -57,18 +52,16 @@ return (
         </select>
       </>
     );  
-  }
-    
+  };
+  // return the completed schedule component jsx.
   return (
     <div className="schedule-drop-down"> 
         <span>
           {makeScheduleOptions('weeks')}
           {makeScheduleOptions('days')}
-          {/* {makeScheduleOptions('hours')}
-          {makeScheduleOptions('mins')} */}
         </span>
     </div>
   );
-}
+};
 
 export default ScheduleDropdown;
