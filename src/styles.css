@@ -81,7 +81,7 @@ body {
   
 }
 
-.plant-name {
+#plant-display-name{
   min-height: 155px;
   display: flex;
   align-items: center;
@@ -104,9 +104,14 @@ body {
   align-items: center;
 }
 
-#info-button {
+#plant-info-button {
   display: flex;
   justify-content: end;
+}
+
+#modal-header {
+  display: flex;
+  justify-content: space-between;
 }
 
 #info-modal-buttons {
@@ -125,9 +130,4 @@ body {
   flex-direction: column;
   flex: 1 100%;
   border-style: none;
-}
-
-
-.drop-toggler {
-  /* background-color: white; */
 }
