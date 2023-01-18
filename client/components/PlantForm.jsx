@@ -1,4 +1,4 @@
-import React, {Component, useRef} from 'react';
+import React, {Component} from 'react';
 import ScheduleDropdown from './ScheduleDropdown';
 import MistCheckbox from './MistCheckbox';
 import PlantFormField from './PlantFormField';
@@ -14,22 +14,21 @@ class PlantForm extends Component {
       fertilizer: 'Fertilizer: ',
       notes: 'Notes: ' 
     };
-
     this.makeTextFields = this.makeTextFields.bind(this);
   }
 
   // make all input boxes with labels.
   makeTextFields() {
-    const {fieldValues, setTextfieldState} = this.props
+    const {plantState, setTextfieldState} = this.props
     const formFields = Object.entries(this.state).map((label, index) => {
       const key = `att${index}`;
       return(
         <PlantFormField
           key={key}
           label={label[1]}
-          setTextfieldState={setTextfieldState}
           name={label[0]}
-          value={fieldValues[label[0]]}
+          value={plantState[label[0]]}
+          setTextfieldState={setTextfieldState}
         />
       );
     });
@@ -38,7 +37,7 @@ class PlantForm extends Component {
 
   // render whole form, including dropdown and checkbox components. 
   render() {
-    const {addPlant, btnText, formName, currentSchedule, setScheduleState, setMistState} = this.props;
+    const {addPlant, btnText, formName, plantState, setScheduleState, setMistState} = this.props;
     const textFields = this.makeTextFields(); 
     return (
       <form className='form' name={formName} onSubmit={addPlant}>
@@ -49,18 +48,21 @@ class PlantForm extends Component {
           Watering Schedule:&nbsp;
           <ScheduleDropdown
             setScheduleState={setScheduleState}
-            scheduleType='date'
-            currentSchedule={currentSchedule}
+            scheduleType='watering_schedule'
+            currentSchedule={plantState.watering_schedule}
           />
         </label>
         <label>
-          Fertilizing Schedule:&nbsp;
-
-          {/* <ScheduleDropdown/> */}
+          Fertilizer Schedule:&nbsp;
+          <ScheduleDropdown 
+            setScheduleState={setScheduleState}
+            scheduleType='fertilizing_schedule'
+            currentSchedule={plantState.fertilizing_schedule}
+          />
         </label>
         <label>
           Mist:&nbsp;
-          <MistCheckbox value={currentSchedule.mist} setMistState={setMistState}/>
+          <MistCheckbox value={plantState.mist} setMistState={setMistState}/>
         </label>
         {/* <button id={buttonId} onClick={this.toggle()}>{buttonText}</button>s */} 
         <button type="submit">{btnText}</button>
