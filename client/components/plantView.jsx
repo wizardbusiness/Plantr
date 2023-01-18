@@ -85,6 +85,7 @@ class PlantView extends Component {
     // schedule interval in days
     let intervalInDays = 0;
     // get current date
+    // console.log(scheduleObj)
     const scheduledDate = new Date();
     // iterate through schedule dropDown
     for (let interval in scheduleObj) {
@@ -92,6 +93,7 @@ class PlantView extends Component {
       if (interval === 'days') intervalInDays += 1 * scheduleObj[interval];
       if (interval === 'weeks') intervalInDays += 7 * scheduleObj[interval]; 
     };
+    console.log('interval: ' + intervalInDays)
 
     // check if scheduled time of day is morning, if not evaluate if it is midday, if not, then evaluate to (evening 18:00).
     const timeOfDay = scheduledTime === 'morning' ? 6 : scheduledTime === 'midday' ? 12 : 18;
@@ -218,7 +220,7 @@ class PlantView extends Component {
             [dateUnit]: value,
           }
         }
-      }, () => console.log(this.state.plant.watering_schedule));
+      });
     } else if (scheduleType === 'fertilizing_schedule') {
       this.setState({
         ...this.state,
@@ -241,7 +243,7 @@ class PlantView extends Component {
         ...this.state.plant,
         [name]: value      
       }
-    }, () => console.log(this.state.plant))
+    });
   }
 
   setMistState() {
@@ -251,7 +253,7 @@ class PlantView extends Component {
         ...this.state.plant,
         mist: this.state.plant.mist === false ? this.state.plant.mist = true : this.state.plant.mist = false
       }
-    }, () => console.log(this.state.plant.mist))
+    });
   }
   // input: state object to update, dropdown, property being changed, value, property names in object
   setPlantState(stateObjectName, dropdown, propertyToChange, value=0, keys=[]) {
@@ -323,15 +325,15 @@ class PlantView extends Component {
 
 
   // SAVE PLANT: saves a new plant to the db, and in the plants array in state for display. 
-  async addPlant() {
-    
+  async addPlant(e) {
+    e.preventDefault();
     // table columns: plant_id, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, midday, mist, next_water_date, next_fertilize_date
 
     // calculate dates
     // scheduleObj, scheduledTime, dateDesc, stateObjStr
-    const scheduleObj = this.state.plant.next_water_date;
+    const scheduleObj = this.state.plant.watering_schedule;
     const scheduledTime = Object.entries(this.state.plant.watering_time_of_day).filter(entry => entry[1])[0][0];
-    const next_water_date = await this.createDateFromSchedule(scheduleObj, scheduledTime, 'next_water_date', )   
+    const next_water_date = await this.createDateFromSchedule(scheduleObj, scheduledTime, 'next_water_date', );
     // destructure state
     const { 
       name, 
@@ -364,7 +366,6 @@ class PlantView extends Component {
       next_water_date, 
       // next_fertilize_date
     };
-    console.log(next_water_date)
     try {
       const plantTableResponse = await fetch('/plants', {
         method: 'POST', 
@@ -380,7 +381,6 @@ class PlantView extends Component {
       this.setState({
         plants: [...this.state.plants, {...this.state.plant, plant_id: plant.plant_id}],
       }, () => {
-        console.log(body);
         this.resetPlantState()
       });
       return;
