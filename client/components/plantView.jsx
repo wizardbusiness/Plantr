@@ -14,10 +14,10 @@ class PlantView extends Component {
       },
       plants: [],
       editedPlant: {},
-      // newPlant properties relate to columns in plants table in postgreSQL db. 
+      // plant properties relate to columns in plants table in postgreSQL db. 
       // columns in db: plant_id, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, mid, mist, water_date, fertilize_date
       // note that plant_id is defined in database, not new plant state. 
-      newPlant: {
+      plant: {
         name: '',
         img: '',
         light: '',
@@ -126,7 +126,7 @@ class PlantView extends Component {
       // even though the for loop is nested, there is a fixed number of props, so it is basically constant insertion. 
       for (const prop in plant) {
         // use newPLant state as a template for renesting state. Yes this is dumb
-        if (prop in this.state.newPlant) processedPlantObj[prop] = plant[prop];
+        if (prop in this.state.plant) processedPlantObj[prop] = plant[prop];
         else if (prop === 'plant_id') processedPlantObj[prop] = plant[prop];
         else if (prop ===  'mid' || prop === 'evening' || prop === 'morning') processedPlantObj['tod'][prop] = plant[prop];
         else if (prop === 'days' || prop === 'weeks' || prop === 'months') processedPlantObj['date'][prop] = plant[prop];
@@ -158,8 +158,8 @@ class PlantView extends Component {
   resetPlantState() {
     this.setState({
       ...this.state,
-      newPlant: {
-        ...this.state.newPlant, 
+      plant: {
+        ...this.state.plant, 
         // reset new plant state object to default values.
         name: '',
         img: '',
@@ -168,13 +168,13 @@ class PlantView extends Component {
         fertilizer: '',
         notes: '',
         date: {
-          ...this.state.newPlant.date,
+          ...this.state.plant.date,
           days: 0,
           weeks: 0, 
           months: 0
         },
         tod: {
-          ...this.state.newPlant.tod,
+          ...this.state.plant.tod,
           morning: true,
           mid: false,
           evening: false
@@ -192,35 +192,35 @@ class PlantView extends Component {
       console.log(scheduleType, dateUnit, value)
       this.setState({
         ...this.state,
-        newPlant: {
-          ...this.state.newPlant,
+        plant: {
+          ...this.state.plant,
           [scheduleType]: {
-            ...this.state.newPlant[scheduleType],
+            ...this.state.plant[scheduleType],
             [dateUnit]: value,
           }
         }
-      }, () => console.log(this.state.newPlant.date));
+      }, () => console.log(this.state.plant.date));
     } 
   }
 
   setTextfieldState(name, value) {
     this.setState({
       ...this.state,
-      newPlant: {
-        ...this.state.newPlant,
+      plant: {
+        ...this.state.plant,
         [name]: value      
       }
-    }, () => console.log(this.state.newPlant))
+    }, () => console.log(this.state.plant))
   }
 
   setMistState() {
     this.setState({
       ...this.state,
-      newPlant: {
-        ...this.state.newPlant,
-        mist: this.state.newPlant.mist === false ? this.state.newPlant.mist = true : this.state.newPlant.mist = false
+      plant: {
+        ...this.state.plant,
+        mist: this.state.plant.mist === false ? this.state.plant.mist = true : this.state.plant.mist = false
       }
-    }, () => console.log(this.state.newPlant.mist))
+    }, () => console.log(this.state.plant.mist))
   }
   // input: state object to update, dropdown, property being changed, value, property names in object
   setPlantState(stateObjectName, dropdown, propertyToChange, value=0, keys=[]) {
@@ -299,8 +299,8 @@ class PlantView extends Component {
     // calculate dates
     // scheduleObj, timeOfDay, scheduleType, stateObjStr
 
-    const scheduleObj = this.state.newPlant.water_date;
-    const timeOfDay = Object.entries(this.state.newPlant.tod).filter(entry => entry[1])[0][0];
+    const scheduleObj = this.state.plant.water_date;
+    const timeOfDay = Object.entries(this.state.plant.tod).filter(entry => entry[1])[0][0];
     const water_date = await this.createDateFromSchedule(scheduleObj, timeOfDay, 'water_date', )
     
     // destructure state
@@ -317,7 +317,7 @@ class PlantView extends Component {
       tod: { morning, evening, mid }, 
       mist,
       // fertilizeDate
-    } = this.state.newPlant;
+    } = this.state.plant;
 
     // add all values from destructured state to request body
     const body = {
@@ -349,10 +349,10 @@ class PlantView extends Component {
         body: JSON.stringify(body)
       });
       // wait for the okay from the db.
-      const newPlant = await plantTableResponse.json();
+      const plant = await plantTableResponse.json();
       // after okay from database, use local state to add plant to plants. It's faster than sending the response body
       this.setState({
-        plants: [...this.state.plants, {...this.state.newPlant, plant_id: newPlant.plant_id}],
+        plants: [...this.state.plants, {...this.state.plant, plant_id: plant.plant_id}],
       }, () => {
         console.log(body);
         this.resetPlantState()
@@ -512,8 +512,8 @@ class PlantView extends Component {
               setTextfieldState={this.setTextfieldState}
               setScheduleState={this.setScheduleState}
               setMistState={this.setMistState}
-              fieldValues={this.state.newPlant}
-              currentSchedule={this.state.newPlant.date}
+              fieldValues={this.state.plant}
+              currentSchedule={this.state.plant.date}
             >
             </PlantForm>
           </PlantModal>
