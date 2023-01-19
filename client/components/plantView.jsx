@@ -55,7 +55,6 @@ class PlantView extends Component {
     this.setScheduleState = this.setScheduleState.bind(this);
     this.setTextfieldState = this.setTextfieldState.bind(this);
     this.setMistState = this.setMistState.bind(this);
-    this.setPlantState = this.setPlantState.bind(this);
     this.resetPlantState = this.resetPlantState.bind(this);
     this.createDateFromSchedule = this.createDateFromSchedule.bind(this);
     this.checkSchedule = this.checkSchedule.bind(this);
@@ -520,7 +519,6 @@ class PlantView extends Component {
           checkSchedule={this.checkSchedule}
           editPlant={this.editPlant}
           savePlantEdits={this.savePlantEdits}
-          setPlantState={this.setPlantState}
           deletePlant={this.deletePlant}
           editedPlantState={this.state.plant}
         /> 
