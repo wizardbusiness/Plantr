@@ -21,9 +21,7 @@ class PlantModal extends Component {
     const {children, buttonText, buttonId, resetPlantState} = this.props;
     if (this.state.show === false) {
       return (
-        <div>
-          <button id={buttonId} onClick={this.toggle}>{buttonText}</button>
-        </div>
+        <button id={buttonId} onClick={this.toggle}>{buttonText}</button>
       );
     } else if (this.state.show === true) {
       return (
@@ -35,8 +33,8 @@ class PlantModal extends Component {
                 onClick={() => {
                   this.toggle()
                   resetPlantState();
-                }
-              }>x</button>
+                }}
+              >x</button>
               {children}
             </div>
           </div>

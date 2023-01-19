@@ -93,7 +93,6 @@ class PlantView extends Component {
       if (interval === 'days') intervalInDays += 1 * scheduleObj[interval];
       if (interval === 'weeks') intervalInDays += 7 * scheduleObj[interval]; 
     };
-    console.log('interval: ' + intervalInDays)
 
     // check if scheduled time of day is morning, if not evaluate if it is midday, if not, then evaluate to (evening 18:00).
     const timeOfDay = scheduledTime === 'morning' ? 6 : scheduledTime === 'midday' ? 12 : 18;
@@ -393,11 +392,19 @@ class PlantView extends Component {
   // EDIT PLANT METHODS ---------------------------------------------------------------------------------------------------------
 
   // EDIT PLANT (Frontend state): edits the stateful properties of the plant being edited in the isolated editPlant state object.
-  // args: property being edited, value being edited.
-  editPlant(property, value) {
-      this.setState({
-        editedPlant: {...this.state.editedPlant, [property]: value}
-      });
+  editPlant(plant) {
+      for (const property in plant) {
+        if (property in this.state.plant){
+          this.setState({
+            ...this.state,
+            plant: {
+              ...this.state.plant, 
+              [property]: plant[property]
+            }
+          });
+        }
+      }
+      
   }
 
   // CLONE PLANT: clones the plant being edited to location in state. 
@@ -462,7 +469,6 @@ class PlantView extends Component {
 
       // wait for the database to send back a response before proceeding.
       const dbResponseOk = await response.json();
-
       const plants = this.state.plants;
       const editedPlant = this.state.editedPlant;
 
@@ -507,15 +513,16 @@ class PlantView extends Component {
           key={`plant${index}`}
           // plant properties
           index={index}
-          plantInfo={plant}
+          plantState={plant}
+          genericPlantState={this.state.plant}
           // plant methods
+          resetPlantState={this.resetPlantState}
           checkSchedule={this.checkSchedule}
           editPlant={this.editPlant}
-          clonePlant={this.clonePlant}
           savePlantEdits={this.savePlantEdits}
           setPlantState={this.setPlantState}
           deletePlant={this.deletePlant}
-          editedPlant={this.state.editedPlant}
+          editedPlantState={this.state.plant}
         /> 
      );
     });
@@ -533,8 +540,8 @@ class PlantView extends Component {
             <PlantForm
               formName='add-plant'
               btnText='Add Plant'
-              getPlants={this.getPlants} 
-              addPlant={this.addPlant}
+              // getPlants={this.getPlants} 
+              submitPlant={this.addPlant}
               setTextfieldState={this.setTextfieldState}
               setScheduleState={this.setScheduleState}
               setMistState={this.setMistState}

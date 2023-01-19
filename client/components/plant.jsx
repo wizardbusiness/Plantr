@@ -1,6 +1,7 @@
 
 import React, { Component } from 'react';
-import PlantDetailsModal from './PlantDetailsModal';
+import PlantModal from './PlantModal';
+import PlantInfo from './PlantInfo';
 import '../../src/styles.css';
 
 
@@ -11,7 +12,8 @@ class Plant extends Component {
   }
 
   componentDidMount() {
-   this.props.checkSchedule(this.props.plantInfo.water_date);
+    const { plantState } = this.props;
+    this.props.checkSchedule(plantState.next_water_date);
   }
 
   componentWillUnmount() {
@@ -22,30 +24,40 @@ class Plant extends Component {
   render() {
     const { 
       index,
-      plantInfo,
+      plantState,
       editPlant,
-      clonePlant,
       savePlantEdits,
-      setPlantState,
       deletePlant,
-      editedPlant } = this.props;
+      resetPlantState,
+      setTextfieldState,
+      setScheduleState,
+      setMistState,
+      genericPlantState,
+    } = this.props;
+    console.log(plantState)
     return (
-      <div>
-        <div className="plant"> 
-          <div className="plant-remove">
-            <button onClick={() => deletePlant(plantInfo.plant_id)}>x</button>
-          </div>
-          <PlantDetailsModal 
-            index={index}
-            plantInfo={plantInfo}
-            editedPlant={editedPlant}
-            clonePlant={clonePlant}
-            editPlant={editPlant}
-            savePlantEdits={savePlantEdits}
-            setPlantState={setPlantState}
-            deletePlant={deletePlant}
-          />
-          <div className="plant-name">{plantInfo.name}</div>
+      <div className="plant"> 
+        <div id='modal-header'>
+          <PlantModal
+            buttonId="plant-info-btn"
+            buttonText="Info"
+            resetPlantState={resetPlantState}
+          >
+            <PlantInfo 
+              index={index}
+              editPlant={editPlant}
+              plantState={plantState}
+              genericPlantState={genericPlantState}
+              savePlantEdits={savePlantEdits}
+              setTextfieldState={setTextfieldState}
+              setScheduleState={setScheduleState}
+              setMistState={setMistState}
+           />
+          </PlantModal>
+          <button onClick={() => deletePlant(plantState.plant_id)}>x</button>
+        </div>
+        <div id='plant-display-name'>
+          {plantState.name}
         </div>
       </div>
     )
