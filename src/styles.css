@@ -79,7 +79,6 @@ body {
 .plant-remove {
   display: flex;
   justify-content: end;
-  
 }
 
 #plant-display-name{
@@ -90,14 +89,16 @@ body {
 }
 
 .plant, #new-plant{
-  font-size: 50px;
   background-color: lightgreen;
   min-height: 200px;
   min-width: 200px;
   border-style: solid;
   border-width: 1px;
   border-color: #4a54f1;
-  
+}
+
+#plant-display-name, #new-plant {
+  font-size: 50px;
 }
 
 .plant {
@@ -105,21 +106,21 @@ body {
   align-items: center;
 }
 
-#plant-info-button {
-  display: flex;
-  justify-content: end;
-}
-
 #modal-header {
   display: flex;
   justify-content: space-between;
 }
 
-#info-modal-buttons {
+.info-modal-buttons {
   min-width: 400px;
   display: flex;
   justify-content: end;
   gap: 10px;
+}
+
+#plant-info-button {
+  display: flex;
+  flex-shrink: 1;
 }
 
 .plant-modal{

@@ -21,15 +21,18 @@ class PlantModal extends Component {
     const {children, buttonText, buttonId, resetPlantState} = this.props;
     if (this.state.show === false) {
       return (
-        <button id={buttonId} onClick={this.toggle}>{buttonText}</button>
+        <div className='modal-btn-container'>
+          <button id={buttonId} onClick={this.toggle}>{buttonText}</button>
+        </div>
       );
     } else if (this.state.show === true) {
       return (
-        <div>
+        <div className='modal-btn-container'>
           <button id={buttonId}>{buttonText}</button>
-          <div className='modal-bg-overlay'>
+          {/* <div className='modal-bg-overlay'> */}
             <div className='modal'>
               <button
+                className='info-modal-buttons'
                 onClick={() => {
                   this.toggle()
                   resetPlantState();
@@ -38,8 +41,7 @@ class PlantModal extends Component {
               {children}
             </div>
           </div>
-        </div>
-        
+        // </div>
       );
     };
   }

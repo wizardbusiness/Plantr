@@ -113,7 +113,7 @@ class PlantInfo extends Component {
     if (!this.state.editPlant) {
       return (
         <div className="plant-modal">
-          <div id="info-modal-buttons">
+          <div className="info-modal-buttons">
             <button onClick={() => {
               this.toggleEditPlant();
               editPlant(plantState);
