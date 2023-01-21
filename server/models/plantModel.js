@@ -11,7 +11,6 @@ const pool =  new Pool({
   connectionString: 'postgresql://localhost:5432/plantr'
 })
 
-
 module.exports = {
   query: (text, params, callback) => {
     // do this each time a query is executed
