@@ -9,10 +9,6 @@ plantRoutes.get('/plants', plantControllers.getAllPlants, (req, res, next) => {
   res.status(200).json(res.locals.plants);
 });
 
-plantRoutes.get('/plants/:plant_id', plantControllers.getAPlant, (req, res, next) => {
-  res.status(200).json(res.locals.plant);
-})
-
 // Create new plant in db
 plantRoutes.post('/plants', plantControllers.addPlant, (req, res, next) => {
   res.status(200).json(res.locals.newPlant);
