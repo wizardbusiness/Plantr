@@ -52,22 +52,22 @@ const plantControllers = {
       const data = await db.query(
         `WITH p_vals AS (
           INSERT INTO plants
-          (name, img, light, soil, fertilizer, notes, mist)
+          (name, light, soil, fertilizer, notes, mist)
           VALUES
-          ($1, 2, $3, $4, 5, $6, $7)
-          RETURNING plant_id;
+          ($1, $2, $3, $4, $5, $6)
+          RETURNING plant_id
         ), w_sched_vals AS (
           INSERT INTO watering_schedule
-          (days, weeks, months, next_water_date)
-          SELECT plant_id, $8, $9, $10, $11
+          (plant_id, days, weeks, months, next_water_date)
+          SELECT plant_id, $7, $8, $9, $10
           FROM p_vals
         )
         INSERT INTO fertilizer_schedule
-        (days, weeks, months, next_fertilize_date)
-        SELECT plant_id, $12, $13, $14, $15
-        FROM p_vals;
-        `, 
-         [name, img, light, soil, fertilizer, notes, mist, w_days, w_weeks, w_months, next_water_date, f_days, f_weeks, f_months, next_fertilize_date]); // fertilizeDate
+        (plant_id, days, weeks, months, next_fertilize_date)
+        SELECT plant_id, $11, $12, $13, $14
+        FROM p_vals
+        RETURNING *;`, 
+         [name, light, soil, fertilizer, notes, mist, w_days, w_weeks, w_months, next_water_date, f_days, f_weeks, f_months, next_fertilize_date]); // img
         res.locals.newPlant = data.rows[0];
         console.log(res.locals.newPlant)
         next();
