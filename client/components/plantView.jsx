@@ -29,7 +29,7 @@ class PlantView extends Component {
           weeks: 0, 
           months: 0
         },
-        fertilizing_schedule: {
+        fertilizer_schedule: {
           days: 0,
           weeks: 0,
           months: 0
@@ -128,17 +128,27 @@ class PlantView extends Component {
 }
 
   processDbPlantForFrontendState(plants) {
+     // deeply copy plant object from state
+    
     return plants.map(plant => {
-      const processedPlantObj = {watering_time_of_day: {}, watering_schedule: {}};
-      // even though the for loop is nested, there is a fixed number of props, so it is basically constant insertion. 
-      for (const prop in plant) {
-        // use newPLant state as a template for renesting state. Yes this is dumb
-        if (prop in this.state.plant) processedPlantObj[prop] = plant[prop];
-        else if (prop === 'plant_id') processedPlantObj[prop] = plant[prop];
-        else if (prop ===  'midday' || prop === 'evening' || prop === 'morning') processedPlantObj['watering_time_of_day'][prop] = plant[prop];
-        else if (prop === 'days' || prop === 'weeks' || prop === 'months') processedPlantObj['watering_schedule'][prop] = plant[prop];
+      const processedPlantObj = JSON.parse(JSON.stringify(this.state.plant));
+      // even though the for loop is nested, there is a fixed number of props, so it is basically constant insertion.
+      for (const property in plant) {
+        if (property === 'plant_id') {
+          processedPlantObj[property] = plant[property]
+        } else if (property in processedPlantObj) {
+          processedPlantObj[property] = plant[property];
+          // match property on nested schedule object
+        } else if (property[0] === 'f' || property[0] === 'w') {
+            let propertyMatch;
+            if (property.match(/days/i)) propertyMatch = property.match(/days/i)
+            else if (property.match(/weeks/i)) propertyMatch = property.match(/weeks/i)
+            else if (property.match(/months/i)) propertyMatch = property.match(/months/i);
+            // match schedule type and assign property to the right one
+            if (property[0] === 'w') processedPlantObj.watering_schedule[propertyMatch] = plant[property];
+            if (property[0] === 'f') processedPlantObj.fertilizer_schedule[propertyMatch] = plant[property];
+        }  
       };
-
       return processedPlantObj;
     });
   }
@@ -147,10 +157,7 @@ class PlantView extends Component {
   async getPlants() {
     try {
       const response = await fetch('/plants')
-      const plants = await response.json();
-      console.log(plants);
-
-
+      const plants = await response.json()
       // convert plant state in db back to state structure in react state. 
      this.setState({
         ...this.state.plants,
@@ -180,8 +187,8 @@ class PlantView extends Component {
           weeks: 0, 
           months: 0
         },
-        fertilizing_schedule: {
-          ...this.state.plant.fertilizing_schedule,
+        fertilizer_schedule: {
+          ...this.state.plant.fertilizer_schedule,
           days: 0,
           weeks: 0,
           months: 0
@@ -219,7 +226,7 @@ class PlantView extends Component {
           }
         }
       });
-    } else if (scheduleType === 'fertilizing_schedule') {
+    } else if (scheduleType === 'fertilizer_schedule') {
       this.setState({
         ...this.state,
         plant: {
@@ -229,7 +236,7 @@ class PlantView extends Component {
             [dateUnit]: value,
           }
         }
-      }, () => console.log(this.state.plant.fertilizing_schedule));
+      }, () => console.log(this.state.plant.fertilizer_schedule));
     };
     return; 
   }
@@ -329,9 +336,12 @@ class PlantView extends Component {
 
     // calculate dates
     // scheduleObj, scheduledTime, dateDesc, stateObjStr
-    const scheduleObj = this.state.plant.watering_schedule;
-    const scheduledTime = Object.entries(this.state.plant.watering_time_of_day).filter(entry => entry[1])[0][0];
-    const next_water_date = await this.createDateFromSchedule(scheduleObj, scheduledTime, 'next_water_date', );
+    const wateringSchedule = this.state.plant.watering_schedule;
+    const wateringTime = Object.entries(this.state.plant.watering_time_of_day).filter(entry => entry[1])[0][0];
+    const next_water_date = await this.createDateFromSchedule(wateringSchedule, wateringTime, 'next_water_date');
+    const fertilizingSchedule = this.state.plant.fertilizer_schedule;
+    const fertilizeTime = Object.entries(this.state.plant.watering_time_of_day).filter(entry => entry[1])[0][0];
+    const next_fertilize_date = await(this.createDateFromSchedule(fertilizingSchedule, fertilizeTime, 'next_fertilize_date'))
     // destructure state
     const { 
       name, 
@@ -340,10 +350,9 @@ class PlantView extends Component {
       soil, 
       fertilizer, 
       notes, 
-      watering_schedule: { days, weeks, months }, 
-      watering_time_of_day: { morning, evening, midday }, 
       mist,
-      // next_fertilize_date
+      watering_schedule, 
+      fertilizer_schedule,
     } = this.state.plant;
 
     // add all values from destructured state to request body
@@ -354,15 +363,11 @@ class PlantView extends Component {
       soil, 
       fertilizer, 
       notes, 
-      days, 
-      weeks, 
-      months, 
-      morning, 
-      evening, 
-      midday, 
+      watering_schedule,
+      fertilizer_schedule,
       mist,
-      next_water_date, 
-      // next_fertilize_date
+      next_water_date,
+      next_fertilize_date
     };
     try {
       const plantTableResponse = await fetch('/plants', {
@@ -484,6 +489,7 @@ class PlantView extends Component {
 
   // DELETE PLANT: deletes a saved plant from the database and from state. 
   async deletePlant (plant_id) {
+    console.log(plant_id)
     try {
       const response = await fetch(`/plants/${plant_id}`, {
         method: 'DELETE',
