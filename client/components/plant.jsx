@@ -34,7 +34,6 @@ class Plant extends Component {
       setMistState,
       genericPlantState,
     } = this.props;
-    console.log(plantState)
     return (
       <div className="plant"> 
         <div id='modal-header'>
@@ -52,7 +51,7 @@ class Plant extends Component {
               setTextfieldState={setTextfieldState}
               setScheduleState={setScheduleState}
               setMistState={setMistState}
-           />
+            />
           </PlantModal>
           <button onClick={() => deletePlant(plantState.plant_id)}>x</button>
         </div>
