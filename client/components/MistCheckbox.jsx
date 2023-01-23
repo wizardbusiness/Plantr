@@ -5,7 +5,7 @@ const MistCheckbox = ({value, setMistState}) => {
     <input 
       type = 'checkbox'
       checked = {value} 
-      onClick={() => setMistState()}
+      onChange={() => setMistState()}
     />
   );
 };
