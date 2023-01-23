@@ -40,7 +40,7 @@ class PlantForm extends Component {
     const {submitPlant, btnText, formName, plantState, setScheduleState, setMistState} = this.props;
     const textFields = this.makeTextFields(); 
     return (
-      <form className='plant-form' name={formName} onSubmit={submitPlant}>
+      <form className='plant-form' name={formName} onSubmit={(e) => submitPlant(e)}>
         <div className='form-text-fields'>
           {textFields}
         </div>
