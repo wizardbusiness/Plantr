@@ -80,7 +80,8 @@ class PlantView extends Component {
     console.log('plantview just updated')
   };
 
-  createDateFromSchedule(scheduleObj, scheduledTime, dateDesc) {
+  createDateFromSchedule(scheduleObj, dateDesc) {
+    const scheduledTime = Object.entries(this.state.plant.watering_time_of_day).filter(entry => entry[1])[0][0];
     // schedule interval in days
     let intervalInDays = 0;
     // get current date
@@ -108,7 +109,7 @@ class PlantView extends Component {
         ...this.state.plant,
         [dateDesc]: scheduledDate
       }
-    }, () => console.log(this.state.plant));
+    });
 
     return scheduledDate;
   }
@@ -332,17 +333,6 @@ class PlantView extends Component {
   // SAVE PLANT: saves a new plant to the db, and in the plants array in state for display. 
   async addPlant(e) {
     e.preventDefault();
-    // table columns: plant_id, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, midday, mist, next_water_date, next_fertilize_date
-
-    // calculate dates
-    // scheduleObj, scheduledTime, dateDesc, stateObjStr
-    const wateringSchedule = this.state.plant.watering_schedule;
-    const wateringTime = Object.entries(this.state.plant.watering_time_of_day).filter(entry => entry[1])[0][0];
-    const next_water_date = await this.createDateFromSchedule(wateringSchedule, wateringTime, 'next_water_date');
-    const fertilizingSchedule = this.state.plant.fertilizer_schedule;
-    const fertilizeTime = Object.entries(this.state.plant.watering_time_of_day).filter(entry => entry[1])[0][0];
-    const next_fertilize_date = await(this.createDateFromSchedule(fertilizingSchedule, fertilizeTime, 'next_fertilize_date'))
-    // destructure state
     const { 
       name, 
       img, 
@@ -351,9 +341,14 @@ class PlantView extends Component {
       fertilizer, 
       notes, 
       mist,
+      watering_time_of_day,
       watering_schedule, 
+      fertilizing_time_of_day,
       fertilizer_schedule,
     } = this.state.plant;
+    // dates
+    const next_water_date = await this.createDateFromSchedule(watering_schedule, 'next_water_date');
+    const next_fertilize_date = await(this.createDateFromSchedule(fertilizer_schedule, 'next_fertilize_date'))
 
     // add all values from destructured state to request body
     const body = {
@@ -363,10 +358,12 @@ class PlantView extends Component {
       soil, 
       fertilizer, 
       notes, 
-      watering_schedule,
-      fertilizer_schedule,
       mist,
+      watering_schedule,
+      watering_time_of_day,
       next_water_date,
+      fertilizer_schedule,
+      fertilizing_time_of_day,
       next_fertilize_date
     };
     try {
@@ -397,18 +394,10 @@ class PlantView extends Component {
 
   // EDIT PLANT (Frontend state): edits the stateful properties of the plant being edited in the isolated editPlant state object.
   editPlant(plant) {
-      for (const property in plant) {
-        if (property in this.state.plant){
-          this.setState({
-            ...this.state,
-            plant: {
-              ...this.state.plant, 
-              [property]: plant[property]
-            }
-          });
-        }
-      }
-      
+    this.setState({
+      ...this.state,
+      plant: plant
+    })      
   }
 
   // CLONE PLANT: clones the plant being edited to location in state. 
@@ -422,26 +411,26 @@ class PlantView extends Component {
   }
   
   // SAVE PLANT EDITS: save any edits made to a plant to the db and replace the existing plant in state. 
-  async savePlantEdits () {
-
-    // table columns: plant_id, name, img, light, soil, fertilizer, notes, day, week, month, morning, evening, midday, mist, next_water_date, next_fertilize_date
-    
+  async savePlantEdits (e) {
+    e.preventDefault();
     // destructure state
     const { 
-      plant_id, 
       name, 
       img, 
       light, 
       soil, 
       fertilizer, 
       notes, 
-      watering_schedule: { days, weeks, months }, 
-      watering_time_of_day: { morning, evening, midday }, 
-      mist, 
-      // next_water_date, 
-      // next_fertilize_date
-    } = this.state.editedPlant;
-
+      mist,
+      watering_time_of_day,
+      watering_schedule, 
+      fertilizing_time_of_day,
+      fertilizer_schedule,
+    } = this.state.plant;
+    const { plant_id } = this.state.plant;
+    const next_water_date = await this.createDateFromSchedule(watering_schedule, 'next_water_date');
+    const next_fertilize_date = await(this.createDateFromSchedule(fertilizer_schedule, 'next_fertilize_date'))
+    // add all values from destructured state to request body
     const body = {
       plant_id,
       name, 
@@ -450,32 +439,28 @@ class PlantView extends Component {
       soil, 
       fertilizer, 
       notes, 
-      days, 
-      weeks, 
-      months, 
-      morning, 
-      evening, 
-      midday, 
-      mist, 
-      // next_water_date, 
-      // next_fertilize_date
+      mist,
+      watering_schedule,
+      watering_time_of_day,
+      next_water_date,
+      fertilizer_schedule,
+      fertilizing_time_of_day,
+      next_fertilize_date
     };
-
     try {
       const response = await fetch(`/plants/${plant_id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'Application/JSON'
         },
-        // send 
         body: JSON.stringify(body)
       })
 
       // wait for the database to send back a response before proceeding.
       const dbResponseOk = await response.json();
+      console.log(dbResponseOk)
       const plants = this.state.plants;
-      const editedPlant = this.state.editedPlant;
-
+      const editedPlant = { plant_id: plant_id, ...this.state.plant };
       this.setState({
         // replace the plant entirely with the editedPlant stateful object. 
         plants: plants.map((plant, index) => plant.plant_id === plant_id ? plants[index] = editedPlant : plant)
@@ -497,9 +482,7 @@ class PlantView extends Component {
           'Content-Type': 'Application/JSON'
         },
       });
-      
-      const dbResponseOk = await response.json();
-      
+      const dbResponseOk = await response.json();      
       const plants = this.state.plants;
       this.setState({
         // filter plant to be deleted out of saved state in plants.  
@@ -521,6 +504,9 @@ class PlantView extends Component {
           plantState={plant}
           genericPlantState={this.state.plant}
           // plant methods
+          setTextfieldState={this.setTextfieldState}
+          setScheduleState={this.setScheduleState}
+          setMistState={this.setMistState}
           resetPlantState={this.resetPlantState}
           checkSchedule={this.checkSchedule}
           editPlant={this.editPlant}
