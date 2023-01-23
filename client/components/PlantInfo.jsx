@@ -99,6 +99,7 @@ class PlantInfo extends Component {
     const {
       index,
       editPlant,
+      genericPlantState,
       plantState,
       savePlantEdits,
       resetPlantState,
@@ -138,7 +139,7 @@ class PlantInfo extends Component {
               setTextfieldState={setTextfieldState}
               setScheduleState={setScheduleState}
               setMistState={setMistState}
-              plantState={plantState}
+              plantState={genericPlantState}
             >
           </PlantForm>
       );
