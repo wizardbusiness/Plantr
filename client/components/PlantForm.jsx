@@ -37,10 +37,18 @@ class PlantForm extends Component {
 
   // render whole form, including dropdown and checkbox components. 
   render() {
-    const {submitPlant, btnText, formName, plantState, setScheduleState, setMistState} = this.props;
+    const {submitPlant, btnText, formName, plantState, setScheduleState, setMistState, toggleModal} = this.props;
     const textFields = this.makeTextFields(); 
     return (
-      <form className='plant-form' name={formName} onSubmit={(e) => submitPlant(e)}>
+      <form 
+        className='plant-form' 
+        name={formName} 
+        onSubmit={(e) => {
+          submitPlant(e);
+          toggleModal();
+
+        }
+        }>
         <div className='form-text-fields'>
           {textFields}
         </div>
@@ -54,11 +62,11 @@ class PlantForm extends Component {
         </label>
         <label>
           Fertilizer Schedule:&nbsp;
-          {/* <ScheduleDropdown 
+          <ScheduleDropdown 
             setScheduleState={setScheduleState}
-            scheduleType='fertilizing_schedule'
-            currentSchedule={plantState.fertilizing_schedule}
-          /> */}
+            scheduleType='fertilizer_schedule'
+            currentSchedule={plantState.fertilizer_schedule}
+          />
         </label>
         <label>
           Mist:&nbsp;
