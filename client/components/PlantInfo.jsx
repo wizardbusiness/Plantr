@@ -15,11 +15,11 @@ class PlantInfo extends Component {
         fertilizer: 'Fertilizer: ',
         notes: 'Notes: ',
         watering_schedule: 'Water Every: ',
-        fertilizing_schedule: 'Fertilize Every: ',
+        watering_time_of_day: 'Water in the: ',
         days: ' Days',
         weeks: ' Weeks',
         months: ' Months',
-        watering_time_of_day: 'Water in the: ',
+        fertilizer_schedule: 'Fertilize Every: ',
         fertilizing_time_of_day: 'Fertilize in the: ',
         morning: ' Morning',
         midday: ' Afternoon',
@@ -42,9 +42,13 @@ class PlantInfo extends Component {
     const { plantState } = this.props;
     const labelMap = this.state.plantLabelMap;
     // initial pass: string attributes
-    // iterate through plant properties and filter for string values.
-    const stringValues = Object.entries(plantState).filter(entry => typeof entry[1] === 'string');
-    const labeledStringAttributes = stringValues.map((entry, index) => {
+    // iterate through plant properties and select all primitive values that need a label.
+    const primitivePropsWithLabel = [];
+    for (const property in plantState) {
+      const value = plantState[property];
+      if (property in labelMap && typeof value === 'string') primitivePropsWithLabel.push([property, value])
+    }
+    const labeledStringAttributes = primitivePropsWithLabel.map((entry, index) => {
       const key = `att${index}`
       const [ property, value ] = entry;
       const label = labelMap[property];
@@ -62,28 +66,29 @@ class PlantInfo extends Component {
     const scheduleObjValues = Object.entries(plantState).filter((entry) => typeof entry[1] === 'object' && entry[0] !== 'img');
     const labeledSchedules = scheduleObjValues.map((entry, index) => {
       const key =`schedule${index}`;
-      const [ property, scheduleObj] = entry;
-      const label = labelMap[property];
-      // label the schedule values
-      const labeledScheduleValues = Object.entries(scheduleObj).map((entry, index) => {
-        const [ property, value ] = entry;
-        const key= `scheduleVal${index}`;
-        return (
-          <span key={key}>
-            {value}
-            <label >
-              {labelMap[property]}&nbsp;
-            </label>
-          </span>
-          
-        );
-      }); 
+      const [ stateProperty, scheduleObj] = entry;
+      const label = labelMap[stateProperty];
+      // filter out unused scheduling options
+      const filteredSchedule = Object.entries(scheduleObj).filter(entry => entry[1]);
+        // schedule details
+        const scheduleInfo = filteredSchedule.map((entry, index) => {
+          const [ labelMapProperty, value ] = entry;
+          const key = `scheduleVal${index}`;
+          return (
+            <span key={key}>
+              {value}
+              <label >
+                {labelMap[labelMapProperty]}&nbsp;
+              </label>
+            </span>
+          );
+        });  
       // label the schedule
       return(
         <label key={key}>
           {label}
           <span>
-            {labeledScheduleValues}
+            {scheduleInfo}
           </span>
         </label>
       )
@@ -115,11 +120,12 @@ class PlantInfo extends Component {
       return (
         <div className="plant-modal">
           <div className="info-modal-buttons">
-            <button onClick={() => {
-              this.toggleEditPlant();
-              editPlant(plantState);
+            <button 
+              onClick={() => {
+                this.toggleEditPlant();
+                editPlant(plantState);
               }
-            }>Edit Info</button>
+            }>Edit</button>
           </div>
           <fieldset className="plant-info">
             {labeledAttributes}
