@@ -80,6 +80,7 @@ class PlantView extends Component {
     console.log('plantview just updated')
   };
 
+
   createDateFromSchedule(scheduleObj, dateDesc) {
     const scheduledTime = Object.entries(this.state.plant.watering_time_of_day).filter(entry => entry[1])[0][0];
     // schedule interval in days
@@ -237,7 +238,7 @@ class PlantView extends Component {
             [dateUnit]: value,
           }
         }
-      }, () => console.log(this.state.plant.fertilizer_schedule));
+      });
     };
     return; 
   }
@@ -458,7 +459,6 @@ class PlantView extends Component {
 
       // wait for the database to send back a response before proceeding.
       const dbResponseOk = await response.json();
-      console.log(dbResponseOk)
       const plants = this.state.plants;
       const editedPlant = { plant_id: plant_id, ...this.state.plant };
       this.setState({
@@ -500,9 +500,12 @@ class PlantView extends Component {
         <Plant 
           key={`plant${index}`}
           // plant properties
-          index={index}
-          plantState={plant}
+          focusedPlantState={plant}
           genericPlantState={this.state.plant}
+          // modal properties
+          modalState={this.state.showModal}
+          // modal methods
+          toggleModal={this.toggleModal}
           // plant methods
           setTextfieldState={this.setTextfieldState}
           setScheduleState={this.setScheduleState}
@@ -520,30 +523,28 @@ class PlantView extends Component {
 
   render() {
     const plants = this.viewSavedPlants(this.state.plants)
+    console.log(plants)
     return (
         <div className="planter-box">
           <PlantModal
             buttonId="new-plant"
             buttonText="+"
             resetPlantState={this.resetPlantState}
-          >
-            <PlantForm
-              formName='add-plant'
-              btnText='Add Plant'
-              // getPlants={this.getPlants} 
-              submitPlant={this.addPlant}
-              setTextfieldState={this.setTextfieldState}
-              setScheduleState={this.setScheduleState}
-              setMistState={this.setMistState}
-              plantState={this.state.plant}
-            >
-            </PlantForm>
-          </PlantModal>
-            
-          {/* <button 
-            id="new-plant"
-          >+</button> */}
-          <div className="plants">{plants}</div>
+            toggleModal={this.toggleModal}
+            modalState={this.state.showModal}
+            contents='plantform'
+            formName='add-plant'
+            btnText='Add Plant' 
+            submitPlant={this.addPlant}
+            setTextfieldState={this.setTextfieldState}
+            setScheduleState={this.setScheduleState}
+            setMistState={this.setMistState}
+            plantState={this.state.plant}
+          />  
+          <div 
+            className='plants'>
+              {plants}
+          </div>
         </div>   
     )
   }

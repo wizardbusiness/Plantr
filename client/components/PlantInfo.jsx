@@ -39,13 +39,13 @@ class PlantInfo extends Component {
 
   
   mapLabelsToProperties () {
-    const { plantState } = this.props;
+    const { focusedPlantState } = this.props;
     const labelMap = this.state.plantLabelMap;
     // initial pass: string attributes
     // iterate through plant properties and select all primitive values that need a label.
     const primitivePropsWithLabel = [];
-    for (const property in plantState) {
-      const value = plantState[property];
+    for (const property in focusedPlantState) {
+      const value = focusedPlantState[property];
       if (property in labelMap && typeof value === 'string') primitivePropsWithLabel.push([property, value])
     }
     const labeledStringAttributes = primitivePropsWithLabel.map((entry, index) => {
@@ -63,7 +63,7 @@ class PlantInfo extends Component {
     });
     // second pass: schedule objects
     // iterate through plant properties and filter for object values.
-    const scheduleObjValues = Object.entries(plantState).filter((entry) => typeof entry[1] === 'object' && entry[0] !== 'img');
+    const scheduleObjValues = Object.entries(focusedPlantState).filter((entry) => typeof entry[1] === 'object' && entry[0] !== 'img');
     const labeledSchedules = scheduleObjValues.map((entry, index) => {
       const key =`schedule${index}`;
       const [ stateProperty, scheduleObj] = entry;
@@ -102,17 +102,15 @@ class PlantInfo extends Component {
     const labeledAttributes = this.mapLabelsToProperties()[0];
     const labeledSchedules = this.mapLabelsToProperties()[1];
     const {
-      index,
+      toggleModal,
       editPlant,
       genericPlantState,
-      plantState,
+      focusedPlantState,
       savePlantEdits,
       resetPlantState,
       setTextfieldState,
       setScheduleState,
       setMistState,
-      
-
     } = this.props;
     // if no modal opened (either info modal or edit modal), don't render anything. 
     // if modal is open but plant isn't being edited, return plant info. 
@@ -123,7 +121,7 @@ class PlantInfo extends Component {
             <button 
               onClick={() => {
                 this.toggleEditPlant();
-                editPlant(plantState);
+                editPlant(focusedPlantState);
               }
             }>Edit</button>
           </div>
@@ -135,11 +133,11 @@ class PlantInfo extends Component {
       )
     // else if plant is being edited, render edit plant modal. 
     } else { 
-      console.log('Edit Plant Form rendered')
       return (
         <PlantForm
               formName='edit-plant'
               btnText='Save Plant'
+              toggleModal={toggleModal}
               submitPlant={savePlantEdits}
               resetPlantState={resetPlantState}
               setTextfieldState={setTextfieldState}
