@@ -12,19 +12,19 @@ class Plant extends Component {
   }
 
   componentDidMount() {
-    const { plantState } = this.props;
-    this.props.checkSchedule(plantState.next_water_date);
+    const { focusedPlantState } = this.props;
+    this.props.checkSchedule(focusedPlantState.next_water_date);
   }
 
   componentWillUnmount() {
     clearInterval(this.props.checkSchedule())
   }
 
-  
   render() {
     const { 
-      index,
-      plantState,
+      toggleModal,
+      modalState,
+      focusedPlantState,
       editPlant,
       savePlantEdits,
       deletePlant,
@@ -41,22 +41,21 @@ class Plant extends Component {
             buttonId="plant-info-btn"
             buttonText="Info"
             resetPlantState={resetPlantState}
-          >
-            <PlantInfo 
-              index={index}
-              editPlant={editPlant}
-              plantState={plantState}
-              genericPlantState={genericPlantState}
-              savePlantEdits={savePlantEdits}
-              setTextfieldState={setTextfieldState}
-              setScheduleState={setScheduleState}
-              setMistState={setMistState}
-            />
-          </PlantModal>
-          <button onClick={() => deletePlant(plantState.plant_id)}>x</button>
+            toggleModal={toggleModal}
+            modalState={modalState}
+            editPlant={editPlant}
+            focusedPlantState={focusedPlantState}
+            genericPlantState={genericPlantState}
+            savePlantEdits={savePlantEdits}
+            setTextfieldState={setTextfieldState}
+            setScheduleState={setScheduleState}
+            setMistState={setMistState}
+            contents='plantinfo'
+          />
+          <button onClick={() => deletePlant(focusedPlantState.plant_id)}>x</button>
         </div>
         <div id='plant-display-name'>
-          {plantState.name}
+          {focusedPlantState.name}
         </div>
       </div>
     )
