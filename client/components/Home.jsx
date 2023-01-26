@@ -1,8 +1,7 @@
 import React, {Component} from 'react';
 import { createRoot } from 'react-dom/client';
 import { useState } from 'react';
-import PlantView from './plantView';
-import NewPlantForm from './NewPlantForm';
+import PlantView from './PlantView';
 // import '../App.css';
 
 // const plants = ['spider plant', 'prayer plant', 'sword fern']
