@@ -1,7 +1,6 @@
 
 import React, { Component } from 'react';
 import PlantModal from './PlantModal';
-import PlantInfo from './PlantInfo';
 import '../../src/styles.css';
 
 
@@ -31,6 +30,7 @@ class Plant extends Component {
       resetPlantState,
       setTextfieldState,
       setScheduleState,
+      setTimeOfDayState,
       setMistState,
       genericPlantState,
     } = this.props;
@@ -50,6 +50,7 @@ class Plant extends Component {
             setTextfieldState={setTextfieldState}
             setScheduleState={setScheduleState}
             setMistState={setMistState}
+            setTimeOfDayState={setTimeOfDayState}
             contents='plantinfo'
           />
           <button onClick={() => deletePlant(focusedPlantState.plant_id)}>x</button>

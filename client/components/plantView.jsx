@@ -1,8 +1,6 @@
 import React, {Component} from 'react';
-import Plant from './plant';
-import NewPlantModal from './NewPlantModal';
+import Plant from './Plant';
 import PlantModal from './PlantModal';
-import PlantForm from './PlantForm';
 
 class PlantView extends Component {
   constructor(props) {
