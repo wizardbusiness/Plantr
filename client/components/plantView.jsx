@@ -7,7 +7,6 @@ import PlantForm from './PlantForm';
 class PlantView extends Component {
   constructor(props) {
     super(props)
-
     this.state = {
       editPlant: {
         saveEdit: true,
@@ -39,7 +38,7 @@ class PlantView extends Component {
           midday: false,
           evening: false
         },
-        fertilizing_time_of_day: {
+        fertilize_time_of_day: {
           morning: true,
           midday: false,
           evening: false
@@ -53,6 +52,7 @@ class PlantView extends Component {
     this.getPlants = this.getPlants.bind(this);
     this.viewSavedPlants = this.viewSavedPlants.bind(this);
     this.setScheduleState = this.setScheduleState.bind(this);
+    this.setTimeOfDayState = this.setTimeOfDayState.bind(this);
     this.setTextfieldState = this.setTextfieldState.bind(this);
     this.setMistState = this.setMistState.bind(this);
     this.resetPlantState = this.resetPlantState.bind(this);
@@ -127,11 +127,10 @@ class PlantView extends Component {
     }, 3000)
 
     return check;
-}
+  }
 
   processDbPlantForFrontendState(plants) {
-     // deeply copy plant object from state
-    
+    // deeply copy plant object from state
     return plants.map(plant => {
       const processedPlantObj = JSON.parse(JSON.stringify(this.state.plant));
       // even though the for loop is nested, there is a fixed number of props, so it is basically constant insertion.
@@ -158,8 +157,8 @@ class PlantView extends Component {
   // GET PLANTS: retrieves all plants in the db. 
   async getPlants() {
     try {
-      const response = await fetch('/plants')
-      const plants = await response.json()
+      const response = await fetch('/plants');
+      const plants = await response.json();
       // convert plant state in db back to state structure in react state. 
      this.setState({
         ...this.state.plants,
@@ -168,7 +167,7 @@ class PlantView extends Component {
       });
     } catch (err) {
       console.log(err);
-    }
+    };
   }
   
   resetPlantState() {
@@ -201,8 +200,8 @@ class PlantView extends Component {
           midday: false,
           evening: false
         },
-        fertilizing_time_of_day: {
-          ...this.state.plant.fertilizerTimeOfDay,
+        fertilize_time_of_day: {
+          ...this.state.plant.fertilize_time_of_day,
           morning: true,
           midday: false,
           evening: false
@@ -243,6 +242,28 @@ class PlantView extends Component {
     return; 
   }
 
+  setTimeOfDayState(chosenValue, stateObjName) {
+    const newTimeOfDayState = {
+      morning: false,
+      midday: false,
+      evening: false
+    };
+    const chosenValueObj = {[chosenValue]: true}
+    // for (const property in timeOfDayState) {
+    //   if (property === chosenValue) Object.assign{{},  ...newTimeOfDayState, property }
+    //   // else newTimeOfDayState = timeOfDayState[property]
+    // }
+    const modifiedState = Object.assign(newTimeOfDayState, chosenValueObj)
+    this.setState({
+      ...this.state,
+      plant: {
+        ...this.state.plant,
+        [stateObjName]: modifiedState
+      }
+    }, () => console.log(this.state.plant[stateObjName]));
+        
+  }
+
   setTextfieldState(name, value) {
     this.setState({
       ...this.state,
@@ -262,74 +283,6 @@ class PlantView extends Component {
       }
     });
   }
-  // input: state object to update, dropdown, property being changed, value, property names in object
-  setPlantState(stateObjectName, dropdown, propertyToChange, value=0, keys=[]) {
-    // set time
-    const setTime = (dropdown, pickedTime=propertyToChange, keys) => {
-      const notPickedOpts = keys.filter(key => key !== propertyToChange);
-      this.setState({
-        ...this.state,
-        [stateObjectName]:{
-          ...this.state[stateObjectName],
-          [dropdown]: {
-            ...this.state[stateObjectName][dropdown],
-            // set not picked times to false. 
-            [notPickedOpts[0]]: false,
-            [notPickedOpts[1]]: false,
-            // set picked time to true
-            [propertyToChange]: true,
-          }
-        }
-      });
-    }
-
-    // set watering_schedule
-    const setDateDropdown = (dropdown, pickedDate=propertyToChange, value) => {
-      this.setState({
-        ...this.state,
-        [stateObjectName]: {
-          ...this.state[stateObjectName],
-          [dropdown]: {
-            ...this.state[stateObjectName][dropdown],
-            [pickedDate]: value
-          }
-        }
-      });
-    }
-
-    // toggle mist
-    const toggleMist = () => {
-      this.setState({
-        ...this.state,
-        [stateObjectName]: {
-          ...this.state[stateObjectName],
-          mist: this.state[stateObjectName].mist === false ? this.state[stateObjectName].mist = true : false
-        }
-      })
-    }
-
-    // set other value
-    const setOther = (propertyToChange, value) => {
-      this.setState({
-        [stateObjectName]: {
-          ...this.state[stateObjectName],
-          [propertyToChange]: value,
-        }
-      });
-    }
-    
-    // depending on the property being targeted, use one of the above methods to set the relevant state. 
-    if (dropdown === 'watering_time_of_day') {
-      setTime(dropdown, propertyToChange, keys)
-    } else if (dropdown === 'watering_schedule') {
-      setDateDropdown(dropdown, propertyToChange, value);
-    } else if (propertyToChange === 'mist') {
-      toggleMist();
-    } else {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
-      setOther(propertyToChange, value);
-    }
-  };
-
 
   // SAVE PLANT: saves a new plant to the db, and in the plants array in state for display. 
   async addPlant(e) {
@@ -344,7 +297,7 @@ class PlantView extends Component {
       mist,
       watering_time_of_day,
       watering_schedule, 
-      fertilizing_time_of_day,
+      fertilize_time_of_day,
       fertilizer_schedule,
     } = this.state.plant;
     // dates
@@ -364,7 +317,7 @@ class PlantView extends Component {
       watering_time_of_day,
       next_water_date,
       fertilizer_schedule,
-      fertilizing_time_of_day,
+      fertilize_time_of_day,
       next_fertilize_date
     };
     try {
@@ -425,7 +378,7 @@ class PlantView extends Component {
       mist,
       watering_time_of_day,
       watering_schedule, 
-      fertilizing_time_of_day,
+      fertilize_time_of_day,
       fertilizer_schedule,
     } = this.state.plant;
     const { plant_id } = this.state.plant;
@@ -445,7 +398,7 @@ class PlantView extends Component {
       watering_time_of_day,
       next_water_date,
       fertilizer_schedule,
-      fertilizing_time_of_day,
+      fertilize_time_of_day,
       next_fertilize_date
     };
     try {
@@ -510,6 +463,7 @@ class PlantView extends Component {
           setTextfieldState={this.setTextfieldState}
           setScheduleState={this.setScheduleState}
           setMistState={this.setMistState}
+          setTimeOfDayState={this.setTimeOfDayState}
           resetPlantState={this.resetPlantState}
           checkSchedule={this.checkSchedule}
           editPlant={this.editPlant}
@@ -538,8 +492,10 @@ class PlantView extends Component {
             submitPlant={this.addPlant}
             setTextfieldState={this.setTextfieldState}
             setScheduleState={this.setScheduleState}
+            setTimeOfDayState={this.setTimeOfDayState}
             setMistState={this.setMistState}
             plantState={this.state.plant}
+            
           />  
           <div 
             className='plants'>
