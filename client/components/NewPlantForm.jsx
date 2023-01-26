@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 import '../../src/styles';
 import FormField from './FormField';
-import Checkbox from './Checkbox';
-import WaterDateDropdown from './WaterDateDropdown';
-import WaterTimeDropdown from './WaterTimeDropdown';
+import Checkbox from './MistCheckbox';
+import WaterDateDropdown from './ScheduleDropdown';
+import WaterTimeDropdown from './TimeDropDown';
 
 
 class NewPlantForm extends Component {
@@ -83,7 +83,6 @@ class NewPlantForm extends Component {
               toggleModal()
               resetPlantState()
             }
-              
             }> x </button>
             {formFields}
             <button onClick={() => {

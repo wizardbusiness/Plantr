@@ -1,8 +1,8 @@
 import React from 'react';
 import EditPlantField from './EditPlantField';
-import WaterDateDropDown from './WaterDateDropdown';
+import WaterDateDropDown from './ScheduleDropdown';
 import WaterTimeDropdown from './WaterTimeDropdown';
-import Checkbox from './Checkbox';
+import Checkbox from './MistCheckbox';
 
 const EditPlantForm = ({setPlantState, plantDetails, toggleEditPlant, savePlantEdits, index}) => {
   const makeFields = () => {
