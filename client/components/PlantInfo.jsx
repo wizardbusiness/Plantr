@@ -14,22 +14,22 @@ class PlantInfo extends Component {
         soil: 'Soil: ',
         fertilizer: 'Fertilizer: ',
         notes: 'Notes: ',
-        watering_schedule: 'Water Every ',
+        watering_schedule: 'Water every ',
         watering_time_of_day: 'in the ',
-        days: ' Days',
-        weeks: ' Weeks',
-        months: ' Months',
+        days: ' days',
+        weeks: ' weeks',
+        months: ' months',
         fertilizer_schedule: 'Fertilize Every ',
         fertilize_time_of_day: 'in the ',
-        morning: ' Morning',
-        midday: ' Afternoon',
-        evening: ' Evening'
+        morning: ' morning',
+        midday: ' afternoon',
+        evening: ' evening'
       },
     }
 
     this.toggleEditPlant = this.toggleEditPlant.bind(this);
-    this.createInfoFieldElements = this.createInfoFieldElements.bind(this);
-    this.createScheduleElement = this.createScheduleElement.bind(this);
+    this.createInfoFieldNodes = this.createInfoFieldNodes.bind(this);
+    this.createScheduleNodes = this.createScheduleNodes.bind(this);
   }
 
   toggleEditPlant() {
@@ -39,7 +39,7 @@ class PlantInfo extends Component {
   };
 
   
-  createInfoFieldElements() {
+  createInfoFieldNodes() {
     const { focusedPlantState } = this.props;
     const labelMap = this.state.plantLabelMap;
     // initial pass: string attributes
@@ -63,65 +63,52 @@ class PlantInfo extends Component {
         </label>
       );
     });
-    console.log(infoFieldElements)
     // return labeled string attributes and labeled schedules
     return infoFieldElements
   };
 
-  createScheduleElement(scheduleType) { 
+
+
+  createScheduleNodes(scheduleType) { 
     const { focusedPlantState } = this.props;
-    console.log(focusedPlantState)
     const labelMap = this.state.plantLabelMap; 
-    // iterate through plant properties and filter for object values to create schedule elements.
-    const scheduleObjValues = Object.entries(focusedPlantState).filter((entry) => typeof entry[1] === 'object' && entry[0] !== 'img');
-    const scheduleInfo = scheduleType === 'watering' ? scheduleObjValues.filter(entry => entry[0].match(/watering/)) : 
-      scheduleObjValues.filter(entry => entry[0].match(/fertilize/));
-      console.log(scheduleInfo)
-      // put together all info for schedule on a single line
-    const scheduleElement = scheduleInfo.map((entry, index) => {
-      const key =`schedule${index}`;
-      // each entry has the property name and the schedule object
-      const [ stateProperty, scheduleObj] = entry;
-      // label each schedule using the labelMap
-      const label = labelMap[stateProperty];
-      console.log(label)
-      // filter out unused scheduling options inside the schedule object
-      const filteredSchedule = Object.entries(scheduleObj).filter(entry => entry[1]);
-      // map filtered schedule to jsx component
-      const scheduleProperties = filteredSchedule.map((entry, index) => {
-        // each entry has the property that will be used in the label map to label the value
-        const [ labelMapProperty, value ] = entry;
-        const key = `scheduleVal${index}`;
-        return (
-          <span key={key}>
-            {value}
-            <label>
-              {labelMap[labelMapProperty]}&nbsp;
-            </label>
-          </span>
-        );
-      });  
-      // label the schedule and return the completed component
-      return(
+    const schedule = scheduleType === 'watering_schedule' ? focusedPlantState.watering_schedule: focusedPlantState.fertilizer_schedule;
+    // check if the schedule is empty
+    let emptySchedule = true;
+    for (const property in schedule) {
+      if (schedule[property] !== 0) emptySchedule =  false;
+    }
+    // if schedule is empty, return the message 'Schedule not Set' to the user.
+    if (emptySchedule === true) return (
+      <div>Schedule Not Set</div>
+    ) 
+    // if schedule isnt' empty, return an element containing all scheduling info summarized on one line. 
+    // get the relevant info for the schedule being displayed to the user. s
+    const timeOfDay = scheduleType === 'watering_schedule' ? focusedPlantState.watering_time_of_day : focusedPlantState.fertilize_time_of_day;
+    const allScheduleInfo = [...Object.entries(schedule), ...Object.entries(timeOfDay)];
+    // iterate through plant properties and filter for the options that the user has selected (eval to true);
+    const selectedInfo = allScheduleInfo.filter(entry => entry[1]);
+    // map the info to elements
+    const scheduleSummaryNode = selectedInfo.map(entry => {
+      return (
         <span>
-          <label key={key}>
-            {label}
-          </label>
-          {scheduleProperties}
+          <output>{entry[1] === true ? ' in the ' + labelMap[entry[0]] : entry[1]}</output>
+          <label>{labelMap[entry[0]]}&nbsp;</label>
         </span>
       )
-    });
+    })
     return (
       <span>
-        {scheduleElement}
+        <label>{labelMap[scheduleType]}</label>
+        <output>{scheduleSummaryNode}</output>
       </span>
     );
   }
 
   render() {
-    const infoFieldElements = this.createInfoFieldElements();
-    const wateringInfo = this.createScheduleElement('watering')
-    const fertilizeInfo = this.createScheduleElement('fertilize')
+    const infoFieldElements = this.createInfoFieldNodes();
+    const wateringInfo = this.createScheduleNodes('watering_schedule')
+    const fertilizeInfo = this.createScheduleNodes('fertilize_schedule')
     const {
       toggleModal,
       editPlant,
@@ -149,7 +136,9 @@ class PlantInfo extends Component {
           </div>
           <fieldset className="plant-info">
             {infoFieldElements}
+            <label>Watering Schedule: </label>
             {wateringInfo}
+            <label>Fertilize Schedule: </label>
             {fertilizeInfo}
           </fieldset>
         </div>
