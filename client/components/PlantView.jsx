@@ -32,12 +32,14 @@ class PlantView extends Component {
           months: 0
         },
         watering_time_of_day: {
-          morning: true,
+          default: true,
+          morning: false,
           midday: false,
           evening: false
         },
         fertilize_time_of_day: {
-          morning: true,
+          default: true,
+          morning: false,
           midday: false,
           evening: false
         },
@@ -128,25 +130,26 @@ class PlantView extends Component {
   }
 
   processDbPlantForFrontendState(plants) {
+    const processedPlantObj = JSON.parse(JSON.stringify(this.state.plant));
     // deeply copy plant object from state
     return plants.map(plant => {
-      const processedPlantObj = JSON.parse(JSON.stringify(this.state.plant));
       // even though the for loop is nested, there is a fixed number of props, so it is basically constant insertion.
       for (const property in plant) {
         if (property === 'plant_id') {
           processedPlantObj[property] = plant[property]
         } else if (property in processedPlantObj) {
           processedPlantObj[property] = plant[property];
-          // match property on nested schedule object
+          // match property on objects
         } else if (property[0] === 'f' || property[0] === 'w') {
             let propertyMatch;
             if (property.match(/days/i)) propertyMatch = property.match(/days/i)
             else if (property.match(/weeks/i)) propertyMatch = property.match(/weeks/i)
             else if (property.match(/months/i)) propertyMatch = property.match(/months/i);
-            // match schedule type and assign property to the right one
-            if (property[0] === 'w') processedPlantObj.watering_schedule[propertyMatch] = plant[property];
-            if (property[0] === 'f') processedPlantObj.fertilizer_schedule[propertyMatch] = plant[property];
-        }  
+        } else if (property[0] === 'w') {
+          processedPlantObj.watering_schedule[propertyMatch] = plant[property]
+        } else if (property[0] === 'f') {
+          processedPlantObj.fertilizer_schedule[propertyMatch] = plant[property];
+        } 
       };
       return processedPlantObj;
     });
@@ -194,13 +197,15 @@ class PlantView extends Component {
         },
         watering_time_of_day: {
           ...this.state.plant.watering_time_of_day,
-          morning: true,
+          default: true, 
+          morning: false,
           midday: false,
           evening: false
         },
         fertilize_time_of_day: {
           ...this.state.plant.fertilize_time_of_day,
-          morning: true,
+          default: true,
+          morning: false,
           midday: false,
           evening: false
         },
@@ -242,6 +247,7 @@ class PlantView extends Component {
 
   setTimeOfDayState(chosenValue, stateObjName) {
     const newTimeOfDayState = {
+      default: false,
       morning: false,
       midday: false,
       evening: false
@@ -475,7 +481,6 @@ class PlantView extends Component {
 
   render() {
     const plants = this.viewSavedPlants(this.state.plants)
-    console.log(plants)
     return (
         <div className="planter-box">
           <PlantModal
