@@ -130,29 +130,36 @@ class PlantView extends Component {
   }
 
   processDbPlantForFrontendState(plants) {
-    const processedPlantObj = JSON.parse(JSON.stringify(this.state.plant));
-    // deeply copy plant object from state
-    return plants.map(plant => {
-      // even though the for loop is nested, there is a fixed number of props, so it is basically constant insertion.
+    const plantObj = plants.map(plant => {
+      // deeply copy plant object from state. 
+      // this will serve as the basis for each individual plantObj
+      const processedPlantObj = JSON.parse(JSON.stringify(this.state.plant));
+      // even though the for loop is nested, there is a fixed number of props, so it is basically O(n) insertion.
       for (const property in plant) {
         if (property === 'plant_id') {
           processedPlantObj[property] = plant[property]
         } else if (property in processedPlantObj) {
           processedPlantObj[property] = plant[property];
-          // match property on objects
-        } else if (property[0] === 'f' || property[0] === 'w') {
-            let propertyMatch;
-            if (property.match(/days/i)) propertyMatch = property.match(/days/i)
-            else if (property.match(/weeks/i)) propertyMatch = property.match(/weeks/i)
-            else if (property.match(/months/i)) propertyMatch = property.match(/months/i);
+          // match property on fertilzer schedule objects
         } else if (property[0] === 'w') {
-          processedPlantObj.watering_schedule[propertyMatch] = plant[property]
+          const processedProperty = property.slice(2);
+          if (processedProperty === 'days' || processedProperty === 'weeks' || processedProperty === 'months' ) {
+            processedPlantObj.watering_schedule[processedProperty] = plant[property];
+          } else if (processedProperty === 'default' || processedProperty === 'morning' || processedProperty === 'midday' || processedProperty === 'evening') {
+            processedPlantObj.watering_time_of_day[processedProperty] = plant[property];
+          };
         } else if (property[0] === 'f') {
-          processedPlantObj.fertilizer_schedule[propertyMatch] = plant[property];
-        } 
-      };
-      return processedPlantObj;
+          const processedProperty = property.slice(2);
+          if (processedProperty === 'days' || processedProperty === 'weeks' || processedProperty === 'months' ) {
+            processedPlantObj.fertilizer_schedule[processedProperty] = plant[property];
+          } else if (processedProperty === 'default' || processedProperty === 'morning' || processedProperty === 'midday' || processedProperty === 'evening') {
+            processedPlantObj.fertilize_time_of_day[processedProperty] = plant[property];
+          };
+        };
+      }
+      return processedPlantObj
     });
+    return plantObj;
   }
 
   // GET PLANTS: retrieves all plants in the db. 
@@ -160,6 +167,7 @@ class PlantView extends Component {
     try {
       const response = await fetch('/plants');
       const plants = await response.json();
+      console.log(this.processDbPlantForFrontendState(plants))
       // convert plant state in db back to state structure in react state. 
      this.setState({
         ...this.state.plants,
@@ -219,7 +227,6 @@ class PlantView extends Component {
   // args: property being updated, updated value.  
   setScheduleState(scheduleType, dateUnit, value) {
     if (scheduleType === 'watering_schedule') {
-      console.log(scheduleType, dateUnit, value)
       this.setState({
         ...this.state,
         plant: {
