@@ -217,6 +217,7 @@ class PlantView extends Component {
   // SET PLANT STATE: Updates properties of a new or edited plant in state when the user fills out the new or edited plant form.
   // args: property being updated, updated value.  
   async setScheduleState(scheduleType, dateUnit, value) {
+
     // if (scheduleType === 'watering_schedule') {
       if (value.includes('set')) {
         this.setState({
@@ -250,42 +251,26 @@ class PlantView extends Component {
               [dateUnit]: value
             }
           }
-        }, () => console.log(this.state.plant.watering_time_of_day));
+        }, () => console.log(this.state.plant.watering_schedule));
       }
-    // }
-    //  else if (scheduleType === 'fertilizer_schedule') {
-    //   this.setState({
-    //     ...this.state,
-    //     plant: {
-    //       ...this.state.plant,
-    //       [scheduleType]: {
-    //         ...this.state.plant[scheduleType],
-    //         [dateUnit]: value,
-    //       }
-    //     }
-    //   });
-    // };
     return; 
   }
 
-  setTimeOfDayState(chosenValue, stateObjName) {
+  setTimeOfDayState(chosenValue, stateName) {
     const newTimeOfDayState = {
       unselected_tod: false,
       morning: false,
       midday: false,
       evening: false
     };
-    const chosenValueObj = {[chosenValue]: true}
-    // for (const property in timeOfDayState) {
-    //   if (property === chosenValue) Object.assign{{},  ...newTimeOfDayState, property }
-    //   // else newTimeOfDayState = timeOfDayState[property]
-    // }
-    const modifiedState = {...newTimeOfDayState, ...chosenValueObj}
+    // merge the chosen value into the new time of day state.
+    const modifiedState = {...newTimeOfDayState, [chosenValue]: true}
+    console.log(modifiedState)
     this.setState({
       ...this.state,
       plant: {
         ...this.state.plant,
-        [stateObjName]: modifiedState
+        [stateName]: modifiedState
       }
     });
   }
@@ -412,8 +397,10 @@ class PlantView extends Component {
       mist,
       watering_time_of_day,
       watering_schedule, 
+      initial_water_date,
       fertilize_time_of_day,
       fertilizer_schedule,
+      initial_fertilize_date
     } = this.state.plant;
     // calculate changes to schedule from the initial date the schedule was last set. so if the schedule was set to water every 2 days,
     // and it's changed to three, it should add 3 days from the initial date the schedule was set. 
@@ -433,9 +420,11 @@ class PlantView extends Component {
       watering_schedule,
       watering_time_of_day,
       next_water_date,
+      initial_water_date,
       fertilizer_schedule,
       fertilize_time_of_day,
-      next_fertilize_date
+      next_fertilize_date,
+      initial_fertilize_date
     };
     try {
       const response = await fetch(`/plants/${plant_id}`, {

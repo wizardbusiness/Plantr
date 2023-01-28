@@ -36,6 +36,7 @@ const plantControllers = {
   }, 
 
   async addPlant (req, res, next) {
+    console.log(req.body)
     const {
       plant_species,
       name, 
@@ -113,10 +114,10 @@ const plantControllers = {
       next_fertilize_date,
       initial_fertilize_date
     } = req.body;
-    const { unselected: w_unselected_tod, days: w_days, weeks: w_weeks, months: w_months } = watering_schedule;
-    const { morning: w_morning, midday: w_midday, evening: w_evening } = watering_time_of_day;
-    const { days: f_days, weeks: f_weeks, months: f_months } = fertilizer_schedule;
-    const { unselected: f_unselected_tod, morning: f_morning, midday: f_midday, evening: f_evening } = fertilize_time_of_day;
+    const { unselected_date: w_unselected_date, days: w_days, weeks: w_weeks, months: w_months } = watering_schedule;
+    const { unselected_tod: w_unselected_tod, morning: w_morning, midday: w_midday, evening: w_evening } = watering_time_of_day;
+    const { unselected_date: f_unselected_date, days: f_days, weeks: f_weeks, months: f_months } = fertilizer_schedule;
+    const { unselected_tod: f_unselected_tod, morning: f_morning, midday: f_midday, evening: f_evening } = fertilize_time_of_day;
     try {
       if (!plant_species) throw new Error('plant_species field required')
       const data = await db.query(
@@ -125,15 +126,15 @@ const plantControllers = {
           WHERE plant_id = $1 
           RETURNING plant_id
         ), w_vals AS (
-          UPDATE watering_schedule SET days = $9, weeks = $10, months = $11, unselected_tod = $12, morning = $13, midday = $14, evening = $15, next_water_date = $16, initial_water_date = $17 
+          UPDATE watering_schedule SET unselected_date = $9, days = $10, weeks = $11, months = $12, unselected_tod = $13, morning = $14, midday = $15, evening = $16, next_water_date = $17, initial_water_date = $18 
           WHERE watering_schedule.plant_id = plant_id
         )
-        UPDATE fertilizer_schedule SET days = $18, weeks = $19, months = $20, unselected_tod = $21, morning = $22, midday = $23, evening = $24,  next_fertilize_date = $25, initial_fertilize_date = $26
+        UPDATE fertilizer_schedule SET unselected_date = $19, days = $20, weeks = $21, months = $22, unselected_tod = $23, morning = $24, midday = $25, evening = $26,  next_fertilize_date = $27, initial_fertilize_date = $28
         WHERE fertilizer_schedule.plant_id = plant_id
         RETURNING plant_id;`,
         [
-          plant_id, plant_species, name, light, soil, fertilizer, notes, mist, w_days, w_weeks, w_months, w_unselected_tod, w_morning,
-          w_midday, w_evening, next_water_date, initial_water_date, f_unselected_tod, f_days, f_weeks, f_months, f_morning, f_midday,
+          plant_id, plant_species, name, light, soil, fertilizer, notes, mist, w_unselected_date, w_days, w_weeks, w_months, w_unselected_tod, w_morning,
+          w_midday, w_evening, next_water_date, initial_water_date, f_unselected_date, f_days, f_weeks, f_months, f_unselected_tod, f_morning, f_midday,
           f_evening, next_fertilize_date, initial_fertilize_date
         ]
       ); // img
