@@ -8,7 +8,7 @@ class PlantView extends Component {
     this.state = {
       plants: [],
       // plant properties relate to columns in plants table in postgreSQL db. 
-      // note that plant_id is defined in database, not new plant state. 
+      // note that plant_id is defined in database, not new plant state.
       plant: {
         plant_species: '',
         name: '',
@@ -18,13 +18,11 @@ class PlantView extends Component {
         fertilizer: '',
         notes: '',
         watering_schedule: {
-          unselected_date: true,
           days: 0,
           weeks: 0, 
           months: 0
         },
-        fertilizer_schedule: {
-          unselected_date: true, 
+        fertilizer_schedule: { 
           days: 0,
           weeks: 0,
           months: 0
@@ -217,62 +215,90 @@ class PlantView extends Component {
   // SET PLANT STATE: Updates properties of a new or edited plant in state when the user fills out the new or edited plant form.
   // args: property being updated, updated value.  
   async setScheduleState(scheduleType, dateUnit, value) {
-
-    // if (scheduleType === 'watering_schedule') {
-      if (value.includes('set')) {
-        this.setState({
-          ...this.state,
-          plant: {
-            ...this.state.plant,
-            [scheduleType]: {
-              ...this.state.plant[scheduleType],
-              unselected_date: true,
-              [dateUnit]: 0 
-            }
-          }
-        });
-      } else {
-        // do a check if time of day has been set, if it hasn't set it to morning automatically when any schedule is set.
-        const checkWaterTod = Object.entries(this.state.plant.watering_time_of_day).filter(entry => entry[1])[0][0];
-        const checkFertilizeTod =  Object.entries(this.state.plant.fertilize_time_of_day).filter(entry => entry[1])[0][0];
-        if (scheduleType.includes('water') && checkWaterTod === 'unselected_tod') {
-          await this.setTimeOfDayState('morning', 'watering_time_of_day');
-        } else if (scheduleType.includes('fert') && checkFertilizeTod === 'unselected_tod') {
-          await this.setTimeOfDayState('morning', 'fertilize_time_of_day');
-        } 
-        // then proceed with setting the schedule state
-        this.setState({
-          ...this.state,
-          plant: {
-            ...this.state.plant,
-            [scheduleType]: {
-              ...this.state.plant[scheduleType],
-              unselected_date: false,
-              [dateUnit]: value
-            }
-          }
-        }, () => console.log(this.state.plant.watering_schedule));
+    // selects morning automatically for time of day if user hasn't selected a time of day
+    const setTodToMorning = () => {
+      let timeOfDayState;
+      if (scheduleType === 'watering_schedule') {
+        timeOfDayState = this.state.plant.watering_time_of_day;
+        if (timeOfDayState.unselected_tod) this.setTimeOfDayState('morning', 'watering_time_of_day')
+      } else if (scheduleType === 'fertilizer_schedule') {
+        timeOfDayState = this.state.fertilize_time_of_day;
+        if (timeOfDayState.unselected_tod) this.setTimeOfDayState('morning', 'fertilize_time_of_day')
       }
-    return; 
+      return;
+    };
+    // unset time of day state if the rest of the schedule is unset.
+    const unsetTod = () => {
+      if (scheduleType === 'watering_schedule') this.setTimeOfDayState('unselected_tod', 'watering_time_of_day')
+      else if (scheduleType === 'fertilizer_schedule') this.setTimeOfDayState('unselected_tod', 'fertilize_time_of_day')
+      return;
+    }
+
+    const schedule = this.state.plant[scheduleType];
+    this.setState((prevState) => { 
+      return {
+        ...prevState,
+        plant: {
+          ...prevState.plant,
+          [scheduleType]: {
+            ...schedule, 
+            [dateUnit]: value.includes('set') ? 0 : value
+          }
+        }
+      }
+      }, () => {
+        // check if schedule has been set
+        const scheduleIsSet = Object.values(this.state.plant[scheduleType]).some(value => value);
+        // if set automatically set time of day to morning if it hasn't been manually set. 
+        if (scheduleIsSet) {
+          setTodToMorning();
+        // if the schedule is unset, unset time of day too.
+        } else if (!scheduleIsSet) {
+          unsetTod();
+        };
+      });
+      return;
   }
 
-  setTimeOfDayState(chosenValue, stateName) {
-    const newTimeOfDayState = {
-      unselected_tod: false,
-      morning: false,
-      midday: false,
-      evening: false
+  setTimeOfDayState(chosenValue, timeOfDayType) {
+    // if the user selects only the time of day, but no date unit is selected, it will stay unselected in state
+    const plant = this.state.plant;
+    const schedule = timeOfDayType === 'watering_time_of_day' ? plant.watering_schedule : plant.fertilizer_schedule;
+    const scheduleHasBeenSet = Object.values(schedule).some(value => value);
+    if (!scheduleHasBeenSet) {
+      this.setState({
+        ...this.state,
+        plant: {
+          ...this.state.plant,
+          [timeOfDayType]: {
+            unselected_tod: true,
+            morning: false,
+            midday: false,
+            evening: false
+          }
+        }
+      }, () => console.log(schedule))
+      return;
+    } else if (scheduleHasBeenSet) {
+      // if schedule has been set, a time of day must be selected.
+      if (chosenValue === 'unselected_tod') return;
+      const newTimeOfDayState = {
+        unselected_tod: false,
+        morning: false,
+        midday: false,
+        evening: false
+      };
+      // merge the chosen value into the new time of day state.
+      const modifiedState = {...newTimeOfDayState, [chosenValue]: true}
+      this.setState({
+        ...this.state,
+        plant: {
+          ...this.state.plant,
+          [timeOfDayType]: modifiedState
+        }
+      });
     };
-    // merge the chosen value into the new time of day state.
-    const modifiedState = {...newTimeOfDayState, [chosenValue]: true}
-    console.log(modifiedState)
-    this.setState({
-      ...this.state,
-      plant: {
-        ...this.state.plant,
-        [stateName]: modifiedState
-      }
-    });
+    return;
   }
 
   setTextfieldState(name, value) {
