@@ -222,7 +222,7 @@ class PlantView extends Component {
         timeOfDayState = this.state.plant.watering_time_of_day;
         if (timeOfDayState.unselected_tod) this.setTimeOfDayState('morning', 'watering_time_of_day')
       } else if (scheduleType === 'fertilizer_schedule') {
-        timeOfDayState = this.state.fertilize_time_of_day;
+        timeOfDayState = this.state.plant.fertilize_time_of_day;
         if (timeOfDayState.unselected_tod) this.setTimeOfDayState('morning', 'fertilize_time_of_day')
       }
       return;
