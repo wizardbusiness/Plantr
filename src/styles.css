@@ -1,5 +1,6 @@
 body {
-  background-color: rgb(26, 26, 26);
+  color: white;
+  background-color: #ffffff;
 }
 
 
@@ -8,18 +9,21 @@ body {
   flex-direction: row;
   gap: 3px;
 }
+
 .modal {
+  color:#5e2a2ab3;
   padding: 20px;
   position: fixed;
   top: 50%;
   left: 50%;
   height: 400px;
-  width: 400px;
+  width: 450px;
   transform: translate(-50%, -50%);
-  background-color:rgb(163, 238, 179);
+  background-color:#76d576;
   border-style: solid;
   border-width: 3px;
-  border-color: rgb(196, 155, 59);
+  border-radius: 10%;
+  border-color: rgb(247, 222, 165);
   z-index: 1000;
 }
 
@@ -74,36 +78,81 @@ body {
   flex-wrap: wrap;
   gap: 3px
 }
-
-
-.plant-remove {
-  display: flex;
-  justify-content: end;
+#new-plant {
+  background-color: #42d642;
+  padding: 0;
+  border-width: none;
+}
+.plant, #new-plant{
+  height: 200px;
+  width: 200px;
+  border-style: solid;
+  border-radius: 7px;
+  border-width: 3px;
+  border-color: #ffd490;
 }
 
-#plant-display-name{
+.plant {
+  background-color: var(--water-plant);
+  position: relative;
+  max-height: 200px;
+}
+
+#plant-info-btn {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  background-color: transparent;
+  color: #dcd6c4;
+  border-color:#ffffff;
+  border-style: solid;
+  border-radius: 5px;
+  z-index: 1000;
+}
+
+#delete-plant-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  z-index: 1000;
+  background-color: transparent;
+  color: #fa5c1e;
+  border-color:#ffffff;
+  border-style: solid;
+  border-radius: 5px;
+}
+
+.water-meter {
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  height: calc(100% - var(--water-meter-height));
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  background-color: rgb(1, 196, 255);
+  z-index: 1;
+}
+ 
+#plant-species-name {
+  position: absolute;
+  left: 20%;
+  top: 10%;
+  /* font-family: Verdana, Geneva, Tahoma, sans-serif; */
+  font-weight: bold;
+  /* font-style: italic; */
+  color: #261f15;
+  font-size: 40px;
   min-height: 155px;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1000;
 }
 
-.plant, #new-plant{
-  background-color: lightgreen;
-  min-height: 200px;
-  min-width: 200px;
-  border-style: solid;
-  border-width: 1px;
-  border-color: #4a54f1;
-}
+
 
 #plant-display-name, #new-plant {
   font-size: 50px;
-}
-
-.plant {
-  justify-content: center;
-  align-items: center;
 }
 
 #modal-header {
