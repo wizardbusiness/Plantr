@@ -76,20 +76,18 @@ body {
 .plants {
   display: flex;
   flex-wrap: wrap;
-  gap: 3px
+  gap: 20px
 }
 #new-plant {
-  background-color: #42d642;
+  background-color: #92f592;
   padding: 0;
+  border-style: none;
   border-width: none;
 }
 .plant, #new-plant{
   height: 200px;
   width: 200px;
-  border-style: solid;
-  border-radius: 7px;
-  border-width: 3px;
-  border-color: #ffd490;
+  box-shadow: 4px  4px  20px #d677ff;
 }
 
 .plant {
@@ -102,10 +100,11 @@ body {
   position: absolute;
   top: 5px;
   left: 5px;
-  background-color: transparent;
-  color: #dcd6c4;
-  border-color:#ffffff;
+  background-color: #f300ae;
+  color: #ffffff;
+  border-color: #f33500;
   border-style: solid;
+  border-width: 0.5px;
   border-radius: 5px;
   z-index: 1000;
 }
@@ -115,10 +114,11 @@ body {
   top: 5px;
   right: 5px;
   z-index: 1000;
-  background-color: transparent;
-  color: #fa5c1e;
-  border-color:#ffffff;
+  background-color: #ff0000;
+  color: #ffffff;
+  border-color:#0e920e;
   border-style: solid;
+  border-width: 0.5px;
   border-radius: 5px;
 }
 
@@ -129,30 +129,33 @@ body {
   height: calc(100% - var(--water-meter-height));
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
-  background-color: rgb(1, 196, 255);
+  background-color: #6ac1ff;
   z-index: 1;
 }
  
 #plant-species-name {
+  font-size: 40px;
+  font-family: Verdana;
   position: absolute;
   left: 20%;
   top: 10%;
-  /* font-family: Verdana, Geneva, Tahoma, sans-serif; */
-  font-weight: bold;
-  /* font-style: italic; */
-  color: #261f15;
+  color: #61464d;
   font-size: 40px;
   min-height: 155px;
   display: flex;
+  flex-shrink: 1;
   align-items: center;
   justify-content: center;
   z-index: 1000;
 }
 
+#plant-species-name, #new-plant {
+  font-weight: light;
+}
 
-
-#plant-display-name, #new-plant {
-  font-size: 50px;
+#new-plant {
+  font-size: 60px;
+  text-shadow: 2px 2px 0px black inset 
 }
 
 #modal-header {
