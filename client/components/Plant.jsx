@@ -10,7 +10,7 @@ class Plant extends Component {
     super(props);
 
     this.state = {
-      waterMeter: null,
+      waterMeter: 0,
       waterPlantIndicator: false,
       fertilizerMeter: null,
       fertilizePlantIndicator: false
@@ -42,20 +42,15 @@ class Plant extends Component {
       // if scheduled watering_schedule is less than current watering_schedule, {css logic} (for now just console log that plant needs watering or fertilizing)
       // display the fraction of the time that has elapsed between the initial date and the scheduled date as a percentage between 0 and 100 percent. 
       const percentage = Math.round((1 / ((scheduledDateMs - initialDateMs) / (currentDateMs - initialDateMs))) * 100)
-      const result = initialDateMs <= scheduledDateMs && percentage !== Infinity ? percentage : console.log('plant needs watering!');
+      console.log(percentage)
+      const result = initialDateMs <= scheduledDateMs && scheduledDate ? percentage : console.log('plant needs watering!');
       this.setState({
         ...this.state,
-        waterMeter: result || null
+        waterMeter: result,
+        waterPlantIndicator: percentage < 100 || !scheduledDate? this.state.waterPlantIndicator = false : true
       });
-      if (percentage === 100) {
-        this.setState({
-          waterPlant: true
-        })
-      }
       return;
     };
-
-    
     checkingLogic();
     setInterval(() => {
       checkingLogic();
@@ -82,7 +77,6 @@ class Plant extends Component {
       setMistState,
       genericPlantState,
     } = this.props;
-    console.log(this.state.waterMeter);
     return (
       <div className="plant" style={{"--water-plant" : this.state.waterPlantIndicator === true ? "#fa5c1e" : "#42d642"}}>
           <button id='delete-plant-btn' onClick={() => deletePlant(focusedPlantState.plant_id)}>x</button>
