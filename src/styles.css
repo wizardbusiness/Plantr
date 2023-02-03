@@ -1,13 +1,13 @@
-body {
-  color: #2d2d2d;
-  background-color: #b1dcff;
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto-woff/Roboto-Medium.woff') format('woff');
 }
 
-
-.planter-box {
-  display: flex;
-  flex-direction: row;
-  gap: 3px;
+body {
+  font-family: Roboto, Verdana;
+  color: #2d2d2d;
+  background-color: #b1dcff;
 }
 
 .modal {
@@ -16,13 +16,13 @@ body {
   position: fixed;
   top: 50%;
   left: 50%;
-  height: 400px;
-  width: 450px;
+  height: 450px;
+  width: 500px;
   transform: translate(-50%, -50%);
-  background-color:#76d576;
+  background: linear-gradient(#87f387, #49f5bf);
   border-style: solid;
   border-width: 3px;
-  border-radius: 10%;
+  border-radius: 2%;
   border-color: #7d6c56;
   z-index: 1000;
   box-shadow: 4px  4px  20px #d677ff;
@@ -79,29 +79,40 @@ body {
   flex-wrap: wrap;
   gap: 20px
 }
+
 #new-plant {
   background-color: #92f592;
   padding: 0;
-  border-style: none;
-  border-width: none;
+  border: 0px none;
 }
+
 .plant, #new-plant{
   height: 200px;
   width: 200px;
-  border-style: transparent;
-  border-radius: 10px;
   box-shadow: 4px  4px  20px #d677ff;
+  transition: transform .2s;
 }
 
 .plant {
-  background-color: var(--water-plant);
+  --bg-color: #42d642;
+  background-color: var(--bg-color);
   position: relative;
   max-height: 200px;
 }
 
+.plant:hover, #new-plant:hover {
+  /* border: 5px solid #ffb055;
+  transition-duration: .2s;
+  transform: scale(1.05); */
+  /* animation: expandBox .1s both; */
+}
+
+
+
+
 #plant-species-name {
   font-size: 40px;
-  font-family: Verdana;
+  font-family: Roboto;
   position: absolute;
   left: 20%;
   top: 10%;
@@ -115,17 +126,33 @@ body {
   z-index: 2;
 }
 
-#delete-plant-btn, #plant-info-btn {
+.plant-btns {
+  --btn-color: #a38d93;
+  --btn-bg-color: #e6e6e6;
   position: absolute;
   font-size: 15px;
-  background-color: transparent;
-  color: #d4d4d4;
+  background-color: var(--btn-bg-color);
+  color: var(--btn-color);
   padding: 0px 0px 0px 0px;
-  border-color:#c1c1c1;
+  border-color:var(--btn-color);
   border-style: solid;
-  border-width: 2px;
+  border-width: 1px;
   border-radius: 5px;
+  box-shadow: 0px 0px 2px;
+  opacity: 0.7;
   z-index: 2;
+}
+
+.plant-btns:hover {
+  --btn-color: #a38d93;
+  --btn-bg-color: #e6e6e6;
+  opacity: 1.0;
+}
+
+.plant-btns:active {
+  background-color: rgb(155, 202, 155);
+  box-shadow: 2px 5px 10px 0px #e1be8c inset;
+  color: #e6e6e6;
 }
 
 #plant-info-btn {
@@ -147,15 +174,25 @@ body {
   bottom: 0px;
   width: 100%;
   height: calc(100% - var(--water-meter-height));
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: rgb(188, 248, 240);
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
-  background-color: #22d5cc;
+  background-color: #00cb95 ;
   z-index: 1;
+  box-shadow: 0px 40px 50px #17a7ba inset;
+  --mask:
+    radial-gradient(0.56em at 50% 0.75em,#000 99%,#0000 101%) calc(50% - 0.5em) 0/1em 100%,
+    radial-gradient(0.56em at 50% -0.5em,#0000 99%,#000 101%) 50% .25em/1em 100% repeat-x;
+    -webkit-mask: var(--mask);
+          mask: var(--mask);
 }
 
 
 #plant-species-name, #new-plant {
   font-weight: light;
+  opacity: 80%;
 }
 
 #new-plant {
@@ -174,10 +211,6 @@ body {
   gap: 10px;
 }
 
-#plant-info-button {
-  display: flex;
-  flex-shrink: 1;
-}
 
 .plant-modal{
   font-size: 20px;
