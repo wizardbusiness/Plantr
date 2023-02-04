@@ -28,6 +28,21 @@ body {
   box-shadow: 4px  4px  20px #d677ff;
 }
 
+.modal-bg-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, .7);
+  z-index: 1000;
+}
+
+.modal-btns-container {
+  display: flex;
+  justify-content: space-between;
+}
+
 .plant-form {
   font-size: 20px;
   padding-top: 20px;
@@ -64,15 +79,7 @@ body {
   width: 80%
 }
 
-.modal-bg-overlay, .plant-info-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, .7);
-  z-index: 1000;
-}
+
 
 .plants {
   display: flex;
@@ -81,19 +88,23 @@ body {
 }
 
 #new-plant {
+  box-sizing:content-box;
+  height: 200px;
+  width: 200px;
   background-color: #92f592;
   padding: 0;
-  border: 0px none;
+  margin: 5px;
+  border: none;
 }
 
 .plant, #new-plant{
-  height: 200px;
-  width: 200px;
   box-shadow: 4px  4px  20px #d677ff;
-  transition: transform .2s;
 }
 
 .plant {
+  height: 200px;
+  width: 200px;
+  margin: 5px;
   --bg-color: #42d642;
   background-color: var(--bg-color);
   position: relative;
@@ -101,11 +112,12 @@ body {
 }
 
 .plant:hover, #new-plant:hover {
-  /* border: 5px solid #ffb055;
-  transition-duration: .2s;
-  transform: scale(1.05); */
-  /* animation: expandBox .1s both; */
+  border: 5px solid #ffb055;
+  margin: 0px;
+  /* transition-duration: 5s;
+  transform: scale(1.05);  */
 }
+
 
 
 
