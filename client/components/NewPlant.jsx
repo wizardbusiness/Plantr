@@ -1,11 +1,14 @@
 import React, {Component} from 'react';
 import PlantModal from './PlantModal';
+import PlantForm from './PlantForm';
 
 class NewPlant extends Component {
   constructor(props) {
     super(props)
     this.state = {
       showModal: false,
+      showInputForm: true
+
     }
     this.handleShowModal = this.handleShowModal.bind(this);
   }
@@ -33,15 +36,19 @@ class NewPlant extends Component {
             resetPlantState={resetPlantState}
             handleShowModal={this.handleShowModal}
             showModal={this.state.showModal}
-            formName='addPlant'
-            btnText='Add Plant' 
-            submitPlant={submitPlant}
-            setTextfieldState={setTextfieldState}
-            setScheduleState={setScheduleState}
-            setTimeOfDayState={setTimeOfDayState}
-            setMistState={setMistState}
-            plantState={plantState}
-          />
+            showInputForm={this.state.showInputForm}
+          >
+            <PlantForm 
+                showModal={this.state.showModal}
+                handleShowModal={this.handleShowModal}
+                submitPlant={submitPlant}
+                setTextfieldState={setTextfieldState}
+                setScheduleState={setScheduleState}
+                setTimeOfDayState={setTimeOfDayState}
+                setMistState={setMistState}
+                plantState={plantState}
+            />
+          </PlantModal>
         }
       </div>
     )
