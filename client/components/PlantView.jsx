@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import Plant from './Plant';
+import NewPlant from './NewPlant'
 import PlantModal from './PlantModal';
 
 class PlantView extends Component {
@@ -78,26 +79,27 @@ class PlantView extends Component {
   };
 
 
-  createDatesFromSchedule(scheduleObj, typeOfScheduledDate, typeOfInitialDate) {
-    if (scheduleObj.unselected_tod === true) return null;
-    const scheduledTime = Object.entries(this.state.plant.watering_time_of_day).filter(entry => entry[1])[0][0];
+  createDatesFromSchedule(scheduleObj, typeOfScheduledDate, typeOfInitialDate, caredForPlant=false) {
+    // if the schedule hasn't been set, don't create any dates.
+    if (Object.values(scheduleObj).every(value => !value)) return null;
+    const wateringTime = scheduleObj === this.state.plant.watering_schedule ? this.state.plant.watering_time_of_day : this.state.plant.fertilize_time_of_day;
+    const scheduledTime = Object.entries(wateringTime).filter(entry => entry[1])[0][0];
     // schedule interval in days
     let intervalInDays = 0;
-    // get current date
-    // console.log(scheduleObj)
-    const scheduledDate = new Date();
-    // only change the initial date if there is none in the plant state. 
-    const initialDate = this.state.plant[typeOfInitialDate] ? this.state.plant[typeOfInitialDate] : new Date();
     // iterate through schedule dropDown
-    for (let interval in scheduleObj) {
-    // convert all values to days and add to intervalInDays
-      if (interval === 'days') intervalInDays += 1 * scheduleObj[interval];
-      if (interval === 'weeks') intervalInDays += 7 * scheduleObj[interval]; 
-    };
+    for (const interval in scheduleObj) {
+      // convert all values to days and add to intervalInDays
+        if (interval === 'days') intervalInDays += 1 * scheduleObj[interval];
+        if (interval === 'weeks') intervalInDays += 7 * scheduleObj[interval]; 
+      };
 
-    // check if scheduled time of day is morning, if not evaluate if it is midday, if not, then evaluate to (evening 18:00).
+    // set a new initial date if one hasn't been set, or the plant has been cared for. Otherwise, keep the old initial date.
+    const initialDate = !this.state.plant[typeOfInitialDate] || caredForPlant ? new Date() : this.state.plant[typeOfInitialDate];
+    // clone the initial date as the basis for the schedule
+    const scheduledDate = new Date(initialDate.valueOf());
+    // get the scheduled time in hours from midnight of the current day.
     const timeOfDay = scheduledTime === 'morning' ? 6 : scheduledTime === 'midday' ? 12 : 18;
-    // add to current scheduledDate
+    // mutate scheduledDate
     scheduledDate.setDate(scheduledDate.getDate() + intervalInDays);
     scheduledDate.setHours(timeOfDay);
     scheduledDate.setMinutes(0);
@@ -109,9 +111,9 @@ class PlantView extends Component {
       plant: {
         ...this.state.plant,
         [typeOfScheduledDate]: scheduledDate,
-        [typeOfInitialDate]: initialDate !== this.state.plant[initialDate] ? initialDate : this.state.plant[initialDate]
+        [typeOfInitialDate]: initialDate
       }
-    });
+    }, () => {console.log(this.state.plant[typeOfInitialDate])});
     return scheduledDate;
   }
 
@@ -192,14 +194,12 @@ class PlantView extends Component {
         },
         watering_time_of_day: {
           ...this.state.plant.watering_time_of_day,
-          unselected_tod: true, 
           morning: false,
           midday: false,
           evening: false
         },
         fertilize_time_of_day: {
           ...this.state.plant.fertilize_time_of_day,
-          unselected_tod: true,
           morning: false,
           midday: false,
           evening: false
@@ -322,11 +322,10 @@ class PlantView extends Component {
   }
 
   // SAVE PLANT: saves a new plant to the db, and in the plants array in state for display. 
-  async addPlant(e) {
-    e.preventDefault();
+  async addPlant() {
     const { 
-      name, 
       plant_species,
+      name, 
       img, 
       light, 
       soil, 
@@ -335,19 +334,19 @@ class PlantView extends Component {
       mist,
       watering_time_of_day,
       watering_schedule, 
-      initial_water_date,
       fertilize_time_of_day,
       fertilizer_schedule,
-      initial_fertilize_date,
     } = this.state.plant;
-    // dates
+
     const next_water_date = await this.createDatesFromSchedule(watering_schedule, 'next_water_date', 'initial_water_date');
     const next_fertilize_date = await(this.createDatesFromSchedule(fertilizer_schedule, 'next_fertilize_date', 'initial_fertilize_date'))
+    // need to grab these after they've been calculated by createDatesFromSchedule
+    const { initial_water_date, initial_fertilize_date }  = this.state.plant;
 
     // add all values from destructured state to request body
     const body = {
-      name, 
       plant_species,
+      name,
       img, 
       light, 
       soil, 
@@ -386,7 +385,6 @@ class PlantView extends Component {
     };
   };
 
-
   // EDIT PLANT METHODS ---------------------------------------------------------------------------------------------------------
 
   // EDIT PLANT (Frontend state): edits the stateful properties of the plant being edited in the isolated editPlant state object.
@@ -408,8 +406,7 @@ class PlantView extends Component {
   }
   
   // SAVE PLANT EDITS: save any edits made to a plant to the db and replace the existing plant in state. 
-  async savePlantEdits (e) {
-    e.preventDefault();
+  async savePlantEdits () {
     // destructure state
     const { 
       plant_id,
@@ -477,7 +474,6 @@ class PlantView extends Component {
 
   // DELETE PLANT: deletes a saved plant from the database and from state. 
   async deletePlant (plant_id) {
-    console.log(plant_id)
     try {
       const response = await fetch(`/plants/${plant_id}`, {
         method: 'DELETE',
@@ -528,26 +524,18 @@ class PlantView extends Component {
     const plants = this.viewSavedPlants(this.state.plants)
     return (
         <div className="planter-box">
-          <PlantModal
-            buttonId="new-plant"
-            buttonText="+"
-            resetPlantState={this.resetPlantState}
-            toggleModal={this.toggleModal}
-            modalState={this.state.showModal}
-            contents='plantform'
-            formName='add-plant'
-            btnText='Add Plant' 
-            submitPlant={this.addPlant}
-            setTextfieldState={this.setTextfieldState}
-            setScheduleState={this.setScheduleState}
-            setTimeOfDayState={this.setTimeOfDayState}
-            setMistState={this.setMistState}
-            plantState={this.state.plant}
-            
-          />  
-          <div 
-            className='plants'>
-              {plants}
+          <div className='plants'>
+            <NewPlant id="new-plant"
+              resetPlantState={this.resetPlantState}
+              submitPlant={this.addPlant}
+              setTextfieldState={this.setTextfieldState}
+              setScheduleState={this.setScheduleState}
+              setTimeOfDayState={this.setTimeOfDayState}
+              setMistState={this.setMistState}
+              plantState={this.state.plant}
+            />
+
+            {plants}
           </div>
         </div>   
     )
