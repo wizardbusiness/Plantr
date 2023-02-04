@@ -9,14 +9,16 @@ class PlantForm extends Component {
     super(props)
     // field labels. Only for text input fields. 
     this.state = {
+      plant_species: 'Species: ',
       name: 'Name: ',
       light: 'Light: ',
       soil: 'Soil: ',
       fertilizer: 'Fertilizer: ',
-      notes: 'Notes: ' 
+      notes: 'Notes: ',
     };
     this.makeTextFields = this.makeTextFields.bind(this);
   }
+
 
   // make all input boxes with labels.
   makeTextFields() {
@@ -38,15 +40,17 @@ class PlantForm extends Component {
 
   // render whole form, including dropdown and checkbox components. 
   render() {
-    const {submitPlant, btnText, formName, plantState, setScheduleState, setTimeOfDayState, setMistState, toggleModal} = this.props;
+    const {submitPlant, btnText, formName, plantState, setScheduleState, setTimeOfDayState, setMistState, handleShowModal} = this.props;
     const textFields = this.makeTextFields(); 
+    const chosenTime = Object.entries(plantState.watering_time_of_day).filter(entry => entry[1])[0][0];
     return (
       <form 
         className='plant-form' 
         name={formName} 
         onSubmit={(e) => {
-          submitPlant(e);
-          toggleModal();
+          e.preventDefault();
+          submitPlant();
+          handleShowModal();
 
         }
         }>
@@ -72,10 +76,10 @@ class PlantForm extends Component {
               setTimeOfDayState={setTimeOfDayState}
               timeOfDayState={plantState.watering_time_of_day}
               stateObjName='watering_time_of_day'
+              chosenTime={chosenTime}
             />
           </label>
         </span>
-        
         <label>
           Fertilizer Schedule:&nbsp;
         </label>

@@ -3,21 +3,27 @@ import React, { Component } from 'react';
 import PlantModal from './PlantModal';
 import '../../src/styles.css';
 
-
-
 class Plant extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      showModal: false,
       waterMeter: 0,
       waterPlantIndicator: false,
       fertilizerMeter: null,
       fertilizePlantIndicator: false
     };
 
+    this.handleShowModal = this.handleShowModal.bind(this);
     this.careForPlant = this.careForPlant.bind(this);
     this.checkSchedule = this.checkSchedule.bind(this);
+  }
+
+  handleShowModal() {
+    this.setState({
+      showModal: this.state.showModal === false ? this.state.showModal = true : this.state.showModal = false
+    });
   }
 
   componentDidMount() {
@@ -64,7 +70,7 @@ class Plant extends Component {
 
   render() {
     const { 
-      toggleModal,
+      handleShowModal,
       modalState,
       focusedPlantState,
       editPlant,
@@ -78,26 +84,34 @@ class Plant extends Component {
       genericPlantState,
     } = this.props;
     return (
-      <div className="plant" style={{"--water-plant" : this.state.waterPlantIndicator === true ? "#fa5c1e" : "#42d642"}}>
-          <button id='delete-plant-btn' onClick={() => deletePlant(focusedPlantState.plant_id)}>x</button>
-          <PlantModal
-              buttonId="plant-info-btn"
-              buttonText="Info"
-              resetPlantState={resetPlantState}
-              toggleModal={toggleModal}
-              modalState={modalState}
-              editPlant={editPlant}
-              focusedPlantState={focusedPlantState}
-              genericPlantState={genericPlantState}
-              savePlantEdits={savePlantEdits}
-              setTextfieldState={setTextfieldState}
-              setScheduleState={setScheduleState}
-              setMistState={setMistState}
-              setTimeOfDayState={setTimeOfDayState}
-              contents='plantinfo'
-            />
-            <div id='plant-species-name'>{focusedPlantState.plant_species}</div>
+      <div>
+          <div className="plant" style={
+            {"--bg-color" : this.state.waterPlantIndicator === true ? "#fa5c1e" : "#42d642"}}>
+            <button 
+            id='delete-plant-btn' 
+            className='plant-btns'
+            style={{"--button-color": this.state.waterPlantIndicator === true ? "#61464d" : "#c1c1c1"}} 
+            onClick={() => deletePlant(focusedPlantState.plant_id)}>x</button>
+            <button id="plant-info-btn" className="plant-btns" onClick={() => this.handleShowModal()}>Info</button>
+            <div id="plant-species-name">{focusedPlantState.plant_species}</div>
             <div className = "water-meter" style={{"--water-meter-height" : `${this.state.waterMeter}%`}}/>
+          </div>
+          {this.state.showModal && <PlantModal
+            showModal={this.state.showModal}
+            resetPlantState={resetPlantState}
+            handleShowModal={this.handleShowModal}
+            modalState={modalState}
+            editPlant={editPlant}
+            focusedPlantState={focusedPlantState}
+            plantState={genericPlantState}
+            savePlantEdits={savePlantEdits}
+            setTextfieldState={setTextfieldState}
+            setScheduleState={setScheduleState}
+            setMistState={setMistState}
+            setTimeOfDayState={setTimeOfDayState}
+            contents='plantinfo'
+            />
+          }
       </div>
     )
   }

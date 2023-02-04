@@ -5,27 +5,31 @@ import PlantInfo from './PlantInfo';
 class PlantModal extends Component {
   constructor(props) {
     super(props)
-    this.state ={
-      showModal: false
+    this.state = {
+      editPlant: false,
     }
-    this.toggleModal = this.toggleModal.bind(this);
+    this.handleEditPlant = this.handleEditPlant.bind(this);
+  }
+
+
+
+  handleEditPlant() {
+    this.setState({
+      ...this.state,
+      editPlant: this.state.editPlant === true ? false : true
+    })
   }
   
-  toggleModal() {
-    this.setState({
-      showModal: this.state.showModal === false ? this.state.showModal = true : this.state.showModal = false
-    });
-  }
   render() {
     const {
-      buttonText, 
-      buttonId, 
+      formName,
+      handleShowModal,
       resetPlantState, 
       plantState,
-      contents, 
       submitPlant,
       setTextfieldState,
       setScheduleState,
+      setTimeOfDayState,
       setMistState,
       // plant info
       editPlant,
@@ -33,67 +37,60 @@ class PlantModal extends Component {
       genericPlantState,
       savePlantEdits,
     } = this.props;
-
-    if (this.state.showModal === false) {
+    console.log(formName)
+    if (this.state.editPlant || formName === 'addPlant') {
       return (
-        <div className='modal-btn-container'>
-          <button id={buttonId} onClick={() => this.toggleModal()}>{buttonText}</button>
-        </div>
-      );
-    } else if (this.state.showModal === true && contents === 'plantform') {
-      return (
-        <div className='modal-btn-container'>
-          <button id={buttonId}>{buttonText}</button>
-          {/* <div className='modal-bg-overlay'> */}
-            <div className='modal'>
+          <div className="modal-bg-overlay">
+            <div className="modal">
               <button
-                className='info-modal-buttons'
+                className="plant-btns"
                 onClick={() => {
-                  this.toggleModal()
+                  handleShowModal();
                   resetPlantState();
                 }}
               >x</button>
               <PlantForm 
-                formName='add-plant'
-                btnText='Add Plant'
-                // getPlants={this.getPlants} 
-                toggleModal={this.toggleModal}
+                formName="addplant"
+                btnText="Add Plant"
+                handleShowModal={handleShowModal}
                 submitPlant={submitPlant}
                 setTextfieldState={setTextfieldState}
                 setScheduleState={setScheduleState}
+                setTimeOfDayState={setTimeOfDayState}
                 setMistState={setMistState}
-                showModal={this.state.showModal}
                 plantState={plantState}
               />
             </div>
           </div>
-        // </div>
       );
-    } else if (this.state.showModal === true && contents === 'plantinfo'){
+    } else {
       return (
-        <div className='modal-btn-container'>
-          <button id={buttonId}>{buttonText}</button>
-          {/* <div className='modal-bg-overlay'> */}
-          <div className='modal'>
-            <button
-              className='info-modal-buttons'
-              onClick={() => {
-                this.toggleModal()
-                resetPlantState();
-              }}
-            >x</button>
+          <div className="modal-bg-overlay">
+          <div className="modal">
+            <div className="modal-btns-container">
+              <button id='edit-plant-btn' className="modal-btns" onClick={() => this.handleEditPlant()}>Edit Info</button>
+              <button
+                className="modal-btns"
+                id="exit-modal-btn"
+                onClick={() => {
+                  handleShowModal();
+                  resetPlantState();
+                }}
+              >x</button>
+            </div>
             <PlantInfo 
-              toggleModal={this.toggleModal}
+              handleShowModal={handleShowModal}
               editPlant={editPlant}
               focusedPlantState={focusedPlantState}
               genericPlantState={genericPlantState}
               savePlantEdits={savePlantEdits}
               setTextfieldState={setTextfieldState}
               setScheduleState={setScheduleState}
+              setTimeOfDayState={setTimeOfDayState}
               setMistState={setMistState}
             />
           </div>
-        </div>
+          </div>
       )
     };
 
