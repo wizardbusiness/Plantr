@@ -503,8 +503,6 @@ class PlantView extends Component {
           genericPlantState={this.state.plant}
           // modal properties
           modalState={this.state.showModal}
-          // modal methods
-          toggleModal={this.toggleModal}
           // plant methods
           setTextfieldState={this.setTextfieldState}
           setScheduleState={this.setScheduleState}

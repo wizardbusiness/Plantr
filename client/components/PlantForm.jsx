@@ -51,7 +51,6 @@ class PlantForm extends Component {
           e.preventDefault();
           submitPlant();
           handleShowModal();
-
         }
         }>
         <div className='form-text-fields'>
@@ -105,7 +104,7 @@ class PlantForm extends Component {
           Mist:&nbsp;
           <MistCheckbox value={plantState.mist} setMistState={setMistState}/>
         </label>
-        <button type="submit">{btnText}</button>
+        <button id="submit-plant-btn" type="submit">Add Plant!</button>
       </form>
     );
   }

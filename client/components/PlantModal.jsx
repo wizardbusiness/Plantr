@@ -5,98 +5,57 @@ import PlantInfo from './PlantInfo';
 class PlantModal extends Component {
   constructor(props) {
     super(props)
-    this.state = {
-      editPlant: false,
-    }
-    this.handleEditPlant = this.handleEditPlant.bind(this);
-  }
-
-
-
-  handleEditPlant() {
-    this.setState({
-      ...this.state,
-      editPlant: this.state.editPlant === true ? false : true
-    })
   }
   
   render() {
     const {
-      formName,
       handleShowModal,
-      resetPlantState, 
-      plantState,
-      submitPlant,
-      setTextfieldState,
-      setScheduleState,
-      setTimeOfDayState,
-      setMistState,
-      // plant info
-      editPlant,
-      focusedPlantState,
-      genericPlantState,
-      savePlantEdits,
+      resetPlantState,
+      showInputForm,
+      handleShowInputForm, 
+      showInfo,
+      handleShowInfo,
+      children,
     } = this.props;
-    console.log(formName)
-    if (this.state.editPlant || formName === 'addPlant') {
       return (
-          <div className="modal-bg-overlay">
-            <div className="modal">
-              <button
-                className="plant-btns"
-                onClick={() => {
-                  handleShowModal();
-                  resetPlantState();
-                }}
-              >x</button>
-              <PlantForm 
-                formName="addplant"
-                btnText="Add Plant"
-                handleShowModal={handleShowModal}
-                submitPlant={submitPlant}
-                setTextfieldState={setTextfieldState}
-                setScheduleState={setScheduleState}
-                setTimeOfDayState={setTimeOfDayState}
-                setMistState={setMistState}
-                plantState={plantState}
-              />
-            </div>
-          </div>
-      );
-    } else {
-      return (
-          <div className="modal-bg-overlay">
-          <div className="modal">
+        <div className="modal-bg-overlay">
+        {(showInfo && <div className="modal">
             <div className="modal-btns-container">
-              <button id='edit-plant-btn' className="modal-btns" onClick={() => this.handleEditPlant()}>Edit Info</button>
+              <button 
+                id='edit-plant-btn' 
+                className="modal-btns" 
+                onClick={() => {
+                  handleShowInfo()
+                  handleShowInputForm()
+                }}
+              >Edit Info</button>
               <button
                 className="modal-btns"
                 id="exit-modal-btn"
                 onClick={() => {
                   handleShowModal();
-                  resetPlantState();
                 }}
               >x</button>
+              {children}
             </div>
-            <PlantInfo 
-              handleShowModal={handleShowModal}
-              editPlant={editPlant}
-              focusedPlantState={focusedPlantState}
-              genericPlantState={genericPlantState}
-              savePlantEdits={savePlantEdits}
-              setTextfieldState={setTextfieldState}
-              setScheduleState={setScheduleState}
-              setTimeOfDayState={setTimeOfDayState}
-              setMistState={setMistState}
-            />
-          </div>
-          </div>
-      )
-    };
-
-
-  }  
+          </div>) || 
+          (showInputForm && 
+          <div className="modal">
+            <button
+              className="plant-btns"
+              onClick={() => {
+                handleShowInfo();
+                handleShowModal();
+                resetPlantState();
+                handleShowInputForm();
+              }}
+            >x</button>
+            {children}
+          </div>)
+        }
+      </div>
+    );
   };
-
+};
 
 export default PlantModal;
