@@ -7,10 +7,10 @@ const ScheduleDropdown = ({scheduleType, currentSchedule, setScheduleState}) => 
     let max;
     switch(dateUnit) {
       case 'weeks':
-        max = 5;
+        max = 4;
         break;
       case 'days': 
-        max = 7;
+        max = 6;
         break;
       case 'hours': 
         max = 24;
@@ -23,12 +23,12 @@ const ScheduleDropdown = ({scheduleType, currentSchedule, setScheduleState}) => 
   };
   // make the menu options depending on what unit was selected. 
   const makeScheduleOptions = (dateUnit) => {
-    let i = 0;
-    const list = [];
+    let unit = 1;
+    const list = [`set ${dateUnit}`];
     let max = getDateUnit(dateUnit)
-    while (i < max) {
-      list.push(i)
-      i++;
+    while (unit <= max) {
+      list.push(unit)
+      unit++;
     };
     const items = list.map((value, index) => {
       return (
@@ -41,26 +41,25 @@ const ScheduleDropdown = ({scheduleType, currentSchedule, setScheduleState}) => 
       );
     });
     // return the schedule dropdown menu for the selected date unit.
+    // console.log(currentSchedule)
     return (
-      <>
-        <label> {dateUnit}: </label>
+      <> 
         <select
-          defaultValue={currentSchedule[dateUnit]}
+          value={currentSchedule[dateUnit]}
           onChange={(e) => setScheduleState(scheduleType, dateUnit, e.target.value)}
         >
           {items}
         </select>
+        <label> {dateUnit} </label>
       </>
     );  
   };
   // return the completed schedule component jsx.
   return (
-    <div className="schedule-drop-down"> 
         <span>
           {makeScheduleOptions('weeks')}
           {makeScheduleOptions('days')}
         </span>
-    </div>
   );
 };
 
