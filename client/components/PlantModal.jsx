@@ -22,40 +22,40 @@ class PlantModal extends Component {
         {(showInfo && <div className="modal">
             <div className="modal-btns-container">
               <button 
-                id='edit-plant-btn' 
+                id='edit-plant-info-btn' 
                 className="modal-btns" 
                 onClick={() => {
                   handleShowInfo()
                   handleShowInputForm()
                 }}
-              >Edit Info</button>
+                // edit plant
+              >Edit</button>
               <button
-                className="modal-btns"
-                id="exit-modal-btn"
+                className="modal-btns exit-modal-btn "
                 onClick={() => {
                   handleShowModal();
                 }}
               >x</button>
-              {children}
             </div>
+            {children}
           </div>) || 
           (showInputForm && 
-          <div className="modal">
-            <button
-              className="plant-btns"
-              onClick={() => {
-                handleShowInfo();
-                handleShowModal();
-                resetPlantState();
-                handleShowInputForm();
-              }}
-            >x</button>
-            {children}
-          </div>)
+            <div className="modal">
+              <button
+                className="modal-btns exit-modal-btn"
+                onClick={() => {
+                  handleShowInfo();
+                  handleShowModal();
+                  resetPlantState();
+                  handleShowInputForm();
+                }}
+              >x</button>
+              {children}
+            </div>
+          )
         }
       </div>
     );
   };
 };
-
 export default PlantModal;
