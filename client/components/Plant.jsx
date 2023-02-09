@@ -41,7 +41,7 @@ class Plant extends Component {
   handleShowInfo() {
     this.setState({
       showInfo: this.state.showInfo === false ? true : false
-    }, () => console.log(this.state.showInfo));
+    });
   }
 
   componentDidMount() {
@@ -51,7 +51,7 @@ class Plant extends Component {
 
   componentWillUnmount() {
     const { focusedPlantState } = this.props;
-    // clearInterval(this.checkSchedule(focusedPlantState.next_water_date))
+    clearInterval(this.checkSchedule(focusedPlantState.next_water_date))
   }
 
   checkSchedule(scheduledDate, initialDate) { 
@@ -65,7 +65,6 @@ class Plant extends Component {
       // if scheduled watering_schedule is less than current watering_schedule, {css logic} (for now just console log that plant needs watering or fertilizing)
       // display the fraction of the time that has elapsed between the initial date and the scheduled date as a percentage between 0 and 100 percent. 
       const percentage = Math.round((1 / ((scheduledDateMs - initialDateMs) / (currentDateMs - initialDateMs))) * 100)
-      console.log(percentage)
       const result = initialDateMs <= scheduledDateMs && scheduledDate ? percentage : console.log('plant needs watering!');
       this.setState({
         ...this.state,
@@ -75,10 +74,9 @@ class Plant extends Component {
       return;
     };
     checkingLogic();
-    setInterval(() => {
+    return setInterval(() => {
       checkingLogic();
     }, 3000)
-    return;
   }
 
   careForPlant() {
@@ -89,7 +87,7 @@ class Plant extends Component {
     const { 
       submitPlant,
       focusedPlantState,
-      editPlant,
+      copyPlantStateForEditing,
       savePlantEdits,
       deletePlant,
       resetPlantState,
@@ -113,11 +111,13 @@ class Plant extends Component {
               className="plant-btns" 
               onClick={() => {
                 this.handleShowModal();
+                copyPlantStateForEditing(focusedPlantState);
               }}
               >Info</button>
             <div id="plant-species-name">{focusedPlantState.plant_species}</div>
             <div className = "water-meter" style={{"--water-meter-height" : `${this.state.waterMeter}%`}}/>
           </div>
+          {/* show the modal */}
           {this.state.showModal && <PlantModal
             handleShowModal={this.handleShowModal}
             showInfo={this.state.showInfo}
@@ -126,14 +126,18 @@ class Plant extends Component {
             showInputForm={this.state.editPlant}
             resetPlantState={resetPlantState}
             >
+              {/* modal contents */}
+              {/* edit plant */}
               {this.state.editPlant && <PlantForm 
-                submitPlant={submitPlant}
                 setTextfieldState={setTextfieldState}
                 setScheduleState={setScheduleState}
                 setTimeOfDayState={setTimeOfDayState}
                 setMistState={setMistState}
+                submitPlant={submitPlant}
+                handleShowModal={this.handleShowModal}
                 plantState={genericPlantState}
               /> || 
+              // show plant info
               this.state.showInfo && <PlantInfo 
                   focusedPlantState={focusedPlantState}
                   genericPlantState={genericPlantState}
