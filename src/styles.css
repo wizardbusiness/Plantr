@@ -6,12 +6,12 @@
 
 body {
   font-family: Roboto, Verdana;
-  color: #2d2d2d;
+  color: #212d4c;
   background-color: #b1dcff;
 }
 
 .modal {
-  color:#61464d;
+
   padding: 20px;
   position: fixed;
   top: 50%;
@@ -19,6 +19,7 @@ body {
   height: 450px;
   width: 500px;
   transform: translate(-50%, -50%);
+  color:#61464d;
   background: linear-gradient(#87f387, #49f5bf);
   border-style: solid;
   border-width: 3px;
@@ -91,6 +92,7 @@ body {
   box-sizing:content-box;
   height: 200px;
   width: 200px;
+  color: #172341;
   background-color: #92f592;
   padding: 0;
   margin: 5px;
@@ -114,13 +116,9 @@ body {
 .plant:hover, #new-plant:hover {
   border: 5px solid #ffb055;
   margin: 0px;
-  /* transition-duration: 5s;
-  transform: scale(1.05);  */
+  transform: scale(1.02);  
+  transition: transform .1s;
 }
-
-
-
-
 
 #plant-species-name {
   font-size: 40px;
@@ -128,7 +126,7 @@ body {
   position: absolute;
   left: 20%;
   top: 10%;
-  color: #61464d;
+  color: #2a3654;
   font-size: 40px;
   min-height: 155px;
   display: flex;
@@ -138,7 +136,7 @@ body {
   z-index: 2;
 }
 
-.plant-btns {
+.plant-btns, .modal-btns {
   --btn-color: #a38d93;
   --btn-bg-color: #e6e6e6;
   position: absolute;
@@ -149,32 +147,33 @@ body {
   border-color:var(--btn-color);
   border-style: solid;
   border-width: 1px;
-  border-radius: 5px;
+  border-radius: 15px;
   box-shadow: 0px 0px 2px;
   opacity: 0.7;
   z-index: 2;
 }
 
-.plant-btns:hover {
+.plant-btns:hover, .modal-btns:hover {
   --btn-color: #a38d93;
   --btn-bg-color: #e6e6e6;
   opacity: 1.0;
 }
 
-.plant-btns:active {
+.plant-btns:active, .modal-btns:active {
   background-color: rgb(155, 202, 155);
   box-shadow: 2px 5px 10px 0px #e1be8c inset;
   color: #e6e6e6;
 }
 
-#plant-info-btn {
+
+#plant-info-btn, #edit-plant-info-btn {
   width: 40px;
   height: 24px;
   top: 5px;
   left: 5px;
 }
 
-#delete-plant-btn {
+#delete-plant-btn, .exit-modal-btn {
   width: 30px;
   height: 24px;
   top: 5px;
@@ -188,7 +187,7 @@ body {
   height: calc(100% - var(--water-meter-height));
   border-top-style: solid;
   border-top-width: 2px;
-  border-top-color: rgb(188, 248, 240);
+  border-top-color: #bcf8f0;
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
   background-color: #00cb95 ;
@@ -217,11 +216,7 @@ body {
   justify-content: space-between;
 }
 
-.modal-buttons {
-  display: static;
-  justify-content: end;
-  gap: 10px;
-}
+
 
 
 .plant-modal{
@@ -233,4 +228,20 @@ body {
   flex-direction: column;
   flex: 1 100%;
   border-style: none;
+}
+.outside-of-planter {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 90vh;
+  width: 90vw;
+}
+
+.watering-can {
+  --active: #0047b8;
+  align-self: flex-end;
+  background-color: var(--active);
+  height: 100px;
+  width: 100px;
+  box-shadow: 0px 40px 50px #17a7ba inset;
 }
