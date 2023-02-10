@@ -57,7 +57,7 @@ class PlantView extends Component {
     this.resetPlantState = this.resetPlantState.bind(this);
     this.createDatesFromSchedule = this.createDatesFromSchedule.bind(this);
     this.addPlant = this.addPlant.bind(this);
-    this.editPlant = this.editPlant.bind(this);
+    this.copyPlantStateForEditing = this.copyPlantStateForEditing.bind(this);
     this.clonePlant = this.clonePlant.bind(this);
     this.savePlantEdits = this.savePlantEdits.bind(this);
     this.deletePlant = this.deletePlant.bind(this);
@@ -113,7 +113,7 @@ class PlantView extends Component {
         [typeOfScheduledDate]: scheduledDate,
         [typeOfInitialDate]: initialDate
       }
-    }, () => {console.log(this.state.plant[typeOfInitialDate])});
+    });
     return scheduledDate;
   }
 
@@ -387,8 +387,8 @@ class PlantView extends Component {
 
   // EDIT PLANT METHODS ---------------------------------------------------------------------------------------------------------
 
-  // EDIT PLANT (Frontend state): edits the stateful properties of the plant being edited in the isolated editPlant state object.
-  editPlant(plant) {
+  // EDIT PLANT (Frontend state): edits the stateful properties of the plant being edited in the isolated copyPlantStateForEditing state object.
+  copyPlantStateForEditing(plant) {
     this.setState({
       ...this.state,
       plant: plant
@@ -407,6 +407,7 @@ class PlantView extends Component {
   
   // SAVE PLANT EDITS: save any edits made to a plant to the db and replace the existing plant in state. 
   async savePlantEdits () {
+    console.log(this.state.plant)
     // destructure state
     const { 
       plant_id,
@@ -420,16 +421,17 @@ class PlantView extends Component {
       mist,
       watering_time_of_day,
       watering_schedule, 
-      initial_water_date,
       fertilize_time_of_day,
       fertilizer_schedule,
-      initial_fertilize_date
     } = this.state.plant;
+    console.log(plant_id)
     // calculate changes to schedule from the initial date the schedule was last set. so if the schedule was set to water every 2 days,
     // and it's changed to three, it should add 3 days from the initial date the schedule was set. 
     const next_water_date = await this.createDatesFromSchedule(watering_schedule, 'next_water_date', 'initial_water_date');
     const next_fertilize_date = await(this.createDatesFromSchedule(fertilizer_schedule, 'next_fertilize_date', 'initial_fertilize_date'))
+    const {initial_water_date, initial_fertilize_date} = this.state.plant;
     // add all values from destructured state to request body
+
     const body = {
       plant_id,
       plant_species,
@@ -463,6 +465,7 @@ class PlantView extends Component {
       const editedPlant = { plant_id: plant_id, ...this.state.plant };
       this.setState({
         // replace the plant entirely with the editedPlant stateful object. 
+        ...this.state,
         plants: plants.map((plant, index) => plant.plant_id === plant_id ? plants[index] = editedPlant : plant)
       });
     } catch (err) {
@@ -509,8 +512,8 @@ class PlantView extends Component {
           setMistState={this.setMistState}
           setTimeOfDayState={this.setTimeOfDayState}
           resetPlantState={this.resetPlantState}
-          editPlant={this.editPlant}
-          savePlantEdits={this.savePlantEdits}
+          copyPlantStateForEditing={this.copyPlantStateForEditing}
+          submitPlant={this.savePlantEdits}
           deletePlant={this.deletePlant}
           editedPlantState={this.state.plant}
         /> 
@@ -532,7 +535,6 @@ class PlantView extends Component {
               setMistState={this.setMistState}
               plantState={this.state.plant}
             />
-
             {plants}
           </div>
         </div>   
