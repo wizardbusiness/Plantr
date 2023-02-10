@@ -13,17 +13,18 @@ class Plant extends Component {
       showModal: false,
       editPlant: false,
       showInfo: true,
-      waterMeter: 0,
+      waterMeter: 100,
       waterPlantIndicator: false,
       fertilizerMeter: null,
-      fertilizePlantIndicator: false
+      fertilizePlantIndicator: false,
+      intervalId: null
     };
-
     this.handleShowModal = this.handleShowModal.bind(this);
     this.handleShowInfo = this.handleShowInfo.bind(this);
     this.handleShowInputForm = this.handleShowInputForm.bind(this);
     this.careForPlant = this.careForPlant.bind(this);
     this.checkSchedule = this.checkSchedule.bind(this);
+    this.makeMeter = this.makeMeter.bind(this);
   }
 
   handleShowModal() {
@@ -35,7 +36,7 @@ class Plant extends Component {
   handleShowInputForm() {
     this.setState({
       editPlant: this.state.editPlant === false ? true : false
-    }, () => console.log(this.state.editPlant));
+    });
   }
 
   handleShowInfo() {
@@ -45,42 +46,56 @@ class Plant extends Component {
   }
 
   componentDidMount() {
-    const { focusedPlantState } = this.props;
-    this.checkSchedule(focusedPlantState.next_water_date, focusedPlantState.initial_water_date);
+    // this.checkSchedule();
+    this.makeMeter();
+  }
+
+  componentDidUpdate() {
+    // this.makeMeter();
   }
 
   componentWillUnmount() {
-    const { focusedPlantState } = this.props;
-    clearInterval(this.checkSchedule(focusedPlantState.next_water_date))
+    clearInterval(this.state.intervalId)
   }
 
-  checkSchedule(scheduledDate, initialDate) { 
+  makeMeter() {
     const {focusedPlantState} = this.props;
-    // create new current watering_schedule. 
-    // convert both dates to milliseconds
-    const checkingLogic = () => {
-      const initialDateMs = new Date(initialDate).getTime();
-      const currentDateMs = new Date().getTime();
-      const scheduledDateMs = new Date(scheduledDate).getTime();
-      // if scheduled watering_schedule is less than current watering_schedule, {css logic} (for now just console log that plant needs watering or fertilizing)
-      // display the fraction of the time that has elapsed between the initial date and the scheduled date as a percentage between 0 and 100 percent. 
-      const percentage = Math.round((1 / ((scheduledDateMs - initialDateMs) / (currentDateMs - initialDateMs))) * 100)
-      const result = initialDateMs <= scheduledDateMs && scheduledDate ? percentage : console.log('plant needs watering!');
-      this.setState({
-        ...this.state,
-        waterMeter: result,
-        waterPlantIndicator: percentage < 100 || !scheduledDate? this.state.waterPlantIndicator = false : true
-      });
-      return;
-    };
-    checkingLogic();
-    return setInterval(() => {
-      checkingLogic();
-    }, 3000)
-  }
+    const initialDateMs = new Date(focusedPlantState.initial_water_date).getTime();
+    const currentDateMs = new Date().getTime();
+    const scheduledDateMs = new Date(focusedPlantState.next_water_date).getTime();
+    // Thu Feb 09 2023 17:03:32 GMT-0800 (Pacific Standard Time) 
+    //  Wed Dec 31 1969 16:00:00 GMT-0800 (Pacific Standard Time)
+    // if scheduled watering_schedule is less than current watering_schedule, {css logic} (for now just console log that plant needs watering or fertilizing)
+    // display the fraction of the time that has elapsed between the initial date and the scheduled date as a percentage between 0 and 100 percent. 
+    const percentage = Math.round((1 / ((scheduledDateMs - initialDateMs) / (currentDateMs - initialDateMs))) * 100)
+    const result = initialDateMs <= scheduledDateMs && focusedPlantState.next_water_date ? percentage : console.log('plant needs watering!');
+    this.setState({
+      ...this.state,
+      waterMeter: percentage,
+      waterPlantIndicator: percentage < 100 || !focusedPlantState.next_water_date ? this.state.waterPlantIndicator = false : true
+    }, () => {if (this.props.focusedPlantState.plant_species === 'Hoopy') console.log(this.state.waterMeter)});
+    return;
+  };
 
-  careForPlant() {
-    // will be called when plant is watered or fertilized, and will reset the initial date that will be called when that happens.
+  checkSchedule() {
+    this.makeMeter(); 
+    const intervalId = setInterval(() => { 
+      this.makeMeter();
+    }, 3000)
+    this.setState({
+      intervalId: intervalId
+    })
+    return;
+  }
+  // scheduleObj, typeOfScheduledDate, typeOfInitialDate, caredForPlant=false
+  async careForPlant() {
+    const { waterPlant, genericPlantState, focusedPlantState, copyPlantStateForEditing, createDatesFromSchedule, submitPlant} = this.props;
+    if (waterPlant) {
+      await copyPlantStateForEditing(focusedPlantState);
+      await createDatesFromSchedule(genericPlantState.watering_schedule, 'next_water_date', 'initial_water_date', true)
+      await submitPlant();
+      this.makeMeter(); // not working yet
+    };
   }
 
   render() {
@@ -99,8 +114,12 @@ class Plant extends Component {
     } = this.props;
     return (
       <div>
-          <div className="plant" style={
-            {"--bg-color" : this.state.waterPlantIndicator === true ? "#fa5c1e" : "#42d642"}}>
+          <div className="plant" 
+            style={
+            {"--bg-color" : this.state.waterPlantIndicator === true ? "#fa5c1e" : "#42d642"}}
+            onClick={() => this.careForPlant()}
+          >
+            
             <button 
             id='delete-plant-btn' 
             className='plant-btns'

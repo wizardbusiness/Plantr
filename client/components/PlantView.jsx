@@ -58,17 +58,12 @@ class PlantView extends Component {
     this.createDatesFromSchedule = this.createDatesFromSchedule.bind(this);
     this.addPlant = this.addPlant.bind(this);
     this.copyPlantStateForEditing = this.copyPlantStateForEditing.bind(this);
-    this.clonePlant = this.clonePlant.bind(this);
     this.savePlantEdits = this.savePlantEdits.bind(this);
     this.deletePlant = this.deletePlant.bind(this);
   }
   // unimplemented: 
-  // convert current watering_schedule to a water at watering_schedule by adding the schedule values in state to current watering_schedule.
-    // then round to 7 am, 12pm or 6pm depending on the watering_time_of_day chosen. DONE
-  // check the current watering_schedule against the water and fertilize dates
-  // if they are the same, change color of plant.
-  // water button feature
-  // after clicking 'water' button, update the water and fertilize at dates in the the database according to the original time.  
+  // water / fertilize button feature
+  // after clicking 'water' or 'fertilize' button, update the water and fertilize at dates in the the database according to the original time.  
   
   componentDidMount() {
     this.getPlants();
@@ -81,7 +76,19 @@ class PlantView extends Component {
 
   createDatesFromSchedule(scheduleObj, typeOfScheduledDate, typeOfInitialDate, caredForPlant=false) {
     // if the schedule hasn't been set, don't create any dates.
-    if (Object.values(scheduleObj).every(value => !value)) return null;
+    console.log(scheduleObj)
+    if (Object.values(scheduleObj).every(value => !value)) {
+      this.setState({
+        ...this.state, 
+        plant: {
+          ...this.state.plant,
+          [typeOfScheduledDate]: null,
+          [typeOfInitialDate]: null
+        }
+        
+      });
+      return;
+    }
     const wateringTime = scheduleObj === this.state.plant.watering_schedule ? this.state.plant.watering_time_of_day : this.state.plant.fertilize_time_of_day;
     const scheduledTime = Object.entries(wateringTime).filter(entry => entry[1])[0][0];
     // schedule interval in days
@@ -277,7 +284,7 @@ class PlantView extends Component {
             evening: false
           }
         }
-      }, () => console.log(schedule))
+      })
       return;
     } else if (scheduleHasBeenSet) {
       // if schedule has been set, a time of day must be selected.
@@ -395,19 +402,9 @@ class PlantView extends Component {
     });      
   }
 
-  // CLONE PLANT: clones the plant being edited to location in state. 
-  // args: index of plant being edited. 
-  clonePlant(index) {
-    // when edit modal is opened,
-    // clone the plant being edited to the editedPlant property in state. 
-    this.setState({
-      editedPlant: this.state.plants[index]
-    });
-  }
   
   // SAVE PLANT EDITS: save any edits made to a plant to the db and replace the existing plant in state. 
   async savePlantEdits () {
-    console.log(this.state.plant)
     // destructure state
     const { 
       plant_id,
@@ -424,7 +421,6 @@ class PlantView extends Component {
       fertilize_time_of_day,
       fertilizer_schedule,
     } = this.state.plant;
-    console.log(plant_id)
     // calculate changes to schedule from the initial date the schedule was last set. so if the schedule was set to water every 2 days,
     // and it's changed to three, it should add 3 days from the initial date the schedule was set. 
     const next_water_date = await this.createDatesFromSchedule(watering_schedule, 'next_water_date', 'initial_water_date');
@@ -467,7 +463,7 @@ class PlantView extends Component {
         // replace the plant entirely with the editedPlant stateful object. 
         ...this.state,
         plants: plants.map((plant, index) => plant.plant_id === plant_id ? plants[index] = editedPlant : plant)
-      });
+      }, () => console.log(this.state.plants));
     } catch (err) {
       console.log(err);
     };
@@ -497,6 +493,7 @@ class PlantView extends Component {
 
   // VIEW SAVED PLANTS: maps the properties of all plants saved in state to jsx plant components. 
   viewSavedPlants(plants) {
+    const { waterPlant } = this.props
     return plants.map((plant, index) => {
       return (
         <Plant 
@@ -509,13 +506,15 @@ class PlantView extends Component {
           // plant methods
           setTextfieldState={this.setTextfieldState}
           setScheduleState={this.setScheduleState}
-          setMistState={this.setMistState}
           setTimeOfDayState={this.setTimeOfDayState}
+          createDatesFromSchedule={this.createDatesFromSchedule}
+          setMistState={this.setMistState}
           resetPlantState={this.resetPlantState}
           copyPlantStateForEditing={this.copyPlantStateForEditing}
           submitPlant={this.savePlantEdits}
           deletePlant={this.deletePlant}
           editedPlantState={this.state.plant}
+          waterPlant={waterPlant}
         /> 
      );
     });
