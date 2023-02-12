@@ -5,3 +5,4 @@ client/.DS_Store
 client/test.js
 server/.DS_Store
 __tests__/scratch.js
+src/bundle.js
