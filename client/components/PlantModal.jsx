@@ -47,7 +47,7 @@ class PlantModal extends Component {
                   handleShowInfo();
                   handleShowModal();
                   resetPlantState();
-                  handleShowInputForm();
+                  handleShowInputForm();  
                 }}
               >x</button>
               {children}
