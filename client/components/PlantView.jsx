@@ -1,12 +1,25 @@
 import React, {Component} from 'react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor, 
+  PointerSensor,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+} from '@dnd-kit/sortable';
 import Plant from './Plant';
 import NewPlant from './NewPlant'
-import PlantModal from './PlantModal';
+
 
 class PlantView extends Component {
   constructor(props) {
     super(props)
     this.state = {
+      curr_sort_id: 0,
       plants: [],
       // plant properties relate to columns in plants table in postgreSQL db. 
       // note that plant_id is defined in database, not new plant state.
@@ -47,6 +60,8 @@ class PlantView extends Component {
         next_fertilize_date: null,
       },
     }
+
+    this.handleDragEnd = this.handleDragEnd.bind(this);
     this.processDbPlantForFrontendState = this.processDbPlantForFrontendState.bind(this);
     this.getPlants = this.getPlants.bind(this);
     this.viewSavedPlants = this.viewSavedPlants.bind(this);
@@ -76,7 +91,6 @@ class PlantView extends Component {
 
   createDatesFromSchedule(scheduleObj, typeOfScheduledDate, typeOfInitialDate, caredForPlant=false) {
     // if the schedule hasn't been set, don't create any dates.
-    console.log(scheduleObj)
     if (Object.values(scheduleObj).every(value => !value)) {
       this.setState({
         ...this.state, 
@@ -330,7 +344,7 @@ class PlantView extends Component {
 
   // SAVE PLANT: saves a new plant to the db, and in the plants array in state for display. 
   async addPlant() {
-    const { 
+    const {
       plant_species,
       name, 
       img, 
@@ -347,11 +361,12 @@ class PlantView extends Component {
 
     const next_water_date = await this.createDatesFromSchedule(watering_schedule, 'next_water_date', 'initial_water_date');
     const next_fertilize_date = await(this.createDatesFromSchedule(fertilizer_schedule, 'next_fertilize_date', 'initial_fertilize_date'))
-    // need to grab these after they've been calculated by createDatesFromSchedule
+     // need to grab these after they've been calculated by createDatesFromSchedule
     const { initial_water_date, initial_fertilize_date }  = this.state.plant;
-
+    const sort_id = this.state.curr_sort_id + 1;
     // add all values from destructured state to request body
     const body = {
+      // sort_id,
       plant_species,
       name,
       img, 
@@ -380,12 +395,17 @@ class PlantView extends Component {
       });
       // wait for the okay from the db.
       const plant = await plantTableResponse.json();
+      const { plant_id } = plant;
       // after okay from database, use local state to add plant to plants. It's faster than sending the response body
-      this.setState({
-        plants: [...this.state.plants, {...this.state.plant, plant_id: plant.plant_id}],
-      }, () => {
-        this.resetPlantState()
-      });
+      
+      this.setState(prev => {
+        // replace the plant entirely with the editedPlant stateful object. 
+        return {
+          ...prev,
+          curr_sort_id: prev.curr_sort_id + 1,
+          plants: [...prev.plants, {...this.state.plant, sort_id, plant_id}]
+        }
+      }, () => console.log(plant_id));
       return;
     } catch (err) {
       console.log(err);
@@ -459,10 +479,13 @@ class PlantView extends Component {
       const dbResponseOk = await response.json();
       const plants = this.state.plants;
       const editedPlant = { plant_id: plant_id, ...this.state.plant };
-      this.setState({
+      this.setState(prev => {
         // replace the plant entirely with the editedPlant stateful object. 
-        ...this.state,
-        plants: plants.map((plant, index) => plant.plant_id === plant_id ? plants[index] = editedPlant : plant)
+        return {
+          ...prev,
+          curr_sort_id: prev.curr_sort_id + 1,
+          plants: plants.map((plant, index) => plant.plant_id === plant_id ? plants[index] = editedPlant : plant)
+        }
       }, () => console.log(this.state.plants));
     } catch (err) {
       console.log(err);
@@ -491,6 +514,16 @@ class PlantView extends Component {
     }
   }
 
+  handleDragEnd(event) {
+    const { active, over } = event;
+    if (active.sort_id !== over.sort_id) {
+      const oldIndex = this.state.plants.indexOf(active.sort_id);
+      const newIndex = this.state.plants.indexOf(over.sort_id);
+      this.setState({
+        plants: arrayMove(this.state.plants, oldIndex, newIndex)
+      })
+    }
+  }
   // VIEW SAVED PLANTS: maps the properties of all plants saved in state to jsx plant components. 
   viewSavedPlants(plants) {
     const { waterPlant } = this.props
@@ -534,7 +567,18 @@ class PlantView extends Component {
               setMistState={this.setMistState}
               plantState={this.state.plant}
             />
-            {plants}
+            <DndContext
+              collisionDetection={closestCenter}
+              onDragEnd={this.handleDragEnd}
+            >
+              <SortableContext
+                items={this.state.plants} 
+                strategy={rectSortingStrategy}
+              >
+                {plants}
+              </SortableContext>
+            </DndContext>
+            
           </div>
         </div>   
     )
