@@ -44,7 +44,7 @@ class PlantModal extends Component {
               <button
                 className="modal-btns exit-modal-btn"
                 onClick={() => {
-                  handleShowInfo();
+                  if (handleShowInfo) handleShowInfo();
                   handleShowModal();
                   resetPlantState();
                   handleShowInputForm();  
