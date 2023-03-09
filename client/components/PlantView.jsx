@@ -1,7 +1,9 @@
-import React, {Component} from 'react';
+import React, {useState, useEffect, useMemo} from 'react';
 import {
   DndContext,
   closestCenter,
+  useSensors,
+  useSensor,
   KeyboardSensor, 
   PointerSensor,
 } from '@dnd-kit/core';
@@ -10,101 +12,74 @@ import {
   SortableContext,
   sortableKeyboardCoordinates,
   rectSortingStrategy,
+  verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import Plant from './Plant';
+import TestPlant from './TestPlant'
 import NewPlant from './NewPlant'
+import PlantInfo from './PlantInfo';
 
+function PlantView({ waterPlant }) {
+  const [showModal, setShowModal] = useState(false);
+  const [currSortId, setCurrSortId] = useState([]);
+  const [plants, setPlants] = useState([])
+  const [plantInfo, setPlantInfo] = useState({
+    plant_species: '',
+    name: '',
+    img: '',
+    light: '',
+    soil: '',
+    fertilizer: '',
+    notes: '',
+  });
+  const [wateringSched, setWateringSched] = useState({
+    days: 0,
+    weeks: 0, 
+    months: 0,
+  });
+  const [wateringTime, setWateringTime] = useState({
+    unselected_tod: true,
+    morning: false,
+    midday: false,
+    evening: false,
+  });
+  const [fertilizeSched, setFertilizeSched] = useState({
+    days: 0,
+    weeks: 0, 
+    months: 0,
+  });
+  const [fertilizeTime, setFertilizeTime] = useState({
+    unselected_tod: true,
+    morning: false,
+    midday: false,
+    evening: false
+  });
+  const [mist, setMist] = useState(false);
+  const [initialWaterDate, setInitialWaterDate] = useState(null);
+  const [nextWaterDate, setNextWaterDate] = useState(null);
+  const [initialFertilizeDate, setInitialFertilizeDate] = useState(null);
+  const [nextFertilizeDate, setNextFertilizeDate] = useState(null);
 
-class PlantView extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      curr_sort_id: 0,
-      plants: [],
-      // plant properties relate to columns in plants table in postgreSQL db. 
-      // note that plant_id is defined in database, not new plant state.
-      plant: {
-        plant_species: '',
-        name: '',
-        img: '',
-        light: '',
-        soil: '',
-        fertilizer: '',
-        notes: '',
-        watering_schedule: {
-          days: 0,
-          weeks: 0, 
-          months: 0
-        },
-        fertilizer_schedule: { 
-          days: 0,
-          weeks: 0,
-          months: 0
-        },
-        watering_time_of_day: {
-          unselected_tod: true,
-          morning: false,
-          midday: false,
-          evening: false
-        },
-        fertilize_time_of_day: {
-          unselected_tod: true,
-          morning: false,
-          midday: false,
-          evening: false
-        },
-        mist: false,
-        initial_water_date: null,
-        next_water_date: null,
-        initial_fertilize_date: null,
-        next_fertilize_date: null,
-      },
-    }
-
-    this.handleDragEnd = this.handleDragEnd.bind(this);
-    this.processDbPlantForFrontendState = this.processDbPlantForFrontendState.bind(this);
-    this.getPlants = this.getPlants.bind(this);
-    this.viewSavedPlants = this.viewSavedPlants.bind(this);
-    this.setScheduleState = this.setScheduleState.bind(this);
-    this.setTimeOfDayState = this.setTimeOfDayState.bind(this);
-    this.setTextfieldState = this.setTextfieldState.bind(this);
-    this.setMistState = this.setMistState.bind(this);
-    this.resetPlantState = this.resetPlantState.bind(this);
-    this.createDatesFromSchedule = this.createDatesFromSchedule.bind(this);
-    this.addPlant = this.addPlant.bind(this);
-    this.copyPlantStateForEditing = this.copyPlantStateForEditing.bind(this);
-    this.savePlantEdits = this.savePlantEdits.bind(this);
-    this.deletePlant = this.deletePlant.bind(this);
-  }
   // unimplemented: 
-  // water / fertilize button feature
   // after clicking 'water' or 'fertilize' button, update the water and fertilize at dates in the the database according to the original time.  
   
-  componentDidMount() {
-    this.getPlants();
-  };
+  useEffect(() => {
+    getPlants();
+  }, [])
 
-  componentDidUpdate() {
-    console.log('plantview just updated')
-  };
+  useEffect(() => {
+    console.log(plants)
+  }, [plants])
 
+  useEffect(() => {
+    setScheduleTime();
+  }, [wateringSched, fertilizeSched]);
 
-  createDatesFromSchedule(scheduleObj, typeOfScheduledDate, typeOfInitialDate, caredForPlant=false) {
+  function createDatesFromSchedule(scheduleObj, typeOfScheduledDate, caredForPlant=false) {
     // if the schedule hasn't been set, don't create any dates.
-    if (Object.values(scheduleObj).every(value => !value)) {
-      this.setState({
-        ...this.state, 
-        plant: {
-          ...this.state.plant,
-          [typeOfScheduledDate]: null,
-          [typeOfInitialDate]: null
-        }
-        
-      });
-      return;
-    }
-    const wateringTime = scheduleObj === this.state.plant.watering_schedule ? this.state.plant.watering_time_of_day : this.state.plant.fertilize_time_of_day;
-    const scheduledTime = Object.entries(wateringTime).filter(entry => entry[1])[0][0];
+    if (Object.values(scheduleObj).every(value => !value)) return;
+    const times = scheduleObj === wateringSched ? wateringTime : fertilizeTime;
+    const scheduledTime = Object.entries(times).filter(entry => entry[1])[0][0];
     // schedule interval in days
     let intervalInDays = 0;
     // iterate through schedule dropDown
@@ -115,259 +90,205 @@ class PlantView extends Component {
       };
 
     // set a new initial date if one hasn't been set, or the plant has been cared for. Otherwise, keep the old initial date.
-    const initialDate = !this.state.plant[typeOfInitialDate] || caredForPlant ? new Date() : this.state.plant[typeOfInitialDate];
+    const initialDate = typeOfScheduledDate === 'water' ? initialWaterDate : initialFertilizeDate;
+    const setInitialDate = typeOfScheduledDate === 'water' ? setInitialWaterDate : setInitialFertilizeDate;
+    const initialDateUpdated = !initialDate || caredForPlant ? new Date() : initialDate;
     // clone the initial date as the basis for the schedule
-    const scheduledDate = new Date(initialDate.valueOf());
+    const nextScheduledDate = new Date(initialDateUpdated.valueOf());
     // get the scheduled time in hours from midnight of the current day.
-    const timeOfDay = scheduledTime === 'morning' ? 6 : scheduledTime === 'midday' ? 12 : 18;
+    const timeOfDay = nextScheduledDate === 'morning' ? 6 : scheduledTime === 'midday' ? 12 : 18;
     // mutate scheduledDate
-    scheduledDate.setDate(scheduledDate.getDate() + intervalInDays);
-    scheduledDate.setHours(timeOfDay);
-    scheduledDate.setMinutes(0);
-    scheduledDate.setSeconds(0);
+    nextScheduledDate.setDate(nextScheduledDate.getDate() + intervalInDays);
+    nextScheduledDate.setHours(timeOfDay);
+    nextScheduledDate.setMinutes(0);
+    nextScheduledDate.setSeconds(0);
     
-    // set scheduledDate state
-    this.setState({
-      ...this.state,
-      plant: {
-        ...this.state.plant,
-        [typeOfScheduledDate]: scheduledDate,
-        [typeOfInitialDate]: initialDate
-      }
-    });
-    return scheduledDate;
-  }
-
-  processDbPlantForFrontendState(plants) {
-    const plantObj = plants.map(plant => {
-      // deeply copy plant object from state. 
-      // this will serve as the basis for each individual plantObj
-      const processedPlantObj = JSON.parse(JSON.stringify(this.state.plant));
-      // even though the for loop is nested, there is a fixed number of props, so it is basically O(n) insertion.
-      for (const property in plant) {
-        if (property === 'plant_id') {
-          processedPlantObj[property] = plant[property]
-        } else if (property in processedPlantObj) {
-          processedPlantObj[property] = plant[property];
-          // match property on fertilzer schedule objects
-        } else if (property[0] === 'w') {
-          const processedProperty = property.slice(2);
-          if (processedProperty === 'days' || processedProperty === 'weeks' || processedProperty === 'months' ) {
-            processedPlantObj.watering_schedule[processedProperty] = plant[property];
-          } else if (processedProperty === 'unselected_tod' || processedProperty === 'morning' || processedProperty === 'midday' || processedProperty === 'evening') {
-            processedPlantObj.watering_time_of_day[processedProperty] = plant[property];
-          };
-        } else if (property[0] === 'f') {
-          const processedProperty = property.slice(2);
-          if (processedProperty === 'days' || processedProperty === 'weeks' || processedProperty === 'months' ) {
-            processedPlantObj.fertilizer_schedule[processedProperty] = plant[property];
-          } else if (processedProperty === 'unselected_tod' || processedProperty === 'morning' || processedProperty === 'midday' || processedProperty === 'evening') {
-            processedPlantObj.fertilize_time_of_day[processedProperty] = plant[property];
-          };
-        };
-      }
-      return processedPlantObj
-    });
-    return plantObj;
+    // set nextScheduledDate state
+    setInitialDate(nextScheduledDate);
+    return nextScheduledDate;
   }
 
   // GET PLANTS: retrieves all plants in the db. 
-  async getPlants() {
+  async function getPlants() {
     try {
       const response = await fetch('/plants');
       const plants = await response.json();
-      console.log(this.processDbPlantForFrontendState(plants));
-      // convert plant state in db back to state structure in react state. 
-     this.setState({
-        ...this.state.plants,
-        // update the entire plants array from the db. 
-        plants: this.processDbPlantForFrontendState(plants).sort((a, b) => a.plant_id < b.plant_id ? -1 : 1)  
-      });
+      const currSortId = sortIds.length ? Math.max(...sortIds) : 0;
+      setCurrSortId(currSortId + 1);
+      const sortedPlants = plants.sort((a, b) => a.sortId < b.sortId ? -1 : 1)
+      setPlants(sortedPlants);
     } catch (err) {
       console.log(err);
     };
-  }
-  
-  resetPlantState() {
-    this.setState({
-      ...this.state,
-      plant: {
-        ...this.state.plant, 
-        // reset new plant state object to default values.
-        plant_species: '',
-        name: '',
-        img: '',
-        light: '',
-        soil: '',
-        fertilizer: '',
-        notes: '',
-        watering_schedule: {
-          ...this.state.plant.watering_schedule,
-          days: 0,
-          weeks: 0, 
-          months: 0
-        },
-        fertilizer_schedule: {
-          ...this.state.plant.fertilizer_schedule,
-          days: 0,
-          weeks: 0,
-          months: 0
-        },
-        watering_time_of_day: {
-          ...this.state.plant.watering_time_of_day,
-          morning: false,
-          midday: false,
-          evening: false
-        },
-        fertilize_time_of_day: {
-          ...this.state.plant.fertilize_time_of_day,
-          morning: false,
-          midday: false,
-          evening: false
-        },
-        mist: false,
-        initial_water_date: null,
-        next_water_date: null,
-        next_fertilize_date: null,
-        initial_fertilize_date: null
-      },
+  };
+
+
+
+  function resetPlantState() {
+    setPlantInfo({
+      plantSpecies: '',
+      name: '',
+      img: '',
+      light: '',
+      soil: '',
+      fertilizer: '',
+      notes: '',
     });
-  }
-  // SET PLANT STATE: Updates properties of a new or edited plant in state when the user fills out the new or edited plant form.
-  // args: property being updated, updated value.  
-  async setScheduleState(scheduleType, dateUnit, value) {
-    // selects morning automatically for time of day if user hasn't selected a time of day
-    const setTodToMorning = () => {
-      let timeOfDayState;
-      if (scheduleType === 'watering_schedule') {
-        timeOfDayState = this.state.plant.watering_time_of_day;
-        if (timeOfDayState.unselected_tod) this.setTimeOfDayState('morning', 'watering_time_of_day')
-      } else if (scheduleType === 'fertilizer_schedule') {
-        timeOfDayState = this.state.plant.fertilize_time_of_day;
-        if (timeOfDayState.unselected_tod) this.setTimeOfDayState('morning', 'fertilize_time_of_day')
-      }
+    setMist(false);
+    setWateringSched({
+      days: 0,
+      weeks: 0, 
+      months: 0,
+    });
+    setWateringTime({
+      unselectedTime: true,
+      morning: false,
+      midday: false,
+      evening: false
+    });
+    setFertilizeSched({
+      days: 0,
+      weeks: 0, 
+      months: 0,
+    });
+
+    setFertilizeTime({
+      unselected_Time: true,
+      morning: false,
+      midday: false,
+      evening: false
+    });
+  };
+
+  function setScheduleTime(scheduleType, value, scheduleCleared=false) {
+    
+    const setTimeToMorning = (scheduledTimes) => {
+      if (scheduledTimes.unselected_time === true) {
+        setTime((prevState) => {
+          return({
+            ...prevState,
+            unselected_time: false, 
+            morning: true
+          });
+        });
+      };
       return;
     };
-    // unset time of day state if the rest of the schedule is unset.
-    const unsetTod = () => {
-      if (scheduleType === 'watering_schedule') this.setTimeOfDayState('unselected_tod', 'watering_time_of_day')
-      else if (scheduleType === 'fertilizer_schedule') this.setTimeOfDayState('unselected_tod', 'fertilize_time_of_day')
+
+    const clearTime = () => {
+      setTime((prevState) => {
+        return({
+          ...prevState, 
+          unselected_time: true, 
+          morning: false,
+          midday: false,
+          evening: false
+        });
+      });
       return;
     }
 
-    const schedule = this.state.plant[scheduleType];
-    this.setState((prevState) => { 
-      return {
-        ...prevState,
-        plant: {
-          ...prevState.plant,
-          [scheduleType]: {
-            ...schedule, 
-            [dateUnit]: value.includes('set') ? 0 : value
-          }
-        }
-      }
-      }, () => {
-        // check if schedule has been set
-        const scheduleIsSet = Object.values(this.state.plant[scheduleType]).some(value => value);
-        // if set automatically set time of day to morning if it hasn't been manually set. 
-        if (scheduleIsSet) {
-          setTodToMorning();
-        // if the schedule is unset, unset time of day too.
-        } else if (!scheduleIsSet) {
-          unsetTod();
-        };
-      });
+    const schedule = scheduleType === 'watering' ? wateringSched : fertilizeSched;
+    const scheduleHasBeenSet = schedule.days || schedule.weeks || schedule.months;
+    const scheduledTimes = scheduleType === 'watering' ? wateringTime : fertilizeTime;
+    const setTime = scheduleType === 'watering' ? setWateringTime : setFertilizeTime;
+    if (scheduleCleared) {
+      clearTime();
       return;
-  }
-
-  setTimeOfDayState(chosenValue, timeOfDayType) {
-    // if the user selects only the time of day, but no date unit is selected, it will stay unselected in state
-    const plant = this.state.plant;
-    const schedule = timeOfDayType === 'watering_time_of_day' ? plant.watering_schedule : plant.fertilizer_schedule;
-    const scheduleHasBeenSet = Object.values(schedule).some(value => value);
+    };
     if (!scheduleHasBeenSet) {
-      this.setState({
-        ...this.state,
-        plant: {
-          ...this.state.plant,
-          [timeOfDayType]: {
-            unselected_tod: true,
+      setTimeToMorning(scheduledTimes);
+      return;
+    };
+    // iterate through times, if the properties value equals the passed in value, set it to true. 
+    for (const time in scheduledTimes) {
+      if (scheduledTime[time] === value) {
+        setTime(prevState => {
+          return ({
+            ...prevState,
+            [value]: true
+          });
+        });
+        // otherwise set it to false.
+      } else {
+        setTime(prevState => {
+          return ({
+            ...prevState,
+            time: false
+          });
+        });
+      };
+    };
+    return;
+  };
+
+  function setSchedule(scheduleType, unit, value, scheduleCleared=false) {
+    const schedule = scheduleType === 'watering' ? wateringSched : fertilizeSched;
+    const setWaterOrFertSchedule = scheduleType === 'watering' ? setWateringSched : setFertilizeSched;
+    if (scheduleCleared) {
+      clearSchedule();
+      return;
+    }
+    for (const property in schedule) {
+      if (property === unit) {
+        setWaterOrFertSchedule(prevState => {
+          return({
+            ...prevState,
+            [unit]: value,
+          });
+        });
+      } else {
+        setWaterOrFertSchedule(prevState => {
+          return({
+            ...prevState,
+            [property]: 0
+          });
+        });
+      };
+    }       
+      const clearSchedule = () => {
+        setWaterOrFertSchedule((prevState) => {
+          return({
+            ...prevState,
+            unselected_Time: true,
             morning: false,
             midday: false,
             evening: false
-          }
-        }
-      })
+          })
+        })
+      }
       return;
-    } else if (scheduleHasBeenSet) {
-      // if schedule has been set, a time of day must be selected.
-      if (chosenValue === 'unselected_tod') return;
-      const newTimeOfDayState = {
-        unselected_tod: false,
-        morning: false,
-        midday: false,
-        evening: false
-      };
-      // merge the chosen value into the new time of day state.
-      const modifiedState = {...newTimeOfDayState, [chosenValue]: true}
-      this.setState({
-        ...this.state,
-        plant: {
-          ...this.state.plant,
-          [timeOfDayType]: modifiedState
-        }
-      });
     };
-    return;
-  }
 
-  setTextfieldState(name, value) {
-    this.setState({
-      ...this.state,
-      plant: {
-        ...this.state.plant,
-        [name]: value      
-      }
+
+  function setTextfieldState(name, value) {
+    setPlantInfo(prevState => {
+      return({
+        ...prevState,
+      [name]: value
+      });
     });
   }
 
-  setMistState() {
-    this.setState({
-      ...this.state,
-      plant: {
-        ...this.state.plant,
-        mist: this.state.plant.mist === false ? this.state.plant.mist = true : this.state.plant.mist = false
-      }
-    });
+  function setMistState() {
+    mist === false ? setMist(true) : setMist(false);
   }
 
-  // SAVE PLANT: saves a new plant to the db, and in the plants array in state for display. 
-  async addPlant() {
+  async function submitPlant() {
     const {
       plant_species,
-      name, 
-      img, 
-      light, 
-      soil, 
-      fertilizer, 
-      notes, 
-      mist,
-      watering_time_of_day,
-      watering_schedule, 
-      fertilize_time_of_day,
-      fertilizer_schedule,
-    } = this.state.plant;
-
-    const next_water_date = await this.createDatesFromSchedule(watering_schedule, 'next_water_date', 'initial_water_date');
-    const next_fertilize_date = await(this.createDatesFromSchedule(fertilizer_schedule, 'next_fertilize_date', 'initial_fertilize_date'))
-     // need to grab these after they've been calculated by createDatesFromSchedule
-    const { initial_water_date, initial_fertilize_date }  = this.state.plant;
-    const sort_id = this.state.curr_sort_id + 1;
-    // add all values from destructured state to request body
+      name,
+      img,
+      light,
+      soil,
+      fertilizer,
+      notes
+    } = plantInfo;
+    await createDatesFromSchedule(wateringSched, 'water');
+    await createDatesFromSchedule(fertilizeSched, 'fertilize');
     const body = {
-      // sort_id,
-      plant_species,
+      currSortId,
+      plantSpecies,
       name,
       img, 
       light, 
@@ -375,15 +296,16 @@ class PlantView extends Component {
       fertilizer, 
       notes, 
       mist,
-      watering_schedule,
-      watering_time_of_day,
-      initial_water_date,
-      next_water_date,
-      fertilizer_schedule,
-      fertilize_time_of_day,
-      initial_fertilize_date,
-      next_fertilize_date
+      wateringSched,
+      wateringTime,
+      initialWaterDate,
+      nextWaterDate,
+      fertilizeSched,
+      fertilizeTime,
+      initialFertilizeDate,
+      nextFertilizeDate,
     };
+
     try {
       const plantTableResponse = await fetch('/plants', {
         method: 'POST', 
@@ -395,77 +317,50 @@ class PlantView extends Component {
       });
       // wait for the okay from the db.
       const plant = await plantTableResponse.json();
-      const { plant_id } = plant;
+      const { plantId } = plant;
       // after okay from database, use local state to add plant to plants. It's faster than sending the response body
-      
-      this.setState(prev => {
-        // replace the plant entirely with the editedPlant stateful object. 
-        return {
-          ...prev,
-          curr_sort_id: prev.curr_sort_id + 1,
-          plants: [...prev.plants, {...this.state.plant, sort_id, plant_id}]
-        }
-      }, () => console.log(plant_id));
+      setCurrSortId(prevState => prevState + 1);
+      setPlants(prevState => [...prevState, {...plant, plantId}]);
       return;
     } catch (err) {
       console.log(err);
     };
   };
 
-  // EDIT PLANT METHODS ---------------------------------------------------------------------------------------------------------
-
-  // EDIT PLANT (Frontend state): edits the stateful properties of the plant being edited in the isolated copyPlantStateForEditing state object.
-  copyPlantStateForEditing(plant) {
-    this.setState({
-      ...this.state,
-      plant: plant
-    });      
+  function copyPlantStateForEditing(plant) {
+    setPlantInfo(plant);      
   }
 
-  
-  // SAVE PLANT EDITS: save any edits made to a plant to the db and replace the existing plant in state. 
-  async savePlantEdits () {
-    // destructure state
-    const { 
-      plant_id,
+  async function submitPlantEdit () {
+    const {
       plant_species,
-      name, 
-      img, 
-      light, 
-      soil, 
-      fertilizer, 
-      notes, 
-      mist,
-      watering_time_of_day,
-      watering_schedule, 
-      fertilize_time_of_day,
-      fertilizer_schedule,
-    } = this.state.plant;
-    // calculate changes to schedule from the initial date the schedule was last set. so if the schedule was set to water every 2 days,
-    // and it's changed to three, it should add 3 days from the initial date the schedule was set. 
-    const next_water_date = await this.createDatesFromSchedule(watering_schedule, 'next_water_date', 'initial_water_date');
-    const next_fertilize_date = await(this.createDatesFromSchedule(fertilizer_schedule, 'next_fertilize_date', 'initial_fertilize_date'))
-    const {initial_water_date, initial_fertilize_date} = this.state.plant;
-    // add all values from destructured state to request body
-
+      name,
+      img,
+      light,
+      soil,
+      fertilizer,
+      notes
+    } = plantInfo;
+    await createDatesFromSchedule(wateringSched, 'water');
+    await createDatesFromSchedule(fertilizeSched, 'fertilize');
     const body = {
-      plant_id,
-      plant_species,
-      name, 
+      currSortId,
+      plantSpecies,
+      name,
       img, 
       light, 
       soil, 
       fertilizer, 
       notes, 
       mist,
-      watering_schedule,
-      watering_time_of_day,
-      next_water_date,
-      initial_water_date,
-      fertilizer_schedule,
-      fertilize_time_of_day,
-      next_fertilize_date,
-      initial_fertilize_date
+      wateringSched,
+      wateringTime,
+      initialWaterDate,
+      nextWaterDate,
+      fertilizeSched,
+      fertilizeTime,
+      initialFertilizeDate,
+      nextFertilizeDate,
     };
     try {
       const response = await fetch(`/plants/${plant_id}`, {
@@ -475,27 +370,16 @@ class PlantView extends Component {
         },
         body: JSON.stringify(body)
       });
-      // wait for the database to send back a response before proceeding.
       const dbResponseOk = await response.json();
-      const plants = this.state.plants;
-      const editedPlant = { plant_id: plant_id, ...this.state.plant };
-      this.setState(prev => {
-        // replace the plant entirely with the editedPlant stateful object. 
-        return {
-          ...prev,
-          curr_sort_id: prev.curr_sort_id + 1,
-          plants: plants.map((plant, index) => plant.plant_id === plant_id ? plants[index] = editedPlant : plant)
-        }
-      }, () => console.log(this.state.plants));
+      const editedPlant = { plant_id: plant_id, ...plantInfo};
+      setCurrSortId(prevState => prevState + 1);
+      setPlants(prevState => plants.map((plant, index) => plant.plant_id === plant_id ? plants[index] = editedPlant : plant));
     } catch (err) {
       console.log(err);
     };
-  }
+  };
 
-  // -----------------------------------------------------------------------------------------------------------------
-
-  // DELETE PLANT: deletes a saved plant from the database and from state. 
-  async deletePlant (plant_id) {
+  async function deletePlant (plant_id) {
     try {
       const response = await fetch(`/plants/${plant_id}`, {
         method: 'DELETE',
@@ -504,85 +388,129 @@ class PlantView extends Component {
         },
       });
       const dbResponseOk = await response.json();      
-      const plants = this.state.plants;
-      this.setState({
-        // filter plant to be deleted out of saved state in plants.  
-        plants: plants.filter(plant => plant.plant_id !== plant_id)
-      });
+      setPlants(plants.filter(plant => plant.plant_id !== plant_id));
     } catch (err) {
       console.log(err);
     }
   }
 
-  handleDragEnd(event) {
-    const { active, over } = event;
-    if (active.sort_id !== over.sort_id) {
-      const oldIndex = this.state.plants.indexOf(active.sort_id);
-      const newIndex = this.state.plants.indexOf(over.sort_id);
-      this.setState({
-        plants: arrayMove(this.state.plants, oldIndex, newIndex)
+
+  async function sendNewCoordsToDb(oldCoords) {
+    const newCoords = [];
+    let sortId = 0;
+    for (let i = 0; i < plants.length; i++) {  
+      sortId++;
+      for (let j = 0; j < plants.length; j++) {
+        if (plants[j].sortId === sortId) {
+          newCoords.push(j + 1);    
+        };
+      };
+    };
+    const body = {
+      oldCoords,
+      newCoords,
+    };
+    try {
+      const response = await fetch('/plants', { 
+      method: 'PATCH',
+      headers: {
+        'Content-type' :'Application/JSON'
+      },
+      body: JSON.stringify(body)
       })
+      const dbResponseOk = await response.json();
+    } catch (err) {
+      console.log(err);
     }
   }
-  // VIEW SAVED PLANTS: maps the properties of all plants saved in state to jsx plant components. 
-  viewSavedPlants(plants) {
-    const { waterPlant } = this.props
-    return plants.map((plant, index) => {
+
+  function viewPlants() {
+    return plants.map((plant) => {
       return (
         <Plant 
-          key={`plant${index}`}
+          key={plant.sortId}
+          sortId={plant.sortId}
           // plant properties
           focusedPlantState={plant}
-          genericPlantState={this.state.plant}
-          // modal properties
-          modalState={this.state.showModal}
+          plantInfo={plant}
+          modalState={showModal}
           // plant methods
-          setTextfieldState={this.setTextfieldState}
-          setScheduleState={this.setScheduleState}
-          setTimeOfDayState={this.setTimeOfDayState}
-          createDatesFromSchedule={this.createDatesFromSchedule}
-          setMistState={this.setMistState}
-          resetPlantState={this.resetPlantState}
-          copyPlantStateForEditing={this.copyPlantStateForEditing}
-          submitPlant={this.savePlantEdits}
-          deletePlant={this.deletePlant}
-          editedPlantState={this.state.plant}
+          setTextfieldState={setTextfieldState}
+          setSchedule={setSchedule}
+          setScheduleTime={setScheduleTime}
+          createDatesFromSchedule={createDatesFromSchedule}
+          setMist={setMist}
+          resetPlantState={resetPlantState}
+          submitPlantEdit={submitPlantEdit}
+          deletePlant={deletePlant}
+          editedPlant={plant}
           waterPlant={waterPlant}
         /> 
      );
     });
   }
 
-  render() {
-    const plants = this.viewSavedPlants(this.state.plants)
-    return (
-        <div className="planter-box">
-          <div className='plants'>
-            <NewPlant id="new-plant"
-              resetPlantState={this.resetPlantState}
-              submitPlant={this.addPlant}
-              setTextfieldState={this.setTextfieldState}
-              setScheduleState={this.setScheduleState}
-              setTimeOfDayState={this.setTimeOfDayState}
-              setMistState={this.setMistState}
-              plantState={this.state.plant}
-            />
-            <DndContext
-              collisionDetection={closestCenter}
-              onDragEnd={this.handleDragEnd}
+  function handleDragEnd(event) {
+    const oldCoords = [];
+    let sortId = 0;
+    for (let i = 0; i < plants.length; i++) {  
+      sortId++;
+      for (let j = 0; j < plants.length; j++) {
+        if (plants[j].sortId === sortId) {
+          oldCoords.push(j + 1);    
+        };
+      };
+    };
+
+    const { active, over } = event;
+    if (active.id !== over.id) {
+      setPlants(plants => {
+        const oldIndex = plants.findIndex((plant) => plant.sortId === active.id);
+        const newIndex = plants.findIndex((plant) => plant.sortId === over.id);
+        return arrayMove(plants, oldIndex, newIndex);
+      });
+    };
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const sortIds = useMemo(() => plants.map((plant) => plant.sortId), [plants]);
+
+  return (
+      <div className="planter-box">
+        <div className="plants">
+          <NewPlant id="new-plant"
+            resetPlantState={resetPlantState}
+            submitPlant={submitPlant}
+            setTextfieldState={setTextfieldState}
+            setSchedule={setSchedule}
+            setTimeOfDayState={setScheduleTime}
+            setMistState={setMist}
+            mist={mist}
+            wateringSched={wateringSched}
+            fertilizeSched={fertilizeSched}
+            plantInfo={plantInfo}
+          />
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={sortIds} 
+              strategy={rectSortingStrategy}
             >
-              <SortableContext
-                items={this.state.plants} 
-                strategy={rectSortingStrategy}
-              >
-                {plants}
-              </SortableContext>
-            </DndContext>
-            
-          </div>
-        </div>   
-    )
-  }
+              {viewPlants()}
+            </SortableContext>
+          </DndContext>
+        </div>
+      </div>   
+  )
 }
 
 export default PlantView;
