@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useMemo} from 'react';
+import React, {useState, useEffect, useMemo, useRef} from 'react';
 import {
   DndContext,
   closestCenter,
@@ -19,9 +19,20 @@ import TestPlant from './TestPlant'
 import NewPlant from './NewPlant'
 import PlantInfo from './PlantInfo';
 
+function usePrevious(value) {
+  const ref = useRef([]);
+  useEffect(() => {
+    ref.current = value;
+  }, [value]);
+  return ref.current;
+}
+
 function PlantView({ waterPlant }) {
+  
   const [showModal, setShowModal] = useState(false);
   const [currSortId, setCurrSortId] = useState([]);
+  
+  
   const [plants, setPlants] = useState([])
   const [plantInfo, setPlantInfo] = useState({
     plant_species: '',
@@ -59,17 +70,56 @@ function PlantView({ waterPlant }) {
   const [nextWaterDate, setNextWaterDate] = useState(null);
   const [initialFertilizeDate, setInitialFertilizeDate] = useState(null);
   const [nextFertilizeDate, setNextFertilizeDate] = useState(null);
-
-  // unimplemented: 
-  // after clicking 'water' or 'fertilize' button, update the water and fertilize at dates in the the database according to the original time.  
+  const sortIds = useMemo(() => plants.map((plant) => plant.sortId), [plants]);
   
   useEffect(() => {
     getPlants();
   }, [])
 
-  useEffect(() => {
-    console.log(plants)
-  }, [plants])
+  // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // RESET STATE
+  function resetPlantState() {
+    setPlantInfo({
+      plantSpecies: '',
+      name: '',
+      img: '',
+      light: '',
+      soil: '',
+      fertilizer: '',
+      notes: '',
+    });
+    setMist(false);
+    setWateringSched({
+      days: 0,
+      weeks: 0, 
+      months: 0,
+    });
+    setWateringTime({
+      unselectedTime: true,
+      morning: false,
+      midday: false,
+      evening: false
+    });
+    setFertilizeSched({
+      days: 0,
+      weeks: 0, 
+      months: 0,
+    });
+
+    setFertilizeTime({
+      unselected_Time: true,
+      morning: false,
+      midday: false,
+      evening: false
+    });
+  };
+
+  // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  /*
+  ====================================
+    SCHEDULE STATE MANAGEMENT
+  ====================================
+  */
 
   useEffect(() => {
     setScheduleTime();
@@ -107,58 +157,6 @@ function PlantView({ waterPlant }) {
     setInitialDate(nextScheduledDate);
     return nextScheduledDate;
   }
-
-  // GET PLANTS: retrieves all plants in the db. 
-  async function getPlants() {
-    try {
-      const response = await fetch('/plants');
-      const plants = await response.json();
-      const currSortId = sortIds.length ? Math.max(...sortIds) : 0;
-      setCurrSortId(currSortId + 1);
-      const sortedPlants = plants.sort((a, b) => a.sortId < b.sortId ? -1 : 1)
-      setPlants(sortedPlants);
-    } catch (err) {
-      console.log(err);
-    };
-  };
-
-
-
-  function resetPlantState() {
-    setPlantInfo({
-      plantSpecies: '',
-      name: '',
-      img: '',
-      light: '',
-      soil: '',
-      fertilizer: '',
-      notes: '',
-    });
-    setMist(false);
-    setWateringSched({
-      days: 0,
-      weeks: 0, 
-      months: 0,
-    });
-    setWateringTime({
-      unselectedTime: true,
-      morning: false,
-      midday: false,
-      evening: false
-    });
-    setFertilizeSched({
-      days: 0,
-      weeks: 0, 
-      months: 0,
-    });
-
-    setFertilizeTime({
-      unselected_Time: true,
-      morning: false,
-      midday: false,
-      evening: false
-    });
-  };
 
   function setScheduleTime(scheduleType, value, scheduleCleared=false) {
     
@@ -273,7 +271,30 @@ function PlantView({ waterPlant }) {
   function setMistState() {
     mist === false ? setMist(true) : setMist(false);
   }
+  // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  /*
+  ===========
+    GET ALL 
+  ===========
+  */
+  async function getPlants() {
+    try {
+      const response = await fetch('/plants');
+      const plants = await response.json();
+      const currSortId = sortIds.length ? Math.max(...sortIds) : 0;
+      setCurrSortId(currSortId + 1);
+      const sortedPlants = plants.sort((a, b) => a.sortId < b.sortId ? -1 : 1)
+      setPlants(sortedPlants);
+    } catch (err) {
+      console.log(err);
+    };
+  };
 
+  /*
+  ===========
+    ADD
+  ===========
+  */
   async function submitPlant() {
     const {
       plant_species,
@@ -331,6 +352,11 @@ function PlantView({ waterPlant }) {
     setPlantInfo(plant);      
   }
 
+  /*
+  ===========
+    UPDATE
+  ===========
+  */
   async function submitPlantEdit () {
     const {
       plant_species,
@@ -379,6 +405,11 @@ function PlantView({ waterPlant }) {
     };
   };
 
+  /*
+  ===========
+    DELETE
+  ===========
+  */
   async function deletePlant (plant_id) {
     try {
       const response = await fetch(`/plants/${plant_id}`, {
@@ -394,21 +425,54 @@ function PlantView({ waterPlant }) {
     }
   }
 
+  // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  /*
+  ==============================================================
+    DND-KIT API
+  ==============================================================
+  */
+  
+  // not part of API, just what is this tho lol.
 
-  async function sendNewCoordsToDb(oldCoords) {
-    const newCoords = [];
+  // DND-kit sort id's don't change, only their sort order. 
+  // However, to update the sort order in the database, the sort id are converted to the index at which they occur.
+  // for example, if plant 1 is in position 4, its sort id will change to four, in position 1. eg [2, 3, 4, 1] -> [4, 1, 2, 3].
+  // then when the plants and their sort ids are retrieved from the database, the sort ids initialize once again
+  // sorted from least to greatest. so whatever plant is in position 1 will have a sort id of 1, etc. eg [4, 1, 2, 3] -> [1, 2, 3, 4]
+  // this method is really confusing, because the sort ids are always changing, even though dnd-kit doesn't require them to change.
+  // to make this clearer, it would be better to simply store the sortIds in their current order as an array directly, 
+  // rather than recalculating them in the database each time the sort order changes. 
+  function getSortOrder () {
+    const sortOrder = [];
     let sortId = 0;
     for (let i = 0; i < plants.length; i++) {  
       sortId++;
       for (let j = 0; j < plants.length; j++) {
         if (plants[j].sortId === sortId) {
-          newCoords.push(j + 1);    
+          sortOrder.push(j + 1);    
         };
       };
     };
+    return sortOrder;
+  }
+  useEffect(() => {
+    console.log(sortIds)
+    sendNewCoordsToDb();
+  }, [sortIds]);
+
+  const prevSortOrder = usePrevious(getSortOrder());
+  async function sendNewCoordsToDb() {
+    const nextSortOrder = getSortOrder();
+    if (prevSortOrder.length === 0 || nextSortOrder.length === 0) return;
+    console.log('prev')
+    console.log(prevSortOrder)
+    console.log('next')
+    console.log(nextSortOrder)
+
+
     const body = {
-      oldCoords,
-      newCoords,
+      prevSortOrder,
+      nextSortOrder,
     };
     try {
       const response = await fetch('/plants', { 
@@ -419,11 +483,36 @@ function PlantView({ waterPlant }) {
       body: JSON.stringify(body)
       })
       const dbResponseOk = await response.json();
+      // console.log(dbResponseOk)
     } catch (err) {
       console.log(err);
     }
   }
 
+  function handleDragEnd(event) {
+    const { active, over } = event;
+    if (active.id !== over.id) {
+      setPlants(plants => {
+        const oldIndex = plants.findIndex((plant) => plant.sortId === active.id);
+        const newIndex = plants.findIndex((plant) => plant.sortId === over.id);
+        return arrayMove(plants, oldIndex, newIndex);
+      });
+    };
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+
+  /* 
+  ==============================================================
+    Render plants components
+  ============================================================== 
+  */
   function viewPlants() {
     return plants.map((plant) => {
       return (
@@ -448,38 +537,7 @@ function PlantView({ waterPlant }) {
         /> 
      );
     });
-  }
-
-  function handleDragEnd(event) {
-    const oldCoords = [];
-    let sortId = 0;
-    for (let i = 0; i < plants.length; i++) {  
-      sortId++;
-      for (let j = 0; j < plants.length; j++) {
-        if (plants[j].sortId === sortId) {
-          oldCoords.push(j + 1);    
-        };
-      };
-    };
-
-    const { active, over } = event;
-    if (active.id !== over.id) {
-      setPlants(plants => {
-        const oldIndex = plants.findIndex((plant) => plant.sortId === active.id);
-        const newIndex = plants.findIndex((plant) => plant.sortId === over.id);
-        return arrayMove(plants, oldIndex, newIndex);
-      });
-    };
   };
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  const sortIds = useMemo(() => plants.map((plant) => plant.sortId), [plants]);
 
   return (
       <div className="planter-box">
