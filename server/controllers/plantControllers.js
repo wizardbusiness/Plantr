@@ -125,7 +125,7 @@ const plantControllers = {
     }
   },
 
-  async updateCoords(req, res, next) {
+  async updateSortOrder(req, res, next) {
     const {prevSortOrder, nextSortOrder} = req.body;
     try {
       const data = await db.query(

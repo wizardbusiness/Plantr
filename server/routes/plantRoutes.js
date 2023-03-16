@@ -14,6 +14,11 @@ plantRoutes.post('/plants', plantControllers.addPlant, (req, res, next) => {
   res.status(200).json(res.locals.newPlant);
 });
 
+// update sort coords
+plantRoutes.patch('/plants', plantControllers.updateSortOrder, (req, res, next) => {
+  res.status(200).json(res.locals.updatedOrder);
+})
+
 // Edit plant
 plantRoutes.put('/plants/:plant_id', plantControllers.editPlant, (req, res, next) => {
   res.status(200).json(res.locals.editedPlant);
