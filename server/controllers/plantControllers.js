@@ -199,6 +199,7 @@ const plantControllers = {
 
   async deletePlant (req, res, next) {
     const { plantId } = req.params;
+    console.log(plantId)
     try {
       // CASCADE is on in SQL- deleting plant in plants table deletes it in the schedule table too. 
       const data = await db.query('DELETE FROM plants WHERE plant_id = $1 RETURNING plant_id', [plantId]);

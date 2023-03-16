@@ -20,12 +20,12 @@ plantRoutes.patch('/plants', plantControllers.updateSortOrder, (req, res, next) 
 })
 
 // Edit plant
-plantRoutes.put('/plants/:plant_id', plantControllers.editPlant, (req, res, next) => {
+plantRoutes.put('/plants/:plantId', plantControllers.editPlant, (req, res, next) => {
   res.status(200).json(res.locals.editedPlant);
 });
 
 // Delete a plant from the db
-plantRoutes.delete('/plants/:plant_id', plantControllers.deletePlant, (req, res, next) => {
+plantRoutes.delete('/plants/:plantId', plantControllers.deletePlant, (req, res, next) => {
   res.status(200).json(res.locals.deletedPlant);
 });
 
