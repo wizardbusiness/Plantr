@@ -1,12 +1,19 @@
 
 import React, { useEffect, useState } from 'react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import PlantModal from './PlantModal';
 import PlantForm from './PlantForm';
 import PlantInfo from './PlantInfo';
 import '../../src/styles.css';
 
-export default function Plant(
-  { 
+export default function Plant({
+    sortId,
+    plantInfo,
+    setMist,
+    wateringSched,
+    fertilizeSched,
+    defaultPlantInfo,
     waterPlant, 
     createDatesFromSchedule,
     submitPlant,
@@ -16,20 +23,17 @@ export default function Plant(
     deletePlant,
     resetPlantState,
     setTextfieldState,
-    setScheduleState,
-    setTimeOfDayState,
-    setMistState,
-    genericPlantState
+    setSchedule,
+    setScheduleTime,
+    
   }) {
-  const [ state, setState ] = useState({
-    showModal: false,
-    editPlant: false,
-    showInfo: true,
-    waterMeter: 100,
-    waterPlantIndicator: false,
-    fertilizerMeter: null,
-    fertilizePlantIndicator: false,
-  })
+  const { 
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({id: sortId})
 
   const [ showModal, setShowModal ] = useState(false);
   const [editPlant, setEditPlant ] = useState(false);
@@ -50,19 +54,18 @@ export default function Plant(
     setShowInfo(showInfo === false ? true : false)
   }
 
-  useEffect(() => {
-    makeMeter();
-    const interval = setInterval(() => { 
-      makeMeter();
-    }, 3000);
+  // useEffect(() => {
+  //   makeMeter();
+  //   const interval = setInterval(() => { 
+  //     makeMeter();
+  //   }, 3000);
     
-    return () => {
-      clearInterval(interval)
-    }
-  }, []);
+  //   return () => {
+  //     clearInterval(interval)
+  //   }
+  // }, []);
 
   function makeMeter() {
-    console.log(state)
     const initialDateMs = new Date(focusedPlantState.initial_water_date).getTime();
     const currentDateMs = new Date().getTime();
     const scheduledDateMs = new Date(focusedPlantState.next_water_date).getTime();
@@ -72,11 +75,6 @@ export default function Plant(
     // display the fraction of the time that has elapsed between the initial date and the scheduled date as a percentage between 0 and 100 percent. 
     const percentage = Math.round((1 / ((scheduledDateMs - initialDateMs) / (currentDateMs - initialDateMs))) * 100)
     const result = initialDateMs <= scheduledDateMs && focusedPlantState.next_water_date ? percentage : console.log('plant needs watering!');
-    setState({
-      ...state,
-      waterMeter: percentage,
-      waterPlantIndicator: percentage < 100 || !focusedPlantState.next_water_date ? state.waterPlantIndicator = false : true
-    });
     setWaterMeter(percentage);
     setWaterPlantIndicator(prev => {
       return percentage < 100 || !focusedPlantState.next_water_date ? false : true;
@@ -94,62 +92,72 @@ export default function Plant(
       };
     }
 
+    const dragStyle = { 
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
     return (
       <div>
         <div className="plant" 
+          ref={setNodeRef}
+          {...attributes}
+          {...listeners}
           style={
-          {"--bg-color" : waterPlantIndicator === true ? "#fa5c1e" : "#42d642"}}
+          {transform: CSS.Transform.toString(transform),
+          transition,}}
           onClick={() => careForPlant()}
         >
         <button 
-        id='delete-plant-btn' 
-        className='plant-btns'
-        style={{"--button-color": waterPlantIndicator === true ? "#61464d" : "#c1c1c1"}} 
-        onClick={() => deletePlant(focusedPlantState.plant_id)}>x</button>
+          id='delete-plant-btn' 
+          className='plant-btns'
+          style={{"--button-color": waterPlantIndicator === true ? "#61464d" : "#c1c1c1"}} 
+          onClick={() => deletePlant(focusedPlantState.plant_id)}>x
+        </button> 
         <button 
           id="plant-info-btn" 
           className="plant-btns" 
           onClick={() => {
             handleShowModal();
             copyPlantStateForEditing(focusedPlantState);
-          }}
-          >Info</button>
-        <div id="plant-species-name">{focusedPlantState.plant_species}</div>
-        <div className = "water-meter" style={{"--water-meter-height" : `${state.waterMeter}%`}}/>
+          }}>Info
+        </button>
+        <div id="plant-species-name">{plantInfo.plantSpecies}</div>
+        <div className = "water-meter" style={{"--water-meter-height" : `${waterMeter}%`}}/>
       </div>
       {/* show the modal */}
       {showModal && <PlantModal
-        handleShowModal={handleShowModal}
-        showInfo={showInfo}
-        handleShowInfo={handleShowInfo}
-        handleShowInputForm={handleShowInputForm}
-        showInputForm={editPlant}
-        resetPlantState={resetPlantState}
-        >
-          {/* modal contents */}
-          {/* show edit form */}
-          {editPlant && <PlantForm 
-            setTextfieldState={setTextfieldState}
-            setScheduleState={setScheduleState}
-            setTimeOfDayState={setTimeOfDayState}
-            setMistState={setMistState}
-            submitPlant={submitPlant}
-            handleShowModal={handleShowModal}
-            plantState={genericPlantState}
-          /> || 
-          // show plant info
-          showInfo && <PlantInfo 
-              focusedPlantState={focusedPlantState}
-              genericPlantState={genericPlantState}
-              savePlantEdits={savePlantEdits}
-              setTextfieldState={setTextfieldState}
-              setScheduleState={setScheduleState}
-              setTimeOfDayState={setTimeOfDayState}
-              setMistState={setMistState}
-            />
-          }  
-        </PlantModal>
-        }
+      handleShowModal={handleShowModal}
+      showInfo={showInfo}
+      handleShowInfo={handleShowInfo}
+      handleShowInputForm={handleShowInputForm}
+      showInputForm={editPlant}
+      resetPlantState={resetPlantState}
+      >
+      {/* modal contents */}
+      {/* show edit form */}
+    {editPlant && <PlantForm 
+      setTextfieldState={setTextfieldState}
+      setScheduleState={setScheduleState}
+      setTimeOfDayState={setTimeOfDayState}
+      setMistState={setMistState}
+      submitPlant={submitPlant}
+      handleShowModal={handleShowModal}
+      plantState={genericPlantState}
+    /> || 
+    // show plant info
+    showInfo && <PlantInfo 
+        focusedPlantState={focusedPlantState}
+        genericPlantState={genericPlantState}
+        savePlantEdits={savePlantEdits}
+        setTextfieldState={setTextfieldState}
+        setScheduleState={setScheduleState}
+        setTimeOfDayState={setTimeOfDayState}
+        setMistState={setMistState}
+      />
+    }  
+      </PlantModal>}
+      
       </div>
       )
     }
