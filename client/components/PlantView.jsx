@@ -1,4 +1,6 @@
 import React, {useState, useEffect, useMemo, useRef} from 'react';
+// import plantSvg from '../../public/plants.svg';
+
 import {
   DndContext,
   closestCenter,
@@ -18,6 +20,7 @@ import Plant from './Plant';
 import TestPlant from './TestPlant'
 import NewPlant from './NewPlant'
 import PlantInfo from './PlantInfo';
+import { parse } from 'ipaddr.js';
 
 function usePrevious(value) {
   const ref = useRef([]);
@@ -30,12 +33,12 @@ function usePrevious(value) {
 function PlantView({ waterPlant }) {
   
   const [showModal, setShowModal] = useState(false);
-  const [currSortId, setCurrSortId] = useState([]);
+  const [currSortId, setCurrSortId] = useState(0);
   
   
   const [plants, setPlants] = useState([])
   const [plantInfo, setPlantInfo] = useState({
-    plant_species: '',
+    plantSpecies: '',
     name: '',
     img: '',
     light: '',
@@ -70,11 +73,21 @@ function PlantView({ waterPlant }) {
   const [nextWaterDate, setNextWaterDate] = useState(null);
   const [initialFertilizeDate, setInitialFertilizeDate] = useState(null);
   const [nextFertilizeDate, setNextFertilizeDate] = useState(null);
+  const [ plantSvgs, setPlantSvgs ] = useState([]);
   const sortIds = useMemo(() => plants.map((plant) => plant.sortId), [plants]);
-  
+
+
+  useEffect(() => {
+
+  }, []);
+
+
   useEffect(() => {
     getPlants();
-  }, [])
+
+  }, [plantSvgs]);
+
+
 
   // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // RESET STATE
@@ -125,6 +138,10 @@ function PlantView({ waterPlant }) {
     setScheduleTime();
   }, [wateringSched, fertilizeSched]);
 
+  useEffect(() => {
+    // console.log(plantInfo)
+  }, [plantInfo])
+
   function createDatesFromSchedule(scheduleObj, typeOfScheduledDate, caredForPlant=false) {
     // if the schedule hasn't been set, don't create any dates.
     if (Object.values(scheduleObj).every(value => !value)) return;
@@ -142,6 +159,7 @@ function PlantView({ waterPlant }) {
     // set a new initial date if one hasn't been set, or the plant has been cared for. Otherwise, keep the old initial date.
     const initialDate = typeOfScheduledDate === 'water' ? initialWaterDate : initialFertilizeDate;
     const setInitialDate = typeOfScheduledDate === 'water' ? setInitialWaterDate : setInitialFertilizeDate;
+    const setNextDate = typeOfScheduledDate === 'water' ? setNextWaterDate : setNextFertilizeDate;
     const initialDateUpdated = !initialDate || caredForPlant ? new Date() : initialDate;
     // clone the initial date as the basis for the schedule
     const nextScheduledDate = new Date(initialDateUpdated.valueOf());
@@ -154,7 +172,8 @@ function PlantView({ waterPlant }) {
     nextScheduledDate.setSeconds(0);
     
     // set nextScheduledDate state
-    setInitialDate(nextScheduledDate);
+    setInitialDate(initialDate);
+    setNextDate(nextScheduledDate)
     return nextScheduledDate;
   }
 
@@ -258,32 +277,23 @@ function PlantView({ waterPlant }) {
       return;
     };
 
-
-  function setTextfieldState(name, value) {
-    setPlantInfo(prevState => {
-      return({
-        ...prevState,
-      [name]: value
-      });
-    });
-  }
-
-  function setMistState() {
-    mist === false ? setMist(true) : setMist(false);
-  }
   // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   /*
   ===========
     GET ALL 
   ===========
   */
+
+  useEffect(() => {
+    setCurrSortId(Math.max(...sortIds) + 1 || 0);
+  }, [sortIds]);
+
   async function getPlants() {
     try {
       const response = await fetch('/plants');
       const plants = await response.json();
-      const currSortId = sortIds.length ? Math.max(...sortIds) : 0;
       setCurrSortId(currSortId + 1);
-      const sortedPlants = plants.sort((a, b) => a.sortId < b.sortId ? -1 : 1)
+      const sortedPlants = plants.sort((a, b) => a.sortId < b.sortId ? -1 : 1);
       setPlants(sortedPlants);
     } catch (err) {
       console.log(err);
@@ -297,7 +307,7 @@ function PlantView({ waterPlant }) {
   */
   async function submitPlant() {
     const {
-      plant_species,
+      plantSpecies,
       name,
       img,
       light,
@@ -308,7 +318,7 @@ function PlantView({ waterPlant }) {
     await createDatesFromSchedule(wateringSched, 'water');
     await createDatesFromSchedule(fertilizeSched, 'fertilize');
     const body = {
-      currSortId,
+      sortId: currSortId,
       plantSpecies,
       name,
       img, 
@@ -340,8 +350,8 @@ function PlantView({ waterPlant }) {
       const plant = await plantTableResponse.json();
       const { plantId } = plant;
       // after okay from database, use local state to add plant to plants. It's faster than sending the response body
-      setCurrSortId(prevState => prevState + 1);
-      setPlants(prevState => [...prevState, {...plant, plantId}]);
+      // setCurrSortId(prevState => prevState + 1);
+      setPlants(prevState => [...prevState, {...plant, plantId, sortId: currSortId + 1}]);
       return;
     } catch (err) {
       console.log(err);
@@ -359,7 +369,7 @@ function PlantView({ waterPlant }) {
   */
   async function submitPlantEdit () {
     const {
-      plant_species,
+      plantSpecies,
       name,
       img,
       light,
@@ -370,7 +380,6 @@ function PlantView({ waterPlant }) {
     await createDatesFromSchedule(wateringSched, 'water');
     await createDatesFromSchedule(fertilizeSched, 'fertilize');
     const body = {
-      currSortId,
       plantSpecies,
       name,
       img, 
@@ -389,7 +398,7 @@ function PlantView({ waterPlant }) {
       nextFertilizeDate,
     };
     try {
-      const response = await fetch(`/plants/${plant_id}`, {
+      const response = await fetch(`/plants/${plantId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'Application/JSON'
@@ -397,9 +406,9 @@ function PlantView({ waterPlant }) {
         body: JSON.stringify(body)
       });
       const dbResponseOk = await response.json();
-      const editedPlant = { plant_id: plant_id, ...plantInfo};
+      const editedPlant = { plantId: plantId, ...plantInfo};
       setCurrSortId(prevState => prevState + 1);
-      setPlants(prevState => plants.map((plant, index) => plant.plant_id === plant_id ? plants[index] = editedPlant : plant));
+      setPlants(prevState => plants.map((plant, index) => plant.plantId === plantId ? plants[index] = editedPlant : plant));
     } catch (err) {
       console.log(err);
     };
@@ -410,16 +419,16 @@ function PlantView({ waterPlant }) {
     DELETE
   ===========
   */
-  async function deletePlant (plant_id) {
+  async function deletePlant (plantId) {
     try {
-      const response = await fetch(`/plants/${plant_id}`, {
+      const response = await fetch(`/plants/${plantId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'Application/JSON'
         },
       });
       const dbResponseOk = await response.json();      
-      setPlants(plants.filter(plant => plant.plant_id !== plant_id));
+      setPlants(plants.filter(plant => plant.plantId !== plantId));
     } catch (err) {
       console.log(err);
     }
@@ -437,11 +446,12 @@ function PlantView({ waterPlant }) {
   // DND-kit sort id's don't change, only their sort order. 
   // However, to update the sort order in the database, the sort id are converted to the index at which they occur.
   // for example, if plant 1 is in position 4, its sort id will change to four, in position 1. eg [2, 3, 4, 1] -> [4, 1, 2, 3].
+  // In the controller, these are then used to update the sortIds on each plant, in order of plant Id.
   // then when the plants and their sort ids are retrieved from the database, the sort ids initialize once again
   // sorted from least to greatest. so whatever plant is in position 1 will have a sort id of 1, etc. eg [4, 1, 2, 3] -> [1, 2, 3, 4]
   // this method is really confusing, because the sort ids are always changing, even though dnd-kit doesn't require them to change.
-  // to make this clearer, it would be better to simply store the sortIds in their current order as an array directly, 
-  // rather than recalculating them in the database each time the sort order changes. 
+  // to make this clearer, it might be better to simply store the sortIds and their current order as a seperate table 
+  // rather than recalculating them for each plant in the plants table as the sort order changes. (see the updateSortOrder controller)
   function getSortOrder () {
     const sortOrder = [];
     let sortId = 0;
@@ -455,8 +465,8 @@ function PlantView({ waterPlant }) {
     };
     return sortOrder;
   }
+
   useEffect(() => {
-    console.log(sortIds)
     sendNewCoordsToDb();
   }, [sortIds]);
 
@@ -464,10 +474,6 @@ function PlantView({ waterPlant }) {
   async function sendNewCoordsToDb() {
     const nextSortOrder = getSortOrder();
     if (prevSortOrder.length === 0 || nextSortOrder.length === 0) return;
-    console.log('prev')
-    console.log(prevSortOrder)
-    console.log('next')
-    console.log(nextSortOrder)
 
 
     const body = {
@@ -501,7 +507,11 @@ function PlantView({ waterPlant }) {
   };
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 10,
+      }
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -513,46 +523,62 @@ function PlantView({ waterPlant }) {
     Render plants components
   ============================================================== 
   */
+
+  
+
   function viewPlants() {
-    return plants.map((plant) => {
+    return plants.map((plant, index) => {
       return (
         <Plant 
           key={plant.sortId}
           sortId={plant.sortId}
-          // plant properties
-          focusedPlantState={plant}
-          plantInfo={plant}
+          // properties
+          thisPlantsInfo={plant}
           modalState={showModal}
-          // plant methods
-          setTextfieldState={setTextfieldState}
+          // methods
+          setPlantInfo={setPlantInfo}
+          plantInfo={plantInfo}
+          wateringSched={wateringSched}
+          wateringTime={wateringTime}
+          fertilizeSched={fertilizeSched}
+          fertilizeTime={fertilizeTime}
           setSchedule={setSchedule}
           setScheduleTime={setScheduleTime}
           createDatesFromSchedule={createDatesFromSchedule}
           setMist={setMist}
           resetPlantState={resetPlantState}
           submitPlantEdit={submitPlantEdit}
+          copyPlantStateForEditing={copyPlantStateForEditing}
           deletePlant={deletePlant}
-          editedPlant={plant}
           waterPlant={waterPlant}
         /> 
      );
     });
   };
-
   return (
-      <div className="planter-box">
+      <div>
+      
+
         <div className="plants">
           <NewPlant id="new-plant"
-            resetPlantState={resetPlantState}
+            // rest api
             submitPlant={submitPlant}
-            setTextfieldState={setTextfieldState}
-            setSchedule={setSchedule}
-            setTimeOfDayState={setScheduleTime}
-            setMistState={setMist}
-            mist={mist}
-            wateringSched={wateringSched}
-            fertilizeSched={fertilizeSched}
+            // state, state hooks and related functions.
             plantInfo={plantInfo}
+            setPlantInfo={setPlantInfo}
+            wateringSched={wateringSched}
+            wateringTime={wateringTime}
+            initialWaterDate={initialWaterDate}
+            nextWaterDate={nextWaterDate}
+            fertilizeSched={fertilizeSched}
+            fertilizeTime={fertilizeTime}
+            initialFertilizeDate={initialFertilizeDate}
+            nextFertilizeDate={nextFertilizeDate}
+            setSchedule={setSchedule}
+            setScheduleTime={setScheduleTime}
+            setMist={setMist}
+            mist={mist}
+            resetPlantState={resetPlantState}      
           />
           <DndContext
             sensors={sensors}

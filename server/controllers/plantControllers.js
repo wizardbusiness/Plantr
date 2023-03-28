@@ -69,8 +69,8 @@ const plantControllers = {
 
   async addPlant (req, res, next) {
     const {
-      currSortId,
-      plant_species,
+      sortId,
+      plantSpecies,
       name,
       img, 
       light, 
@@ -92,7 +92,7 @@ const plantControllers = {
     const { days: fDays, weeks: fWeeks, months: fMonths } = fertilizeSched;
     const { unselectedTime: fUnselectedTime, morning: fMorning, midday: fMidday, evening: fEvening } = fertilizeTime;
     try {
-      if (!plant_species) throw new Error('plant_species field required');
+      if (!plantSpecies) throw new Error('plantSpecies field required');
       const data = await db.query(
         `WITH p_vals AS (
           INSERT INTO plants
@@ -112,7 +112,7 @@ const plantControllers = {
         FROM p_vals
         RETURNING plant_id;`, 
         [
-          currSortId, plantSpecies, name, light, soil, fertilizer, notes, mist, wDays, wWeeks, wMonths, wUnselectedTime, wMorning,
+          sortId, plantSpecies, name, light, soil, fertilizer, notes, mist, wDays, wWeeks, wMonths, wUnselectedTime, wMorning,
           wMidday, wEvening, nextWaterDate, initialWaterDate, fDays, fWeeks, fMonths, fUnselectedTime, fMorning, fMidday, fEvening, 
           nextFertilizeDate, initialFertilizeDate
         ]

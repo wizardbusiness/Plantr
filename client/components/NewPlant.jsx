@@ -8,7 +8,6 @@ class NewPlant extends Component {
     this.state = {
       showModal: false,
       showInputForm: true
-
     }
     this.handleShowModal = this.handleShowModal.bind(this);
   }
@@ -20,14 +19,20 @@ class NewPlant extends Component {
   }
   render() {
     const {
-      plantState,
-      resetPlantState,
       submitPlant,
-      setTextfieldState,
-      setScheduleState,
-      setTimeOfDayState,
-      setMistState
+      plantInfo,
+      setPlantInfo,
+      wateringSched,
+      wateringTime,
+      fertilizeSched,
+      fertilizeTime,
+      setSchedule,
+      setScheduleTime,
+      mist,
+      setMist,
+      resetPlantState
     } = this.props;
+
     return(
       <div>
         <button id="new-plant" onClick={() => this.handleShowModal()}>+</button>
@@ -42,11 +47,17 @@ class NewPlant extends Component {
                 showModal={this.state.showModal}
                 handleShowModal={this.handleShowModal}
                 submitPlant={submitPlant}
-                setTextfieldState={setTextfieldState}
-                setScheduleState={setScheduleState}
-                setTimeOfDayState={setTimeOfDayState}
-                setMistState={setMistState}
-                plantState={plantState}
+                plantInfo={plantInfo}
+                setPlantInfo={setPlantInfo}
+                wateringSched={wateringSched}
+                wateringTime={wateringTime}
+                fertilizeSched={fertilizeSched}
+                fertilizeTime={fertilizeTime}
+                setSchedule={setSchedule}
+                setScheduleTime={setScheduleTime}
+                mist={mist}
+                setMist={setMist}
+                resetPlantState={resetPlantState}    
             />
           </PlantModal>
         }

@@ -9,7 +9,7 @@ class PlantForm extends Component {
     super(props)
     // field labels. Only for text input fields. 
     this.state = {
-      plant_species: 'Species: ',
+      plantSpecies: 'Species: ',
       name: 'Name: ',
       light: 'Light: ',
       soil: 'Soil: ',
@@ -19,19 +19,18 @@ class PlantForm extends Component {
     this.makeTextFields = this.makeTextFields.bind(this);
   }
 
-
   // make all input boxes with labels.
   makeTextFields() {
-    const {plantState, setTextfieldState} = this.props
-    const formFields = Object.entries(this.state).map((label, index) => {
+    const {plantInfo, setPlantInfo} = this.props
+    const formFields = Object.entries(this.state).map((entry, index) => {
       const key = `att${index}`;
       return(
         <PlantFormField
           key={key}
-          label={label[1]}
-          name={label[0]}
-          value={plantState[label[0]]}
-          setTextfieldState={setTextfieldState}
+          label={entry[1]}
+          name={entry[0]}
+          value={plantInfo[entry[0]]}
+          setPlantInfo={setPlantInfo}
         />
       );
     });
@@ -40,13 +39,27 @@ class PlantForm extends Component {
 
   // render whole form, including dropdown and checkbox components. 
   render() {
-    const {submitPlant, btnText, formName, plantState, setScheduleState, setTimeOfDayState, setMistState, handleShowModal} = this.props;
+    const {
+      showModal,
+      handleShowModal,
+      submitPlant,
+      plantInfo,
+      setPlantInfo,
+      wateringSched,
+      wateringTime,
+      fertilizeSched,
+      fertilizeTime,
+      setSchedule,
+      setScheduleTime,
+      mist,
+      setMist,
+      resetPlantState
+    } = this.props;
     const textFields = this.makeTextFields(); 
-    const chosenTime = Object.entries(plantState.watering_time_of_day).filter(entry => entry[1])[0][0];
     return (
       <form 
         className='plant-form' 
-        name={formName} 
+        name='plantForm'
         onSubmit={(e) => {
           e.preventDefault();
           submitPlant();
@@ -64,18 +77,17 @@ class PlantForm extends Component {
               Every&nbsp;
             </label> 
             <ScheduleDropdown
-            setScheduleState={setScheduleState}
-            scheduleType='watering_schedule'
-            currentSchedule={plantState.watering_schedule}
+            setSchedule={setSchedule}
+            scheduleType='watering'
+            schedule={wateringSched}
             />
-          
           <label>
             in the:&nbsp;
             <TimeDropdown 
-              setTimeOfDayState={setTimeOfDayState}
-              timeOfDayState={plantState.watering_time_of_day}
-              stateObjName='watering_time_of_day'
-              chosenTime={chosenTime}
+              setScheduleTime={setScheduleTime}
+              scheduleTimes={wateringTime}
+              scheduleTimesType='watering'
+              chosenTime={Object.entries(wateringTime).filter(entry => entry[1])[0][0]}
             />
           </label>
         </span>
@@ -87,24 +99,25 @@ class PlantForm extends Component {
             Every&nbsp;
           </label>
           <ScheduleDropdown 
-            setScheduleState={setScheduleState}
-            scheduleType='fertilizer_schedule'
-            currentSchedule={plantState.fertilizer_schedule}
+            setSchedule={setSchedule}
+            scheduleType='fertilizer'
+            schedule={fertilizeSched}
           />
         <label>
           in the:&nbsp;
           <TimeDropdown 
-            setTimeOfDayState={setTimeOfDayState}
-            timeOfDayState={plantState.fertilize_time_of_day}
-            stateObjName='fertilize_time_of_day'
+            setScheduleTime={setScheduleTime}
+            scheduleTimes={fertilizeTime}
+            scheduleTimesType='fertilizer'
+            chosenTime={Object.entries(fertilizeTime).filter(entry => entry[1])[0][0]}
           />
         </label>
         </span>  
         <label>
           Mist:&nbsp;
-          <MistCheckbox value={plantState.mist} setMistState={setMistState}/>
+          <MistCheckbox value={mist} setMistState={setMist}/>
         </label>
-        <button id="submit-plant-btn" type="submit">Add Plant!</button>
+        <button id="submit-plant-btn" type="submit">Save Plant!</button>
       </form>
     );
   }
