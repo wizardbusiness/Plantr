@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import ScheduleDropdown from './ScheduleDropdown';
 import TimeDropdown from './TimeDropDown';
+import PickImageDropdown from './PickPlant';
 import MistCheckbox from './MistCheckbox';
 import PlantFormField from './PlantFormField';
 
@@ -9,7 +10,6 @@ class PlantForm extends Component {
     super(props)
     // field labels. Only for text input fields. 
     this.state = {
-      plantSpecies: 'Species: ',
       name: 'Name: ',
       light: 'Light: ',
       soil: 'Soil: ',
@@ -53,7 +53,9 @@ class PlantForm extends Component {
       setScheduleTime,
       mist,
       setMist,
-      resetPlantState
+      resetPlantState,
+      plantImgData,
+      setPlantImg
     } = this.props;
     const textFields = this.makeTextFields(); 
     return (
@@ -66,9 +68,10 @@ class PlantForm extends Component {
           handleShowModal();
         }
         }>
+        <PickImageDropdown plantImgData={plantImgData} setPlantImg={setPlantImg} /> 
         <div className='form-text-fields'>
           {textFields}
-        </div> 
+        </div>
         <label>
           Watering Schedule:&nbsp;
         </label>

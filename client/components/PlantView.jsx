@@ -1,5 +1,4 @@
 import React, {useState, useEffect, useMemo, useRef} from 'react';
-// import plantSvg from '../../public/plants.svg';
 
 import {
   DndContext,
@@ -40,12 +39,12 @@ function PlantView({ waterPlant }) {
   const [plantInfo, setPlantInfo] = useState({
     plantSpecies: '',
     name: '',
-    img: '',
     light: '',
     soil: '',
     fertilizer: '',
     notes: '',
   });
+  const [ plantImg, setPlantImg ] = useState({}); 
   const [wateringSched, setWateringSched] = useState({
     days: 0,
     weeks: 0, 
@@ -73,21 +72,16 @@ function PlantView({ waterPlant }) {
   const [nextWaterDate, setNextWaterDate] = useState(null);
   const [initialFertilizeDate, setInitialFertilizeDate] = useState(null);
   const [nextFertilizeDate, setNextFertilizeDate] = useState(null);
-  const [ plantSvgs, setPlantSvgs ] = useState([]);
+  const [ plantImgData, setplantImgData ] = useState([]);
   const sortIds = useMemo(() => plants.map((plant) => plant.sortId), [plants]);
-
-
-  useEffect(() => {
-
-  }, []);
-
 
   useEffect(() => {
     getPlants();
+  }, []);
 
-  }, [plantSvgs]);
-
-
+  useEffect(() => {
+    setScheduleTime();
+  }, [wateringSched, fertilizeSched]);
 
   // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // RESET STATE
@@ -95,12 +89,12 @@ function PlantView({ waterPlant }) {
     setPlantInfo({
       plantSpecies: '',
       name: '',
-      img: '',
       light: '',
       soil: '',
       fertilizer: '',
       notes: '',
     });
+    setPlantImg({});
     setMist(false);
     setWateringSched({
       days: 0,
@@ -129,18 +123,188 @@ function PlantView({ waterPlant }) {
 
   // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   /*
+  ===========
+    GET ALL 
+  ===========
+  */
+
+  useEffect(() => {
+    setCurrSortId( sortIds.length > 0 ? Math.max(...sortIds) : 0 );
+    console.log(sortIds);
+  }, [sortIds]);
+
+  useEffect(() => {
+    console.log(plants)
+  }, [plants]);
+
+  async function getPlants() {
+    try {
+      const response = await fetch('/plants');
+      const plants = await response.json();
+      const sortedPlants = plants.sort((a, b) => a.sortId < b.sortId ? -1 : 1);
+      setPlants(sortedPlants);
+    } catch (err) {
+      console.log(err);
+    };
+  };
+
+  /*
+  ===========
+    ADD
+  ===========
+  */
+  async function submitPlant() {
+    const {
+      name,
+      light,
+      soil,
+      fertilizer,
+      notes
+    } = plantInfo;
+    const {
+      plantSpecies,
+      plantSvgSrc
+    } = plantImg;
+    await createDatesFromSchedule(wateringSched, 'water');
+    await createDatesFromSchedule(fertilizeSched, 'fertilize');
+    const body = {
+      sortId: currSortId + 1,
+      plantSpecies,
+      plantSvgSrc,
+      name,
+      light, 
+      soil, 
+      fertilizer, 
+      notes, 
+      mist,
+      wateringSched,
+      wateringTime,
+      initialWaterDate,
+      nextWaterDate,
+      fertilizeSched,
+      fertilizeTime,
+      initialFertilizeDate,
+      nextFertilizeDate,
+    };
+
+    try {
+      const plantTableResponse = await fetch('/plants', {
+        method: 'POST', 
+        headers: {
+          'Content-Type': 'Application/JSON'
+        },
+        // send the values from new plant in state to the db. 
+        body: JSON.stringify(body)
+      });
+      // wait for the okay from the db.
+      const plant = await plantTableResponse.json();
+      const { plantId } = plant;
+      // after okay from database, use local state to add plant to plants. It's faster than sending the response body
+      // setCurrSortId(prevState => prevState + 1);
+      setPlants(prevState => [...prevState, {...plant, plantId, sortId: currSortId + 1}]);
+      return;
+    } catch (err) {
+      console.log(err);
+    };
+  };
+
+  function copyPlantStateForEditing(plant) {
+    setPlantInfo(plant);      
+  }
+
+  /*
+  ===========
+    UPDATE
+  ===========
+  */
+  async function submitPlantEdit () {
+    const {
+      plantSpecies,
+      name,
+      img,
+      light,
+      soil,
+      fertilizer,
+      notes
+    } = plantInfo;
+    await createDatesFromSchedule(wateringSched, 'water');
+    await createDatesFromSchedule(fertilizeSched, 'fertilize');
+    const body = {
+      plantSpecies,
+      name,
+      img, 
+      light, 
+      soil, 
+      fertilizer, 
+      notes, 
+      mist,
+      wateringSched,
+      wateringTime,
+      initialWaterDate,
+      nextWaterDate,
+      fertilizeSched,
+      fertilizeTime,
+      initialFertilizeDate,
+      nextFertilizeDate,
+    };
+    try {
+      const response = await fetch(`/plants/${plantId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'Application/JSON'
+        },
+        body: JSON.stringify(body)
+      });
+      const dbResponseOk = await response.json();
+      const editedPlant = { plantId: plantId, ...plantInfo};
+      setCurrSortId(prevState => prevState + 1);
+      setPlants(prevState => plants.map((plant, index) => plant.plantId === plantId ? plants[index] = editedPlant : plant));
+    } catch (err) {
+      console.log(err);
+    };
+  };
+
+  /*
+  ===========
+    DELETE
+  ===========
+  */
+  async function deletePlant (plantId) {
+    try {
+      const response = await fetch(`/plants/${plantId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'Application/JSON'
+        },
+      });
+      const dbResponseOk = await response.json();      
+      setPlants(plants.filter(plant => plant.plantId !== plantId));
+    } catch (err) {
+      console.log(err);
+    }
+  }
+  /*
+  ================
+    GET ALL SVGS
+  ================
+  */
+
+  async function getAllPlantImgData() {
+    try {
+      const response = await fetch('/images/plantSvgs');
+      const plantImgData = await response.json();
+      setplantImgData(plantImgData)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  /*
   ====================================
     SCHEDULE STATE MANAGEMENT
   ====================================
   */
-
-  useEffect(() => {
-    setScheduleTime();
-  }, [wateringSched, fertilizeSched]);
-
-  useEffect(() => {
-    // console.log(plantInfo)
-  }, [plantInfo])
 
   function createDatesFromSchedule(scheduleObj, typeOfScheduledDate, caredForPlant=false) {
     // if the schedule hasn't been set, don't create any dates.
@@ -279,170 +443,12 @@ function PlantView({ waterPlant }) {
 
   // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   /*
-  ===========
-    GET ALL 
-  ===========
-  */
-
-  useEffect(() => {
-    setCurrSortId(Math.max(...sortIds) + 1 || 0);
-  }, [sortIds]);
-
-  async function getPlants() {
-    try {
-      const response = await fetch('/plants');
-      const plants = await response.json();
-      setCurrSortId(currSortId + 1);
-      const sortedPlants = plants.sort((a, b) => a.sortId < b.sortId ? -1 : 1);
-      setPlants(sortedPlants);
-    } catch (err) {
-      console.log(err);
-    };
-  };
-
-  /*
-  ===========
-    ADD
-  ===========
-  */
-  async function submitPlant() {
-    const {
-      plantSpecies,
-      name,
-      img,
-      light,
-      soil,
-      fertilizer,
-      notes
-    } = plantInfo;
-    await createDatesFromSchedule(wateringSched, 'water');
-    await createDatesFromSchedule(fertilizeSched, 'fertilize');
-    const body = {
-      sortId: currSortId,
-      plantSpecies,
-      name,
-      img, 
-      light, 
-      soil, 
-      fertilizer, 
-      notes, 
-      mist,
-      wateringSched,
-      wateringTime,
-      initialWaterDate,
-      nextWaterDate,
-      fertilizeSched,
-      fertilizeTime,
-      initialFertilizeDate,
-      nextFertilizeDate,
-    };
-
-    try {
-      const plantTableResponse = await fetch('/plants', {
-        method: 'POST', 
-        headers: {
-          'Content-Type': 'Application/JSON'
-        },
-        // send the values from new plant in state to the db. 
-        body: JSON.stringify(body)
-      });
-      // wait for the okay from the db.
-      const plant = await plantTableResponse.json();
-      const { plantId } = plant;
-      // after okay from database, use local state to add plant to plants. It's faster than sending the response body
-      // setCurrSortId(prevState => prevState + 1);
-      setPlants(prevState => [...prevState, {...plant, plantId, sortId: currSortId + 1}]);
-      return;
-    } catch (err) {
-      console.log(err);
-    };
-  };
-
-  function copyPlantStateForEditing(plant) {
-    setPlantInfo(plant);      
-  }
-
-  /*
-  ===========
-    UPDATE
-  ===========
-  */
-  async function submitPlantEdit () {
-    const {
-      plantSpecies,
-      name,
-      img,
-      light,
-      soil,
-      fertilizer,
-      notes
-    } = plantInfo;
-    await createDatesFromSchedule(wateringSched, 'water');
-    await createDatesFromSchedule(fertilizeSched, 'fertilize');
-    const body = {
-      plantSpecies,
-      name,
-      img, 
-      light, 
-      soil, 
-      fertilizer, 
-      notes, 
-      mist,
-      wateringSched,
-      wateringTime,
-      initialWaterDate,
-      nextWaterDate,
-      fertilizeSched,
-      fertilizeTime,
-      initialFertilizeDate,
-      nextFertilizeDate,
-    };
-    try {
-      const response = await fetch(`/plants/${plantId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'Application/JSON'
-        },
-        body: JSON.stringify(body)
-      });
-      const dbResponseOk = await response.json();
-      const editedPlant = { plantId: plantId, ...plantInfo};
-      setCurrSortId(prevState => prevState + 1);
-      setPlants(prevState => plants.map((plant, index) => plant.plantId === plantId ? plants[index] = editedPlant : plant));
-    } catch (err) {
-      console.log(err);
-    };
-  };
-
-  /*
-  ===========
-    DELETE
-  ===========
-  */
-  async function deletePlant (plantId) {
-    try {
-      const response = await fetch(`/plants/${plantId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'Application/JSON'
-        },
-      });
-      const dbResponseOk = await response.json();      
-      setPlants(plants.filter(plant => plant.plantId !== plantId));
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
-  // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  /*
   ==============================================================
     DND-KIT API
   ==============================================================
   */
   
   // not part of API, just what is this tho lol.
-
   // DND-kit sort id's don't change, only their sort order. 
   // However, to update the sort order in the database, the sort id are converted to the index at which they occur.
   // for example, if plant 1 is in position 4, its sort id will change to four, in position 1. eg [2, 3, 4, 1] -> [4, 1, 2, 3].
@@ -524,8 +530,6 @@ function PlantView({ waterPlant }) {
   ============================================================== 
   */
 
-  
-
   function viewPlants() {
     return plants.map((plant, index) => {
       return (
@@ -538,6 +542,7 @@ function PlantView({ waterPlant }) {
           // methods
           setPlantInfo={setPlantInfo}
           plantInfo={plantInfo}
+          plantImg={plant.img}
           wateringSched={wateringSched}
           wateringTime={wateringTime}
           fertilizeSched={fertilizeSched}
@@ -557,15 +562,17 @@ function PlantView({ waterPlant }) {
   };
   return (
       <div>
-      
-
         <div className="plants">
           <NewPlant id="new-plant"
             // rest api
             submitPlant={submitPlant}
+            getAllPlantImgData={getAllPlantImgData}
+            // all plant img data
+            plantImgData={plantImgData}
             // state, state hooks and related functions.
             plantInfo={plantInfo}
             setPlantInfo={setPlantInfo}
+            setPlantImg={setPlantImg}
             wateringSched={wateringSched}
             wateringTime={wateringTime}
             initialWaterDate={initialWaterDate}

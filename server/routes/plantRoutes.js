@@ -29,4 +29,9 @@ plantRoutes.delete('/plants/:plantId', plantControllers.deletePlant, (req, res, 
   res.status(200).json(res.locals.deletedPlant);
 });
 
+// Get all plant svgs
+plantRoutes.get('/images/plantSvgs', plantControllers.getAllPlantSvgs, (req, res, next) => {
+  res.status(200).json(res.locals.plantSvgs);
+})
+
 module.exports = plantRoutes;

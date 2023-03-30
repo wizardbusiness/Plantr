@@ -49,6 +49,9 @@ const plantControllers = {
             } else if (property === 'f_morning' || property === 'f_midday' || property === 'f_evening' || property === 'unselected_time') {
               processedPlant.fertilizeTime[processedProperty] = plant[property];
             };
+          } else if (property === 'img') { 
+            const base64Str = plant[property].toString('base64');
+            processedPlant[property] = `data:image/svg+xml;base64,${base64Str}`;
           } else {
             const processedProperty = property.replace(/(_\w)|(_)/g, function (m, g1) {
               return g1 ? g1[1].toUpperCase() : '';
@@ -66,13 +69,13 @@ const plantControllers = {
       next(err);
     }
   }, 
-
+  
   async addPlant (req, res, next) {
     const {
       sortId,
       plantSpecies,
+      plantSvgSrc,
       name,
-      img, 
       light, 
       soil, 
       fertilizer, 
@@ -87,6 +90,10 @@ const plantControllers = {
       initialFertilizeDate,
       nextFertilizeDate,
     } = req.body;
+    const base64Str = plantSvgSrc.slice('data:image/svg+xml;base64,'.length)
+    const decodedStr = Buffer.from(base64Str, 'base64');
+    const bufferArray = Buffer.from(decodedStr);
+    console.log(bufferArray)
     const { days: wDays, weeks: wWeeks, months: wMonths } = wateringSched;
     const { unselected_time: wUnselectedTime, morning: wMorning, midday: wMidday, evening: wEvening } = wateringTime;
     const { days: fDays, weeks: fWeeks, months: fMonths } = fertilizeSched;
@@ -96,27 +103,27 @@ const plantControllers = {
       const data = await db.query(
         `WITH p_vals AS (
           INSERT INTO plants
-          (sort_id, plant_species, name, light, soil, fertilizer, notes, mist)
+          (sort_id, plant_species, img, name, light, soil, fertilizer, notes, mist)
           VALUES
-          ($1, $2, $3, $4, $5, $6, $7, $8)
+          ($1, $2, $3, $4, $5, $6, $7, $8, $9)
           RETURNING plant_id
         ), w_sched_vals AS (
           INSERT INTO watering_schedule
           (plant_id, days, weeks, months, unselected_time, morning, midday, evening, next_water_date, initial_water_date)
-          SELECT plant_id, $9, $10, $11, $12, $13, $14, $15, $16, $17
+          SELECT plant_id, $10, $11, $12, $13, $14, $15, $16, $17, $18
           FROM p_vals
         )
         INSERT INTO fertilizer_schedule
         (plant_id, days, weeks, months, unselected_time, morning, midday, evening, next_fertilize_date, initial_fertilize_date)
-        SELECT plant_id, $18, $19, $20, $21, $22, $23, $24, $25, $26
+        SELECT plant_id, $19, $20, $21, $22, $23, $24, $25, $26, $27
         FROM p_vals
         RETURNING plant_id;`, 
         [
-          sortId, plantSpecies, name, light, soil, fertilizer, notes, mist, wDays, wWeeks, wMonths, wUnselectedTime, wMorning,
+          sortId, plantSpecies, bufferArray, name, light, soil, fertilizer, notes, mist, wDays, wWeeks, wMonths, wUnselectedTime, wMorning,
           wMidday, wEvening, nextWaterDate, initialWaterDate, fDays, fWeeks, fMonths, fUnselectedTime, fMorning, fMidday, fEvening, 
           nextFertilizeDate, initialFertilizeDate
         ]
-      ); // img
+      );
         res.locals.newPlant = data.rows[0];
         next();
     } catch(err) {
@@ -148,8 +155,8 @@ const plantControllers = {
       const {
         plantId,
         plantSpecies,
+        plantSvgSrc,
         name,
-        img, 
         light, 
         soil, 
         fertilizer, 
@@ -169,26 +176,28 @@ const plantControllers = {
     const { unselected_time: wUnselectedTime, morning: wMorning, midday: wMidday, evening: wEvening } = wateringTime;
     const { days: fDays, weeks: fWeeks, months: fMonths } = fertilizeSched;
     const { unselectedTime: fUnselectedTime, morning: fMorning, midday: fMidday, evening: fEvening } = fertilizeTime;
+    const encoder = new TextEncoder();
+    const byteArray = encoder.encode(plantSvgSrc);
     try {
       if (!plantId) throw new Error('plant id required for editing')
       const data = await db.query(
         `WITH p_vals AS (
-          UPDATE plants SET plant_species = $2, name = $3, light = $4, soil = $5, fertilizer = $6, notes = $7, mist = $8
+          UPDATE plants SET plant_species = $2, img = $3, name = $4, light = $5, soil = $6, fertilizer = $7, notes = $8, mist = $9
           WHERE plant_id = $1 
           RETURNING plant_id
         ), w_vals AS (
-          UPDATE watering_schedule SET unselected_date = $9, days = $10, weeks = $11, months = $12, unselected_time = $13, morning = $14, midday = $15, evening = $16, next_water_date = $17, initial_water_date = $18 
+          UPDATE watering_schedule SET unselected_date = $10, days = $11, weeks = $12, months = $13, unselected_time = $14, morning = $15, midday = $16, evening = $17, next_water_date = $18, initial_water_date = $19 
           WHERE watering_schedule.plant_id = (SELECT plant_id FROM p_vals)
         )
-        UPDATE fertilizer_schedule SET unselected_date = $19, days = $20, weeks = $21, months = $22, unselected_time = $23, morning = $24, midday = $25, evening = $26,  next_fertilize_date = $27, initial_fertilize_date = $28
+        UPDATE fertilizer_schedule SET unselected_date = $20, days = $21, weeks = $22, months = $23, unselected_time = $24, morning = $25, midday = $26, evening = $27,  next_fertilize_date = $28, initial_fertilize_date = $29
         WHERE fertilizer_schedule.plant_id = (SELECT plant_id FROM p_vals)
         RETURNING plant_id;`,
         [
-          plantId, plantSpecies, name, light, soil, fertilizer, notes, mist, wDays, wWeeks, wMonths, wUnselectedTime, wMorning,
+          plantId, plantSpecies, byteArray, name, light, soil, fertilizer, notes, mist, wDays, wWeeks, wMonths, wUnselectedTime, wMorning,
           wMidday, wEvening, nextWaterDate, initialWaterDate, fDays, fWeeks, fMonths, fUnselectedTime, fMorning, fMidday, fEvening, 
           nextFertilizeDate, initialFertilizeDate
         ]
-      ); // img
+      ); 
       res.locals.editedPlant = data.rows[0];
       next();
     } catch(err) {
@@ -208,6 +217,25 @@ const plantControllers = {
       next();
     } catch(err) {
       next(err);
+    }
+  },
+
+  async getAllPlantSvgs (req, res, next) {
+    try {
+      const data = await db.query('SELECT img_id, image, plant_species FROM plant_svgs');
+      const plantSvgSrcs = data.rows.map(data => {
+        const base64Str = data.image.toString('base64');
+        const plantSvgSrc=`data:image/svg+xml;base64,${base64Str}`;
+        return {
+          ImgId: data.img_id,
+          plantSpecies: data.plant_species,
+          plantSvgSrc: plantSvgSrc,
+        }
+      });
+      res.locals.plantSvgs = plantSvgSrcs;
+      next();
+    } catch (err) {
+      console.log(err)
     }
   },
 }

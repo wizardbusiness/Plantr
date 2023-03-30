@@ -20,6 +20,7 @@ class NewPlant extends Component {
   render() {
     const {
       submitPlant,
+      getAllPlantImgData,
       plantInfo,
       setPlantInfo,
       wateringSched,
@@ -30,12 +31,16 @@ class NewPlant extends Component {
       setScheduleTime,
       mist,
       setMist,
-      resetPlantState
+      resetPlantState,   
+      plantImgData,
+      setPlantImg
     } = this.props;
-
     return(
       <div>
-        <button id="new-plant" onClick={() => this.handleShowModal()}>+</button>
+        <button id="new-plant" onClick={() => {
+          this.handleShowModal();
+          getAllPlantImgData();
+        }}>+</button>
         {this.state.showModal &&
           <PlantModal
             resetPlantState={resetPlantState}
@@ -57,7 +62,9 @@ class NewPlant extends Component {
                 setScheduleTime={setScheduleTime}
                 mist={mist}
                 setMist={setMist}
-                resetPlantState={resetPlantState}    
+                resetPlantState={resetPlantState}  
+                plantImgData={plantImgData}  
+                setPlantImg={setPlantImg}
             />
           </PlantModal>
         }
