@@ -13,6 +13,7 @@ export default function Plant({
     modalState,
     setPlantInfo,
     plantInfo,
+    plantImg,
     wateringSched,
     wateringTime,
     fertilizeSched,
@@ -100,7 +101,7 @@ export default function Plant({
     transform: CSS.Transform.toString(transform),
     transition,
   }
-
+    // console.log(plantImg)
     return (
       <div>
         <div 
@@ -112,7 +113,13 @@ export default function Plant({
           {transform: CSS.Transform.toString(transform),
           transition,}}
           onClick={() => careForPlant()}
-        >
+        > 
+        <img  
+          width='100' 
+          height='100'
+          src={plantImg} 
+          alt='plant'
+        />
         <button 
           id='delete-plant-btn' 
           className='plant-btns'
