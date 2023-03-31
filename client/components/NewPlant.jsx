@@ -33,14 +33,24 @@ class NewPlant extends Component {
       setMist,
       resetPlantState,   
       plantImgData,
+      newPlantIcon,
       setPlantImg
     } = this.props;
+
+    console.log(newPlantIcon)
+    
     return(
       <div>
-        <button id="new-plant" onClick={() => {
-          this.handleShowModal();
-          getAllPlantImgData();
-        }}>+</button>
+        
+          <img 
+            id='new-plant'
+            src={newPlantIcon}
+            onClick={() => {
+              this.handleShowModal();
+              getAllPlantImgData();
+            }}
+          />
+        
         {this.state.showModal &&
           <PlantModal
             resetPlantState={resetPlantState}

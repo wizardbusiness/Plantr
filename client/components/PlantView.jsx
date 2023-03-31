@@ -31,12 +31,12 @@ function usePrevious(value) {
 
 function PlantView({ waterPlant }) {
   
-  const [showModal, setShowModal] = useState(false);
-  const [currSortId, setCurrSortId] = useState(0);
+  const [ showModal, setShowModal ] = useState(false);
+  const [ currSortId, setCurrSortId ] = useState(0);
   
   
-  const [plants, setPlants] = useState([])
-  const [plantInfo, setPlantInfo] = useState({
+  const [ plants, setPlants ] = useState([])
+  const [ plantInfo, setPlantInfo ] = useState({
     plantSpecies: '',
     name: '',
     light: '',
@@ -45,34 +45,36 @@ function PlantView({ waterPlant }) {
     notes: '',
   });
   const [ plantImg, setPlantImg ] = useState({}); 
-  const [wateringSched, setWateringSched] = useState({
+  const [ wateringSched, setWateringSched ] = useState({
     days: 0,
     weeks: 0, 
     months: 0,
   });
-  const [wateringTime, setWateringTime] = useState({
+
+  const [ wateringTime, setWateringTime ] = useState({
     unselected_tod: true,
     morning: false,
     midday: false,
     evening: false,
   });
-  const [fertilizeSched, setFertilizeSched] = useState({
+  const [ fertilizeSched, setFertilizeSched ] = useState({
     days: 0,
     weeks: 0, 
     months: 0,
   });
-  const [fertilizeTime, setFertilizeTime] = useState({
+  const [ fertilizeTime, setFertilizeTime ] = useState({
     unselected_tod: true,
     morning: false,
     midday: false,
     evening: false
   });
-  const [mist, setMist] = useState(false);
-  const [initialWaterDate, setInitialWaterDate] = useState(null);
-  const [nextWaterDate, setNextWaterDate] = useState(null);
-  const [initialFertilizeDate, setInitialFertilizeDate] = useState(null);
-  const [nextFertilizeDate, setNextFertilizeDate] = useState(null);
-  const [ plantImgData, setplantImgData ] = useState([]);
+  const [ mist, setMist ] = useState(false);
+  const [ initialWaterDate, setInitialWaterDate ] = useState(null);
+  const [ nextWaterDate, setNextWaterDate ] = useState(null);
+  const [ initialFertilizeDate, setInitialFertilizeDate ] = useState(null);
+  const [ nextFertilizeDate, setNextFertilizeDate ] = useState(null);
+  const [ plantImgData, setPlantImgData ] = useState([]);
+  const [ newPlantIcon, setNewPlantIcon ] = useState('');
   const sortIds = useMemo(() => plants.map((plant) => plant.sortId), [plants]);
 
   useEffect(() => {
@@ -134,8 +136,8 @@ function PlantView({ waterPlant }) {
   }, [sortIds]);
 
   useEffect(() => {
-    console.log(plants)
-  }, [plants]);
+    getNewPlantIcon();
+  }, []);
 
   async function getPlants() {
     try {
@@ -147,6 +149,39 @@ function PlantView({ waterPlant }) {
       console.log(err);
     };
   };
+
+
+    /*
+  ================
+    GET ALL SVGS
+  ================
+  */
+
+  async function getAllPlantImgData() {
+    try {
+      const response = await fetch('/images/plantSvgs');
+      const plantImgData = await response.json();
+      setPlantImgData(plantImgData)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  /*
+  =========================
+    GET NEW PLANT SVG ICON
+  =========================
+  */
+
+  async function getNewPlantIcon() {
+    try {
+      const response = await fetch('/images/newPlantIcon');
+      const icon = await response.json();
+      setNewPlantIcon(icon[0]);
+    } catch(err) {
+      console.log(err);
+    }
+  }
 
   /*
   ===========
@@ -200,8 +235,18 @@ function PlantView({ waterPlant }) {
       const plant = await plantTableResponse.json();
       const { plantId } = plant;
       // after okay from database, use local state to add plant to plants. It's faster than sending the response body
-      // setCurrSortId(prevState => prevState + 1);
-      setPlants(prevState => [...prevState, {...plant, plantId, sortId: currSortId + 1}]);
+      console.log(plantInfo)
+      setPlants(prevState => {
+        [...prevState, 
+          {
+            ...plantInfo,
+            plantSpecies, 
+            img: plantSvgSrc, 
+            plantId, 
+            sortId: currSortId + 1
+          }
+        ]
+      });
       return;
     } catch (err) {
       console.log(err);
@@ -281,21 +326,6 @@ function PlantView({ waterPlant }) {
       setPlants(plants.filter(plant => plant.plantId !== plantId));
     } catch (err) {
       console.log(err);
-    }
-  }
-  /*
-  ================
-    GET ALL SVGS
-  ================
-  */
-
-  async function getAllPlantImgData() {
-    try {
-      const response = await fetch('/images/plantSvgs');
-      const plantImgData = await response.json();
-      setplantImgData(plantImgData)
-    } catch (err) {
-      console.log(err)
     }
   }
 
@@ -563,12 +593,15 @@ function PlantView({ waterPlant }) {
   return (
       <div>
         <div className="plants">
-          <NewPlant id="new-plant"
+          <NewPlant 
+            id="new-plant"
             // rest api
             submitPlant={submitPlant}
             getAllPlantImgData={getAllPlantImgData}
             // all plant img data
             plantImgData={plantImgData}
+            // new plant icon data
+            newPlantIcon={newPlantIcon}
             // state, state hooks and related functions.
             plantInfo={plantInfo}
             setPlantInfo={setPlantInfo}

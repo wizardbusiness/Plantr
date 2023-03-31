@@ -9,6 +9,16 @@ plantRoutes.get('/plants', plantControllers.getAllPlants, (req, res, next) => {
   res.status(200).json(res.locals.plants);
 });
 
+// Get all plant svgs
+plantRoutes.get('/images/plantSvgs', plantControllers.getAllPlantSvgs, (req, res, next) => {
+  res.status(200).json(res.locals.plantSvgs);
+});
+
+// Get new plant icon
+plantRoutes.get('/images/newPlantIcon', plantControllers.getNewPlantIcon, (req, res, next) => {
+  res.status(200).json(res.locals.newPlantIcon);
+});
+
 // Create new plant in db
 plantRoutes.post('/plants', plantControllers.addPlant, (req, res, next) => {
   res.status(200).json(res.locals.newPlant);
@@ -29,9 +39,5 @@ plantRoutes.delete('/plants/:plantId', plantControllers.deletePlant, (req, res, 
   res.status(200).json(res.locals.deletedPlant);
 });
 
-// Get all plant svgs
-plantRoutes.get('/images/plantSvgs', plantControllers.getAllPlantSvgs, (req, res, next) => {
-  res.status(200).json(res.locals.plantSvgs);
-})
 
 module.exports = plantRoutes;

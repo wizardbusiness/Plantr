@@ -93,7 +93,6 @@ const plantControllers = {
     const base64Str = plantSvgSrc.slice('data:image/svg+xml;base64,'.length)
     const decodedStr = Buffer.from(base64Str, 'base64');
     const bufferArray = Buffer.from(decodedStr);
-    console.log(bufferArray)
     const { days: wDays, weeks: wWeeks, months: wMonths } = wateringSched;
     const { unselected_time: wUnselectedTime, morning: wMorning, midday: wMidday, evening: wEvening } = wateringTime;
     const { days: fDays, weeks: fWeeks, months: fMonths } = fertilizeSched;
@@ -143,7 +142,6 @@ const plantControllers = {
          RETURNING plants;`
       );
       res.locals.updatedOrder = data.rows;
-      console.log(res.locals.updatedOrder)
       next();
     } catch(err) {
       console.log(err);
@@ -208,7 +206,6 @@ const plantControllers = {
 
   async deletePlant (req, res, next) {
     const { plantId } = req.params;
-    console.log(plantId)
     try {
       // CASCADE is on in SQL- deleting plant in plants table deletes it in the schedule table too. 
       const data = await db.query('DELETE FROM plants WHERE plant_id = $1 RETURNING plant_id', [plantId]);
@@ -238,6 +235,18 @@ const plantControllers = {
       console.log(err)
     }
   },
+
+  async getNewPlantIcon (req, res, next) {
+    try {
+      const data = await db.query(`SELECT image FROM plant_svgs WHERE plant_species = 'new_plant';`)
+      const base64Str = data.rows[0].image.toString('base64');
+      const svgStr = `data:image/svg+xml;base64,${base64Str}`;
+      res.locals.newPlantIcon = [svgStr];
+      next();
+    } catch(err) {
+      console.log(err)
+    }
+  }
 }
  
 
