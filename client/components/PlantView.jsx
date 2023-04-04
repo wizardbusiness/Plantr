@@ -124,9 +124,9 @@ function PlantView({ waterPlant }) {
 
   // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   /*
-  ===========
-    GET ALL 
-  ===========
+  =================
+    GET ALL PLANTS 
+  =================
   */
 
   useEffect(() => {
@@ -143,6 +143,7 @@ function PlantView({ waterPlant }) {
       const response = await fetch('/plants');
       const plants = await response.json();
       const sortedPlants = plants.sort((a, b) => a.sortId < b.sortId ? -1 : 1);
+      console.log(sortedPlants)
       setPlants(sortedPlants);
     } catch (err) {
       console.log(err);
@@ -183,33 +184,17 @@ function PlantView({ waterPlant }) {
   }
 
   /*
-  ===========
-    ADD
-  ===========
+  =============
+    ADD PLANT
+  =============
   */
   async function submitPlant() {
-    const {
-      name,
-      light,
-      soil,
-      fertilizer,
-      notes
-    } = plantInfo;
-    const {
-      plantSpecies,
-      plantSvgSrc
-    } = plantImg;
     await createDatesFromSchedule(wateringSched, 'water');
     await createDatesFromSchedule(fertilizeSched, 'fertilize');
     const body = {
+      ...plantInfo,
+      ...plantImg,
       sortId: currSortId + 1,
-      plantSpecies,
-      plantSvgSrc,
-      name,
-      light, 
-      soil, 
-      fertilizer, 
-      notes, 
       mist,
       wateringSched,
       wateringTime,
@@ -232,17 +217,28 @@ function PlantView({ waterPlant }) {
       });
       // wait for the okay from the db.
       const plant = await plantTableResponse.json();
-      const { plantId } = plant;
-      // after okay from database, use local state to add plant to plants. It's faster than sending the response body
-      console.log(plantInfo)
+      const { plant_id } = plant;
+      const {
+        plantSpecies,
+        plantSvgSrc
+      } = plantImg;
       setPlants(prevState => {
-        [...prevState, 
+        return [...prevState, 
           {
             ...plantInfo,
-            plantSpecies, 
-            img: plantSvgSrc, 
-            plantId, 
-            sortId: currSortId + 1
+            plantSpecies,
+            img: plantSvgSrc,
+            plantId: plant_id, 
+            sortId: currSortId + 1,
+            mist,
+            wateringSched,
+            wateringTime,
+            initialWaterDate,
+            nextWaterDate,
+            fertilizeSched,
+            fertilizeTime,
+            initialFertilizeDate,
+            nextFertilizeDate,
           }
         ]
       });
