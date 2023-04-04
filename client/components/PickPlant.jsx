@@ -66,7 +66,7 @@ function PickPlant({plantImgData, setPlantImg}) {
       {imagesLoaded &&
         <span>
           <img 
-            className='plant-img'
+            className='new-plant-img'
             onClick={() => handleToggleShowImages()}
             src={pickedImage.plantSvgSrc || plantImgData[0].plantSvgSrc}
           />
