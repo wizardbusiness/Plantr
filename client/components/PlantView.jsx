@@ -16,10 +16,9 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import Plant from './Plant';
-import TestPlant from './TestPlant'
 import NewPlant from './NewPlant'
-import PlantInfo from './PlantInfo';
-import { parse } from 'ipaddr.js';
+import Shelf from './Shelf';
+
 
 function usePrevious(value) {
   const ref = useRef([]);
@@ -591,7 +590,6 @@ function PlantView({ waterPlant }) {
     });
   };
   return (
-      <div>
         <div className="plants">
           <NewPlant 
             id="new-plant"
@@ -632,8 +630,9 @@ function PlantView({ waterPlant }) {
               {viewPlants()}
             </SortableContext>
           </DndContext>
+          <Shelf plants={[...plants, 'newPlant']}/>
         </div>
-      </div>   
+
   )
 }
 

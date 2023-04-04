@@ -2,16 +2,28 @@
 @font-face {
   font-family: 'Roboto';
   src: url('../fonts/Roboto-woff/Roboto-Medium.woff') format('woff');
+} */
+
+#root {
+  height: 100vh;
+  width: 100vh;
 }
 
-body {
+body { 
   font-family: Roboto, Verdana;
   color: #212d4c;
-  background-color: #b1dcff;
+  background-color: #8aa0c5;
+}
+
+.outside-of-planter {
+  display: grid;
+  grid-template-rows: auto 1fr 1fr; 
+  height: 100vh;
+  overflow: auto;
+  align-content: end;
 }
 
 .modal {
-
   padding: 20px;
   position: fixed;
   top: 50%;
@@ -68,7 +80,6 @@ body {
 .field-label,
 .field-input {
   display: table-cell;
-  
 }
 
 .field-label {
@@ -80,55 +91,100 @@ body {
   width: 80%
 }
 
+.pick-img-field{
+  display: flex;
+  /* gap: 30px */
+}
+.img-pick-bg {
+  font-size: 10px;
+  display: flex;
+  position: fixed;
+  padding: .5rem .5rem .5rem .5rem;
+  border: 1px  solid black;
+  background-color: white;
+}
 
 
 .plants {
   display: flex;
+  width: fit-content;
   flex-wrap: wrap;
-  gap: 20px
 }
 
 #new-plant {
-  box-sizing:content-box;
-  height: 200px;
-  width: 200px;
-  color: #172341;
-  background-color: #92f592;
-  padding: 0;
-  margin: 5px;
+  /* box-sizing:content-box; */
+  height: 12.5rem;
+  width: 12.5rem;
+  padding: 0px;
   border: none;
 }
 
-.plant, #new-plant{
-  box-shadow: 4px  4px  20px #d677ff;
+#new-plant:hover{
+  box-shadow: inset 0 0 0 5px rgb(255, 213, 0);
+  margin: none;
 }
+
 
 .plant {
-  height: 200px;
-  width: 200px;
-  margin: 5px;
-  --bg-color: #42d642;
-  background-color: var(--bg-color);
+  height: 12.5rem;
+  width: 12.5rem;
+  margin-right: 0.229rem;
   position: relative;
-  max-height: 200px;
+  max-height: 12.5rem; 
 }
 
-.plant:hover, #new-plant:hover {
+.shelf-container {
+  position: absolute;
+  transform: translateY(0%);
+  display: flex;
+  flex-wrap: wrap; 
+  align-items: end;
+  width: fit-content; 
+  z-index: -1;
+}
+
+.shelf {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  height:12.5rem;
+  width:fit-content;
+  top: 1.25rem;
+}
+
+
+.plant-img {
+  height: 100%;
+  width: 100%;
+}
+
+.new-plant-img {
+  position: relative;
+  background-color: white;
+}
+
+.plant .plant-btns {
+  display: none;
+}
+
+.plant:hover .plant-btns {
+  display: block;
+}
+
+/* .plant:hover, #new-plant:hover {
   border: 5px solid #ffb055;
   margin: 0px;
-  transform: scale(1.02);  
-  transition: transform .1s;
-}
+} */
 
 #plant-species-name {
   font-size: 40px;
   font-family: Roboto;
   position: absolute;
-  left: 20%;
-  top: 10%;
+  transform: translateX(25%) translateY(150%);
   color: #2a3654;
+  
   font-size: 40px;
-  min-height: 155px;
+  min-height: 25px;
   display: flex;
   flex-shrink: 1;
   align-items: center;
@@ -228,13 +284,6 @@ body {
   flex-direction: column;
   flex: 1 100%;
   border-style: none;
-}
-.outside-of-planter {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 90vh;
-  width: 90vw;
 }
 
 .watering-can {
