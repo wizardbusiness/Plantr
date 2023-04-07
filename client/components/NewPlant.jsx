@@ -36,11 +36,9 @@ class NewPlant extends Component {
       newPlantIcon,
       setPlantImg
     } = this.props;
-
-    console.log(newPlantIcon)
     
     return(
-      <div>
+      <>
         
           <img 
             id='new-plant'
@@ -78,7 +76,7 @@ class NewPlant extends Component {
             />
           </PlantModal>
         }
-      </div>
+      </>
     )
   }
  }

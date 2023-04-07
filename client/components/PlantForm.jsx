@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import ScheduleDropdown from './ScheduleDropdown';
 import TimeDropdown from './TimeDropDown';
-import PickImageDropdown from './PickPlant';
+import PickPlant from './PickPlant';
 import MistCheckbox from './MistCheckbox';
 import PlantFormField from './PlantFormField';
 
@@ -10,11 +10,11 @@ class PlantForm extends Component {
     super(props)
     // field labels. Only for text input fields. 
     this.state = {
-      name: 'Name: ',
-      light: 'Light: ',
-      soil: 'Soil: ',
-      fertilizer: 'Fertilizer: ',
-      notes: 'Notes: ',
+      name: 'Name:',
+      light: 'Light:',
+      soil: 'Soil:',
+      fertilizer: 'Fertilizer:',
+      notes: 'Notes:',
     };
     this.makeTextFields = this.makeTextFields.bind(this);
   }
@@ -68,7 +68,7 @@ class PlantForm extends Component {
           handleShowModal();
         }
         }>
-        <PickImageDropdown plantImgData={plantImgData} setPlantImg={setPlantImg} /> 
+        <PickPlant plantImgData={plantImgData} setPlantImg={setPlantImg} /> 
         <div className='form-text-fields'>
           {textFields}
         </div>

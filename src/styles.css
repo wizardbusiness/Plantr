@@ -1,7 +1,8 @@
 
+
 @font-face {
   font-family: 'Roboto';
-  src: url('../fonts/Roboto-woff/Roboto-Medium.woff') format('woff');
+  src: url('./fonts/The-Hand/the_hand_bold-webfont.woff') format('woff');
 } */
 
 #root {
@@ -25,32 +26,33 @@ body {
 }
 
 .modal {
-  padding: 20px;
+  padding: 2%;
   position: fixed;
   top: 50%;
   left: 50%;
-  height: 450px;
+  height: auto;
   width: 500px;
   transform: translate(-50%, -50%);
-  color:#61464d;
-  background: linear-gradient(#87f387, #49f5bf);
+  background: url('./textures/book/page.png');
+  background-size: 1000px;
+  background-position: center right;
+  filter: brightness(0.95) sepia(50%) saturate(80%);
   border-style: solid;
   border-width: 3px;
   border-radius: 2%;
-  border-color: #7d6c56;
   z-index: 1000;
-  box-shadow: 4px  4px  20px #d677ff;
 }
 
 .modal-bg-overlay {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, .7);
-  z-index: 1000;
+  z-index: 999;
 }
+
 
 .modal-btns-container {
   display: flex;
@@ -58,7 +60,8 @@ body {
 }
 
 .plant-form {
-  font-size: 20px;
+  color:#868686;
+  font-size: 20pt;
   padding-top: 20px;
   display: flex;
   flex-direction: column;
@@ -67,30 +70,51 @@ body {
   gap: 10px;
   flex-shrink: 1;
 }
-
-.form-text-fields {
-  display: table;
-  width: 90%;
-  border-spacing: 2px;
+.field {
+  display: flex;
+  align-items: baseline;
 }
 
-.form-text-fields>div {
-  display: table-row;
+.field {
+  position: relative;
 }
 
-.field-label,
-.field-input {
-  display: table-cell;
+input[type=text] {
+  position: relative;
+  font: inherit;
+  height: 20px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  font-size: 20pt;
+  font-style: italic;
+  appearance: none;
+  padding: 0px 0px 0px 0px;
+  -webkit-appearance: none;
+  border: none;
+  border-bottom: 1px solid #a8a8a8;
+  outline: none;
+  background-color: transparent;
+  color: inherit;
 }
 
-.field-label {
-  width: 20%;
-  white-space: nowrap;
+select {
+  position: relative;
+  font: inherit;
+  height: auto;
+  font-size: 20pt;
+  font-style: italic;
+  appearance: none;
+  padding: 0px 5px 0px 5px;
+  -webkit-appearance: none;
+  outline: none;
+  border: 2px solid #a0a0a0;
+  color: #c9c9c9;
+  background-color: transparent;
+  color: inherit;
 }
 
-.field-input {
-  width: 80%
-}
+
 
 .pick-img-field{
   display: flex;
@@ -171,29 +195,24 @@ body {
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  margin: 0px 0px 0px 0px;
   /* background-color: rgba(255, 0, 0, 0.466); */
 }
 
 .watering-can:hover {
   cursor: grab;
-  /* display: flex;
-  align-self: flex-end; */
-  /* transform: translateY(-25px); */
-  /* border: 3px solid yellow; */
-
 }
-
-
 
 .plant-img {
   height: 100%;
   width: 100%;
+  background-color: transparent;
 }
 
 .new-plant-img {
+  height: 120px;
+  width: 120px;
   position: relative;
-  background-color: white;
+  background-color: transparent;
 }
 
 .plant .plant-btns {
