@@ -21,16 +21,18 @@ class PlantForm extends Component {
 
   // make all input boxes with labels.
   makeTextFields() {
-    const {plantInfo, setPlantInfo} = this.props
-    const formFields = Object.entries(this.state).map((entry, index) => {
+    const {plantInfo, setPlantInfo, windowWidth} = this.props
+    const formFields = Object.values(this.state).map((entry, index) => {
       const key = `att${index}`;
       return(
         <PlantFormField
+          id={`info-field-${index + 1}`}
           key={key}
           label={entry[1]}
           name={entry[0]}
           value={plantInfo[entry[0]]}
           setPlantInfo={setPlantInfo}
+          windowWidth={windowWidth}
         />
       );
     });
@@ -60,7 +62,6 @@ class PlantForm extends Component {
     const textFields = this.makeTextFields(); 
     return (
       <form 
-        className='plant-form' 
         name='plantForm'
         onSubmit={(e) => {
           e.preventDefault();
@@ -68,11 +69,9 @@ class PlantForm extends Component {
           handleShowModal();
         }
         }>
-        <PickPlant plantImgData={plantImgData} setPlantImg={setPlantImg} /> 
-        <div className='form-text-fields'>
+        {/* <PickPlant plantImgData={plantImgData} setPlantImg={setPlantImg} />  */}
           {textFields}
-        </div>
-        <label>
+        {/* <label>
           Watering Schedule:&nbsp;
         </label>
         <span>
@@ -120,7 +119,7 @@ class PlantForm extends Component {
           Mist:&nbsp;
           <MistCheckbox value={mist} setMistState={setMist}/>
         </label>
-        <button id="submit-plant-btn" type="submit">Save Plant!</button>
+        <button id="submit-plant-btn" type="submit">Save Plant!</button> */}
       </form>
     );
   }

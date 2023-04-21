@@ -1,13 +1,13 @@
 
 
 @font-face {
-  font-family: 'Roboto';
-  src: url('./fonts/The-Hand/the_hand_bold-webfont.woff') format('woff');
+  font-family: 'The Hand';
+  src: url('./fonts/The-Hand/The\ Hand\ Bold.otf') format('otf');
 } */
 
 #root {
   height: 100vh;
-  width: 100vh;
+  width: 100vw;
 }
 
 body { 
@@ -27,21 +27,126 @@ body {
 
 .modal {
   padding: 2%;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  height: auto;
-  width: 500px;
-  transform: translate(-50%, -50%);
-  background: url('./textures/book/page.png');
-  background-size: 1000px;
-  background-position: center right;
-  filter: brightness(0.95) sepia(50%) saturate(80%);
-  border-style: solid;
-  border-width: 3px;
-  border-radius: 2%;
+  position: absolute;
+  top: 5vh;
+  left: 20vw;
+  height: 75vh;
+  width: 48vw;
+  z-index: 999;
+}
+
+.journal {
+  min-height: 100%;
+  min-width: 100%;
+  position: absolute;
+  top: -7%;
+  display: grid;
+  min-height: 100vh;
+  grid-template-rows: 1fr;
+  grid-template-columns: 50% 50%;
+  background-image: url('./images/plant-journal-01-01.svg');
+  background-size: 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  object-fit: contain;
   z-index: 1000;
 }
+
+#journal-page {
+  grid-column-start: 2;
+  grid-column-end: 2;
+  position: relative;
+  top: -1.35rem;
+  align-self: center;
+  min-height: 50vw;
+  background: url('./images/page-clip-path.svg');
+  background-size: 93%;
+  background-position: left;
+  background-repeat: no-repeat;
+  filter: brightness(0.95) sepia(50%) saturate(80%);
+  z-index: 1000;
+
+}
+
+.journal-page-contents {
+  position: absolute;
+  color:#868686;
+  font-size: 1.3rem;
+}
+
+.plant-info {
+  position: relative;
+  color: #868686;
+}
+
+#info-field-1 {
+  position: fixed;
+  top: 17.8%;
+  left: 28%;
+}
+
+#info-field-2 {
+  position: fixed;
+  top: 25%;
+  left: 25%;
+}
+
+#info-field-3 {
+  position: fixed;
+  top: 32.5%;
+  left: 24%;
+}
+
+#info-field-4 {
+  position: fixed;
+  top: 39.5%;
+  left: 33%;
+}
+
+#info-field-5 {
+  position: fixed;
+  top: 47.5%;
+  left: 44%;
+}
+
+#info-field-6 {
+  position: fixed;
+  top: 57.5%;
+  left: 44%;
+}
+
+.journal-line {
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr 1fr 1fr 1fr;
+}
+
+.journal-line-text {
+  font-family: 'The Hand';
+  font-size: 40pt;
+  position: fixed;
+  grid-row-start: 2;
+}
+
+.field-input {
+  opacity: 0;
+  position: relative;
+  font: inherit;
+  font-size: 10pt;
+  font-style: italic;
+  appearance: none;
+  padding: 0px 0px 0px 0px;
+  -webkit-appearance: none;
+  border: none;
+  border-bottom: 1px solid #a8a8a8;
+  outline: none;
+  background-color: transparent;
+  transform: rotate(3.5deg);
+  color: inherit;
+  grid-row-start: 3;
+  z-index: 1002;
+}
+
 
 .modal-bg-overlay {
   position: absolute;
@@ -57,45 +162,6 @@ body {
 .modal-btns-container {
   display: flex;
   justify-content: space-between;
-}
-
-.plant-form {
-  color:#868686;
-  font-size: 20pt;
-  padding-top: 20px;
-  display: flex;
-  flex-direction: column;
-  align-content: center;
-  align-items: start;
-  gap: 10px;
-  flex-shrink: 1;
-}
-.field {
-  display: flex;
-  align-items: baseline;
-}
-
-.field {
-  position: relative;
-}
-
-input[type=text] {
-  position: relative;
-  font: inherit;
-  height: 20px;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  font-size: 20pt;
-  font-style: italic;
-  appearance: none;
-  padding: 0px 0px 0px 0px;
-  -webkit-appearance: none;
-  border: none;
-  border-bottom: 1px solid #a8a8a8;
-  outline: none;
-  background-color: transparent;
-  color: inherit;
 }
 
 select {
@@ -177,17 +243,14 @@ select {
 }
 
 .table-and-dropzone-container {
+  height: auto;
+  width:300px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   align-self: flex-end;
-  justify-self: flex-end;
-}
-
-.table {
-  height: auto;
-  width: auto;
+  /* justify-self: center; */
 }
 
 
@@ -195,8 +258,10 @@ select {
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  /* background-color: rgba(255, 0, 0, 0.466); */
+  height: 9rem;
+  width: 16.5rem;
 }
+
 
 .watering-can:hover {
   cursor: grab;
@@ -324,12 +389,6 @@ select {
   justify-content: space-between;
 }
 
-
-
-
-.plant-modal{
-  font-size: 20px;
-}
 
 .plant-info{
   display: flex;
