@@ -7,20 +7,20 @@ class PlantInfo extends Component {
 
     this.state = {
       plantLabelMap: {
-        plant_species: 'Species ',
+        plantSpecies: 'Species ',
         name: 'Name: ',
         img: null,
         light: 'Light: ',
         soil: 'Soil: ',
         fertilizer: 'Fertilizer: ',
         notes: 'Notes: ',
-        watering_schedule: 'Water every ',
-        watering_time_of_day: 'in the ',
+        wateringSched: 'Water every ',
+        wateringTime: 'in the ',
         days: ' day(s)',
         weeks: ' week(s)',
         months: ' month(s)',
-        fertilizer_schedule: 'Fertilize Every ',
-        fertilize_time_of_day: 'in the ',
+        fertilizerSched: 'Fertilize Every ',
+        fertilizeTime: 'in the ',
         morning: ' morning',
         midday: ' afternoon',
         evening: ' evening'
@@ -28,8 +28,8 @@ class PlantInfo extends Component {
     }
 
     this.toggleEditPlant = this.toggleEditPlant.bind(this);
-    this.createInfoFieldNodes = this.createInfoFieldNodes.bind(this);
-    this.createScheduleNodes = this.createScheduleNodes.bind(this);
+    this.createInfoFields = this.createInfoFields.bind(this);
+    this.createSchedule = this.createSchedule.bind(this);
   }
 
   toggleEditPlant() {
@@ -39,14 +39,14 @@ class PlantInfo extends Component {
   };
 
   
-  createInfoFieldNodes() {
-    const { focusedPlantState } = this.props;
+  createInfoFields() {
+    const { thisPlantsInfo } = this.props;
     const labelMap = this.state.plantLabelMap;
     // initial pass: string attributes
     // iterate through plant properties and select all primitive values that need a label.
     const primitivePropsWithLabel = [];
-    for (const property in focusedPlantState) {
-      const value = focusedPlantState[property];
+    for (const property in thisPlantsInfo) {
+      const value = thisPlantsInfo[property];
       if (property in labelMap && typeof value === 'string') primitivePropsWithLabel.push([property, value])
     }
     // map info and info labels to elements
@@ -67,10 +67,12 @@ class PlantInfo extends Component {
     return infoFieldElements
   };
 
-  createScheduleNodes(scheduleType) { 
-    const { focusedPlantState } = this.props;
+  createSchedule(water=true, fertilize=false) { 
+    const { thisPlantsInfo } = this.props;
+
     const labelMap = this.state.plantLabelMap; 
-    const schedule = scheduleType === 'watering_schedule' ? focusedPlantState.watering_schedule: focusedPlantState.fertilizer_schedule;
+    const schedule = water ? thisPlantsInfo.wateringSched: thisPlantsInfo.fertilizeSched;
+    const timeOfDay = water ? thisPlantsInfo.wateringTime : thisPlantsInfo.fertilizeTime;
     // check if the schedule is empty
     const scheduleIsSet = Object.values(schedule).some(value => value);
     // if schedule is empty, return the message 'Schedule not Set' to the user.
@@ -79,7 +81,6 @@ class PlantInfo extends Component {
     );
     // if schedule isnt' empty, return an element containing all scheduling info summarized on one line. 
     // get the relevant info for the schedule being displayed to the user. s
-    const timeOfDay = scheduleType === 'watering_schedule' ? focusedPlantState.watering_time_of_day : focusedPlantState.fertilize_time_of_day;
     const allScheduleInfo = [...Object.entries(schedule), ...Object.entries(timeOfDay)];
     // iterate through plant properties and filter for the options that the user has selected (eval to true);
     const selectedInfo = allScheduleInfo.filter(entry => entry[1]);
@@ -101,9 +102,9 @@ class PlantInfo extends Component {
   }
 
   render() {
-    const infoFieldElements = this.createInfoFieldNodes();
-    const wateringInfo = this.createScheduleNodes('watering_schedule')
-    const fertilizeInfo = this.createScheduleNodes('fertilizer_schedule')
+    const infoFieldElements = this.createInfoFields();
+    const wateringInfo = this.createSchedule(true, false)
+    const fertilizeInfo = this.createSchedule(false, true)
     // if no modal opened (either info modal or edit modal), don't render anything. 
     // if modal is open but plant isn't being edited, return plant info. 
       return (

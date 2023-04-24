@@ -64,9 +64,39 @@ body {
   background-position: left;
   background-repeat: no-repeat;
   filter: brightness(0.95) sepia(50%) saturate(80%);
+  animation: turnPage 3s ;
   z-index: 1000;
-
 }
+
+@keyframes turnPage {
+  0%, 20% {
+    transform-origin: left;
+    transform: rotateY(0deg) translateY(0px); 
+  }
+
+  /* 10% {
+    transform-origin: left;
+    transform: rotateY(9deg) perspective(400px);
+  } */
+
+  50% {
+    transform-origin: left;
+    transform: rotateY(174deg) translateY(0px); 
+
+  }
+
+  99% {
+    transform-origin: left;
+    transform: rotateY(180deg)
+
+  }
+
+  100% {
+    display: none;
+  }
+}
+
+
 
 .journal-page-contents {
   position: absolute;
@@ -146,6 +176,66 @@ body {
   grid-row-start: 3;
   z-index: 1002;
 }
+
+/* .flip {
+  width: 32px;
+  height: 300px;
+  position: absolute;
+  top: 0px;
+  transform-origin: 100% 100%;
+  right: 100%;
+  border-width: 2px 0px;
+  perspective: 4200px;
+  perspective-origin: center; 
+  transform-style: preserve-3d;
+  background-size: 420px 300px;
+
+  &::after {
+      content: '';
+      position: absolute;
+      top: 0px; right: 0%;
+      width: 100%; height: 100%;
+      transform-origin: center;
+      background-size: 420px 300px;
+  }
+
+  &.flip1 {
+      right: 50%;
+      animation: flip1 $speed infinite ease-in-out;
+      border-width: 2px 2px 2px 0;
+
+      &::after {
+          animation: nextFlip1 $speed*5 $speed*-4 infinite steps(1);
+      }
+  }
+
+  &:not(.flip1) {
+      right: calc(100% - 2px);
+      top: -2px;
+      transform-origin: right;
+      animation: flip2 $speed ease-in-out infinite;
+  }
+
+  @for $i from 2 through 7 {
+      &.flip#{$i}::after { animation: nextFlip#{$i} $speed*5 $speed*-4 infinite steps(1); }
+  }
+  
+  &.flip7 {
+      width: 30px;
+      border-width: 2px 0px 2px 2px;
+      &::after { animation: nextFlip7 $speed*5 $speed*-4 infinite steps(1); }
+  }
+
+  @keyframes flip1 {
+      0%, 20% { transform: rotateX($bookAngle) rotateY(6deg); }
+      80%, 100% { transform: rotateX($bookAngle) rotateY(174deg); }
+  }
+
+  @keyframes flip2 {
+      0%, 20% { transform: rotateY(0deg) translateY(0px); }
+      50% { transform: rotateY(-15deg) translateY(0px); }
+  }
+} */
 
 
 .modal-bg-overlay {
