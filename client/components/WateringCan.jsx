@@ -126,8 +126,8 @@ export default function WateringCan({waterPlant, handleWaterPlant}) {
         className='watering-can-dropzone'
         ref={shelfRef}
         style={{
-        height: 90,
-        width: 300,
+        // backgroundColor: 'red',
+        
       }}>
           <img 
           className='watering-can'

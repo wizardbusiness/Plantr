@@ -78,7 +78,7 @@ function NewPlant({
                 setPlantImg={setPlantImg}
             />
           </PlantModal>
-        };
+        }
       </>
   );
 }

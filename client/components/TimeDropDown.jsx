@@ -3,7 +3,12 @@ import React, {useEffect, useState} from 'react';
 // Description: dropdown menu which sets the time of day to water a plant.
 // Relationships: Rendered by NewPlantForm and EditPlantForm. 
 
-const TimeDropdown = ({timeOfDayState, setTimeOfDayState, stateObjName, label}) => {
+const TimeDropdown = ({
+    setScheduleTime,
+    scheduleTimes,
+    scheduleTimesType,
+    chosenTime,
+  }) => {
   // console.log(setTimeOfDayState)
   // console.log(timeOfDayState)
   // picks the time of day to water plants
@@ -17,7 +22,7 @@ const TimeDropdown = ({timeOfDayState, setTimeOfDayState, stateObjName, label}) 
       midday: 'Afternoon', 
       evening: 'Evening'
     };
-    const timesOfDay = Object.keys(timeOfDayState);
+    const timesOfDay = Object.keys(scheduleTimes);
     const options = timesOfDay.map((time, index) => {
       return (
         <option
@@ -28,13 +33,12 @@ const TimeDropdown = ({timeOfDayState, setTimeOfDayState, stateObjName, label}) 
         </option>
       )
     });
-    const chosenTime = Object.entries(timeOfDayState).filter(entry => entry[1])[0][0];
     return (
         <select
           id='select'
           value={chosenTime} 
           onChange={(e) => {
-            setTimeOfDayState(e.target.value, stateObjName)
+            setScheduleTime(e.target.value, scheduleTimesType)
             }
           }
           >
@@ -46,7 +50,6 @@ const TimeDropdown = ({timeOfDayState, setTimeOfDayState, stateObjName, label}) 
     return (
       <span className="drop-down">
         {scheduleTOD()}
-        <label className="label">{label}</label>
       </span>
       
     )

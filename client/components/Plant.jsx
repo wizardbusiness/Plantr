@@ -103,9 +103,8 @@ export default function Plant({
   }
     // console.log(plantImg)
     return (
-      <div>
+      <div className='plant'>
         <div 
-          className='plant'
           ref={setNodeRef}
           {...attributes}
           {...listeners}
@@ -115,6 +114,7 @@ export default function Plant({
           onClick={() => careForPlant()}
         > 
         <img  
+          className='plant-img'
           width='100' 
           height='100'
           src={plantImg} 

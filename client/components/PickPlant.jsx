@@ -47,8 +47,8 @@ function PickPlant({plantImgData, setPlantImg}) {
             <img 
               className='plant-img' 
               key={index} 
-              width='100' 
-              height='100'
+              width='120' 
+              height='120'
               src={data.plantSvgSrc} 
               alt='plant'
             />
@@ -61,10 +61,10 @@ function PickPlant({plantImgData, setPlantImg}) {
   }
   
   return (
-    <div className='form-text-field'>
-      <label className='field-label'>Species:&nbsp;</label>
+    <div className='plant-info'>  
       {imagesLoaded &&
         <span>
+          <label className='field-label'>Species&nbsp;</label>
           <img 
             className='new-plant-img'
             onClick={() => handleToggleShowImages()}
