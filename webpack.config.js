@@ -4,7 +4,7 @@ module.exports = {
   mode: 'development',
   entry: path.resolve(__dirname, './src/index.jsx'),
   output: {
-    path: path.join(__dirname, './src'),
+    path: path.join(__dirname, './dist'),
     filename: 'bundle.js',
   },
   module: {
@@ -19,7 +19,7 @@ module.exports = {
       {
         test: /\.(sa|sc|c)ss$/, 
         use: ['style-loader', 'css-loader'],
-      }
+      },
     ]
   },
   resolve: {
@@ -30,7 +30,7 @@ module.exports = {
     host: 'localhost',
     port: 8080,
     static: {
-      directory: path.resolve(__dirname, './public')
+      directory: path.join(__dirname, './src')
     },
     historyApiFallback: true,
     proxy: {
