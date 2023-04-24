@@ -247,7 +247,6 @@ const plantControllers = {
       console.log(err)
     }
   }
-}
- 
+};
 
 module.exports = plantControllers;
